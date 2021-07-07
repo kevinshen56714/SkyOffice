@@ -1,0 +1,38 @@
+{
+	"name": "phaser3-parcel-template",
+	"version": "1.0.0",
+	"description": "A typescript template project for Phaser 3 using Parceljs",
+	"scripts": {
+		"start": "parcel src/index.html -p 8000",
+		"build": "parcel build src/index.html --out-dir dist",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"lint": "eslint ./src --ext .js,.jsx,.ts,.tsx"
+	},
+	"author": "supertommy",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ourcade/phaser3-parcel-template.git"
+	},
+	"homepage": "https://github.com/ourcade/phaser3-parcel-template",
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^2.29.0",
+		"@typescript-eslint/parser": "^2.29.0",
+		"eslint": "^6.8.0",
+		"minimist": ">=1.2.2",
+		"parcel-plugin-clean-easy": "^1.0.2",
+		"parcel-plugin-static-files-copy": "^2.4.3",
+		"typescript": "^3.8.3"
+	},
+	"dependencies": {
+		"parcel-bundler": "^1.12.5",
+		"phaser": "^3.55.2"
+	},
+	"parcelCleanPaths": [
+		"dist"
+	],
+	"staticFiles": {
+		"staticPath": "public",
+		"watcherGlob": "**"
+	}
+}
