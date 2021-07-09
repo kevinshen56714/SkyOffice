@@ -1,9 +1,9 @@
 import Phaser from 'phaser'
+import { debugDraw } from '../utils/debug'
 
 export default class Game extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private player!: Phaser.Physics.Arcade.Sprite
-  private playerDirection!: string
 
   constructor() {
     super('game')
@@ -42,12 +42,7 @@ export default class Game extends Phaser.Scene {
 
     groundLayer.setCollisionByProperty({ collides: true })
 
-    const debugGraphics = this.add.graphics().setAlpha(0.7)
-    groundLayer.renderDebug(debugGraphics, {
-      tileColor: null,
-      collidingTileColor: new Phaser.Display.Color(243, 234, 48, 255),
-      faceColor: new Phaser.Display.Color(40, 39, 37, 255),
-    })
+    // debugDraw(groundLayer, this)
 
     this.player = this.physics.add.sprite(
       this.sys.canvas.width * 0.35,
@@ -55,7 +50,8 @@ export default class Game extends Phaser.Scene {
       'player',
       'Adam_idle_anim_19.png'
     )
-    this.playerDirection = 'down'
+    this.player.body.setSize(this.player.width * 0.5, this.player.height * 0.3)
+    this.player.body.setOffset(8, 33.6)
 
     const animsFrameRate = 15
 
@@ -155,8 +151,11 @@ export default class Game extends Phaser.Scene {
       frameRate: animsFrameRate,
     })
 
+    this.player.play('player_idle_down', true)
     this.cameras.main.zoom = 1.5
-    this.cameras.main.startFollow(this.player)
+    this.cameras.main.startFollow(this.player, true)
+
+    this.physics.add.collider(this.player, groundLayer)
   }
 
   update(t: number, dt: number) {
@@ -167,22 +166,20 @@ export default class Game extends Phaser.Scene {
     if (this.cursors.left?.isDown) {
       this.player.play('player_run_left', true)
       this.player.setVelocity(-speed, 0)
-      this.playerDirection = 'left'
     } else if (this.cursors.right?.isDown) {
       this.player.play('player_run_right', true)
       this.player.setVelocity(speed, 0)
-      this.playerDirection = 'right'
     } else if (this.cursors.up?.isDown) {
       this.player.play('player_run_up', true)
       this.player.setVelocity(0, -speed)
-      this.playerDirection = 'up'
     } else if (this.cursors.down?.isDown) {
       this.player.play('player_run_down', true)
       this.player.setVelocity(0, speed)
-      this.playerDirection = 'down'
     } else {
+      const parts = this.player.anims.currentAnim.key.split('_')
+      parts[1] = 'idle'
+      this.player.play(parts.join('_'), true)
       this.player.setVelocity(0, 0)
-      this.player.play(`player_idle_${this.playerDirection}`, true)
     }
   }
 }
