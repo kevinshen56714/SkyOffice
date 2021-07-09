@@ -5,8 +5,8 @@ import Game from './scenes/Game'
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   backgroundColor: '#CFF5FC',
-  width: window.innerWidth,
-  height: window.innerHeight,
+  //   width: window.innerWidth,
+  //   height: window.innerHeight,
   pixelArt: true, // Prevent pixel art from becoming blurred when scaled.
   scale: {
     mode: Phaser.Scale.ScaleModes.RESIZE,
@@ -20,7 +20,8 @@ const config: Phaser.Types.Core.GameConfig = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 200 },
+      gravity: { y: 0 },
+      debug: true,
     },
   },
   autoFocus: true,
