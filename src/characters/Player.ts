@@ -16,27 +16,30 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
-    if (!cursors) {
-      return
-    }
+    if (!cursors) return
+
     const speed = 200
-    if (cursors.left?.isDown) {
-      this.play('player_run_left', true)
-      this.setVelocity(-speed, 0)
-    } else if (cursors.right?.isDown) {
+    let vx = 0
+    let vy = 0
+    if (cursors.left?.isDown) vx -= speed
+    if (cursors.right?.isDown) vx += speed
+    if (cursors.up?.isDown) vy -= speed
+    if (cursors.down?.isDown) vy += speed
+    this.setVelocity(vx, vy)
+
+    // Update animation according to velocity.
+    if (vx > 0) {
       this.play('player_run_right', true)
-      this.setVelocity(speed, 0)
-    } else if (cursors.up?.isDown) {
-      this.play('player_run_up', true)
-      this.setVelocity(0, -speed)
-    } else if (cursors.down?.isDown) {
+    } else if (vx < 0) {
+      this.play('player_run_left', true)
+    } else if (vy > 0) {
       this.play('player_run_down', true)
-      this.setVelocity(0, speed)
+    } else if (vy < 0) {
+      this.play('player_run_up', true)
     } else {
       const parts = this.anims.currentAnim.key.split('_')
       parts[1] = 'idle'
       this.play(parts.join('_'), true)
-      this.setVelocity(0, 0)
     }
   }
 }
