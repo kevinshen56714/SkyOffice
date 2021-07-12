@@ -26,6 +26,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     if (cursors.up?.isDown) vy -= speed
     if (cursors.down?.isDown) vy += speed
     this.setVelocity(vx, vy)
+    this.body.velocity.setLength(speed)
 
     // Update animation according to velocity.
     if (vx > 0) {
