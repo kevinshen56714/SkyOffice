@@ -383,14 +383,46 @@
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":48},
 	"sourceSize": {"w":32,"h":48}
+},
+{
+	"filename": "Adam_sit_down.png",
+	"frame": {"x":1536,"y":0,"w":32,"h":48},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":48},
+	"sourceSize": {"w":32,"h":48}
+},
+{
+	"filename": "Adam_sit_left.png",
+	"frame": {"x":1568,"y":0,"w":32,"h":48},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":48},
+	"sourceSize": {"w":32,"h":48}
+},
+{
+	"filename": "Adam_sit_right.png",
+	"frame": {"x":1600,"y":0,"w":32,"h":48},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":48},
+	"sourceSize": {"w":32,"h":48}
+},
+{
+	"filename": "Adam_sit_up.png",
+	"frame": {"x":1632,"y":0,"w":32,"h":48},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":48},
+	"sourceSize": {"w":32,"h":48}
 }],
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",
 	"version": "1.0",
 	"image": "adam.png",
 	"format": "RGBA8888",
-	"size": {"w":1536,"h":48},
+	"size": {"w":1664,"h":48},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:147e31d6cb5c875ed5159caee8e1e880:bf3cd37fbabfc7caef3f98184cab2773:f0756af072b7a2180e64d177da5aa6f9$"
+	"smartupdate": "$TexturePacker:SmartUpdate:36ea2cf2e8be8d8c23ed755e43b7a394:cdfb5c510b72fc1ad4a5795f9572b0d4:f0756af072b7a2180e64d177da5aa6f9$"
 }
 }

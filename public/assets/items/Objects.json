@@ -1,0 +1,44 @@
+{"frames": [
+
+{
+	"filename": "Classroom_and_library.png",
+	"frame": {"x":0,"y":0,"w":512,"h":1088},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":1088},
+	"sourceSize": {"w":512,"h":1088}
+},
+{
+	"filename": "Generic_12.png",
+	"frame": {"x":512,"y":0,"w":512,"h":1248},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":1248},
+	"sourceSize": {"w":512,"h":1248}
+},
+{
+	"filename": "Generic_13.png",
+	"frame": {"x":1024,"y":0,"w":512,"h":1248},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":1248},
+	"sourceSize": {"w":512,"h":1248}
+},
+{
+	"filename": "Modern_Office_Black_Shadow.png",
+	"frame": {"x":1536,"y":0,"w":512,"h":1696},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":512,"h":1696},
+	"sourceSize": {"w":512,"h":1696}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "FloorAndGround.png",
+	"format": "RGBA8888",
+	"size": {"w":2048,"h":1696},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:a427065c360a526b223240adf51c5da4:fe2e952b2d6f9e7d6f3d01030ee6a713:5d200d45d77e29e8000ba5cdbb4ea264$"
+}
+}
