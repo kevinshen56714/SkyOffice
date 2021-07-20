@@ -26,8 +26,15 @@ declare global {
 }
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
-  private _playerState = PlayerState.IDLE
   public keyE!: Phaser.Input.Keyboard.Key
+
+  private _playerState = PlayerState.IDLE
+  set playerState(playerState: PlayerState) {
+    this._playerState = playerState
+  }
+  get playerState() {
+    return this._playerState
+  }
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
     super(scene, x, y, texture, frame)
@@ -36,10 +43,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     // maybe we can have a dedicated method for adding keys if more keys are needed in the future
     this.keyE = this.scene.input.keyboard.addKey('E')
-  }
-
-  get playerState() {
-    return this._playerState
   }
 
   update(playerSelector: PlayerSelector, cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
@@ -73,7 +76,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           // set up new dialog as player sits down
           item.clearDialogBox()
           item.setDialogBox('Press E to leave', 95)
-          this._playerState = PlayerState.SITTING
+          this.playerState = PlayerState.SITTING
           return
         }
 
@@ -111,7 +114,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           const parts = this.anims.currentAnim.key.split('_')
           parts[1] = 'idle'
           this.play(parts.join('_'), true)
-          this._playerState = PlayerState.IDLE
+          this.playerState = PlayerState.IDLE
           playerSelector.setPosition(this.x, this.y)
           playerSelector.update(this, cursors)
         }
