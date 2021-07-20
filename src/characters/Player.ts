@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import PlayerSelector from './PlayerSelector'
 
-enum PlayerState {
+export enum PlayerState {
   IDLE,
   SITTING,
 }
@@ -27,10 +27,15 @@ declare global {
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   private _playerState = PlayerState.IDLE
+  public keyE!: Phaser.Input.Keyboard.Key
+
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
     super(scene, x, y, texture, frame)
 
     this.anims.play('player_idle_down', true)
+
+    // maybe we can have a dedicated method for adding keys if more keys are needed in the future
+    this.keyE = this.scene.input.keyboard.addKey('E')
   }
 
   get playerState() {
@@ -42,17 +47,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       return
     }
 
-    const keyE = this.scene.input.keyboard.addKey('E')
     const item = playerSelector.selectedItem
     const speed = 200
 
     switch (this.playerState) {
       case PlayerState.IDLE:
         // if press E in front of selected item (chair)
-        if (Phaser.Input.Keyboard.JustDown(keyE) && item) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyE) && item) {
           /**
            * move player to the chair and play sit animation
            * a delay is called to wait for player movement (from previous velocity) to end
+           * as the player tends to move one more frame before sitting down causing player
+           * not sitting at the center of the chair
            */
           this.scene.time.addEvent({
             delay: 10,
@@ -72,7 +78,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           item.setDialogBox('Press E to leave', 95)
           this._playerState = PlayerState.SITTING
           return
-        } else if (cursors.left?.isDown) {
+        }
+
+        if (cursors.left?.isDown) {
           this.play('player_run_left', true)
           this.setVelocity(-speed, 0)
         } else if (cursors.right?.isDown) {
@@ -96,7 +104,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
       case PlayerState.SITTING:
         // back to idle if player press E while sitting
-        if (Phaser.Input.Keyboard.JustDown(keyE)) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyE)) {
           const parts = this.anims.currentAnim.key.split('_')
           parts[1] = 'idle'
           this.play(parts.join('_'), true)
@@ -116,7 +124,7 @@ Phaser.GameObjects.GameObjectFactory.register(
     texture: string,
     frame?: string | number
   ) {
-    var sprite = new Player(this.scene, x, y, texture, frame)
+    const sprite = new Player(this.scene, x, y, texture, frame)
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)

@@ -1,14 +1,11 @@
 import Phaser from 'phaser'
 import Player from './Player'
+import { PlayerState } from './Player'
 import Item from '../items/Item'
-
-enum PlayerState {
-  IDLE,
-  SITTING,
-}
 
 export default class PlayerSelector extends Phaser.GameObjects.Zone {
   private _selectedItem?: Item
+
   constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
     super(scene, x, y, width, height)
 
