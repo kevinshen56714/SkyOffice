@@ -1,0 +1,124 @@
+{"frames": [
+
+{
+	"filename": "chair_1.png",
+	"frame": {"x":0,"y":0,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_2.png",
+	"frame": {"x":0,"y":64,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_3.png",
+	"frame": {"x":0,"y":128,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_4.png",
+	"frame": {"x":0,"y":192,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_5.png",
+	"frame": {"x":0,"y":256,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_6.png",
+	"frame": {"x":0,"y":320,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_7.png",
+	"frame": {"x":0,"y":384,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_8.png",
+	"frame": {"x":0,"y":448,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_9.png",
+	"frame": {"x":0,"y":512,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_10.png",
+	"frame": {"x":0,"y":576,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_11.png",
+	"frame": {"x":0,"y":640,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_12.png",
+	"frame": {"x":0,"y":704,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_13.png",
+	"frame": {"x":0,"y":768,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+},
+{
+	"filename": "chair_14.png",
+	"frame": {"x":0,"y":832,"w":32,"h":64},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":64},
+	"sourceSize": {"w":32,"h":64}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "chair.png",
+	"format": "RGBA8888",
+	"size": {"w":32,"h":896},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:8cdc1850c950eb63baf23c63006d2c77:2ea3cfbf9acb2e79ff79c9b5494e82c4:66f99fd641b2745207027704656f99d0$"
+}
+}
