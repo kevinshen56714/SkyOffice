@@ -1,4 +1,6 @@
 import Phaser from 'phaser'
+import * as Colyseus from 'colyseus.js'
+
 import { debugDraw } from '../utils/debug'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 
@@ -14,16 +16,24 @@ export default class Game extends Phaser.Scene {
   private nonInteractiveItems!: Phaser.Physics.Arcade.StaticGroup
   private nonInteractiveItemsOnCollide!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
+  private client!: Colyseus.Client
 
   constructor() {
     super('game')
+  }
+
+  init() {
+    this.client = new Colyseus.Client(`ws://${location.hostname}:2567`)
   }
 
   preload() {
     this.cursors = this.input.keyboard.createCursorKeys()
   }
 
-  create() {
+  async create() {
+    const room = await this.client.joinOrCreate('my_room')
+    console.log(room.sessionId)
+
     createCharacterAnims(this.anims)
 
     const map = this.make.tilemap({ key: 'tilemap' })

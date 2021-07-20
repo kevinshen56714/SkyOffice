@@ -6,6 +6,7 @@
 		"start": "parcel src/client/index.html -p 8000",
 		"start-server": "ts-node-dev --project tsconfig.server.json --respawn --transpile-only src/server/index.ts",
 		"build": "parcel build src/client/index.html --out-dir dist",
+		// "build-server": "parcel build src/server/index.html --out-dir dist && node dist-server/node.js",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"lint": "eslint ./src --ext .js,.jsx,.ts,.tsx"
 	},
@@ -39,7 +40,8 @@
 		"cors": "^2.8.5",
 		"express": "^4.16.4",
 		"parcel-bundler": "^1.12.5",
-		"phaser": "^3.55.2"
+		"phaser": "^3.55.2",
+		"regenerator-runtime": "^0.13.7"
 	},
 	"parcelCleanPaths": [
 		"dist"
