@@ -61,7 +61,8 @@ export default class Game extends Phaser.Scene {
       const item = this.items
         .get(actualX, actualY, 'chairs', chairObj.gid! - map.getTileset('chair').firstgid)
         .setDepth(actualY)
-      item.setItemType(chairObj.type)
+      // custom properties[0] is the object direction set from Tiled
+      item.itemDirection = chairObj.properties[0].value
     })
 
     // import all other objects from Tiled map to Phaser
@@ -142,7 +143,7 @@ export default class Game extends Phaser.Scene {
     }
 
     // set selected item and set up new dialog
-    playerSelector.setSelectedItem(selectionItem)
+    playerSelector.selectedItem = selectionItem
     selectionItem.setDialogBox('Press E to sit', 80)
   }
 

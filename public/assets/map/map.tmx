@@ -12889,33 +12889,137 @@
   <object id="238" gid="722" x="1024" y="288" width="32" height="32"/>
   <object id="318" gid="149" x="768" y="480" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="4" name="Chair">
-  <object id="334" type="down" gid="2562" x="320" y="640" width="32" height="64"/>
-  <object id="335" type="left" gid="2563" x="512" y="704" width="32" height="64"/>
-  <object id="340" type="right" gid="2564" x="256" y="704" width="32" height="64"/>
-  <object id="342" type="down" gid="2562" x="384" y="640" width="32" height="64"/>
-  <object id="346" type="down" gid="2573" x="544" y="416" width="32" height="64"/>
-  <object id="347" type="down" gid="2574" x="288" y="416" width="32" height="64"/>
-  <object id="348" type="down" gid="2574" x="256" y="416" width="32" height="64"/>
-  <object id="349" type="down" gid="2573" x="576" y="416" width="32" height="64"/>
-  <object id="350" type="left" gid="2569" x="960" y="192" width="32" height="64"/>
-  <object id="361" type="down" gid="2574" x="224" y="416" width="32" height="64"/>
-  <object id="363" type="down" gid="2573" x="512" y="416" width="32" height="64"/>
-  <object id="364" type="down" gid="2573" x="480" y="416" width="32" height="64"/>
-  <object id="365" type="down" gid="2562" x="448" y="640" width="32" height="64"/>
-  <object id="438" type="up" gid="2566" x="320" y="736" width="32" height="64"/>
-  <object id="439" type="up" gid="2566" x="384" y="736" width="32" height="64"/>
-  <object id="440" type="up" gid="2566" x="448" y="736" width="32" height="64"/>
-  <object id="618" type="up" gid="2572" x="1184" y="576" width="32" height="64"/>
-  <object id="619" type="up" gid="2572" x="1088" y="576" width="32" height="64"/>
-  <object id="620" type="up" gid="2572" x="992" y="576" width="32" height="64"/>
-  <object id="621" type="down" gid="2568" x="1184" y="480" width="32" height="64"/>
-  <object id="622" type="down" gid="2568" x="1088" y="480" width="32" height="64"/>
-  <object id="677" type="down" gid="2562" x="1184" y="736" width="32" height="64"/>
-  <object id="678" type="down" gid="2562" x="1088" y="736" width="32" height="64"/>
-  <object id="679" type="down" gid="2562" x="992" y="736" width="32" height="64"/>
-  <object id="680" type="up" gid="2566" x="1184" y="832" width="32" height="64"/>
-  <object id="681" type="up" gid="2566" x="992" y="832" width="32" height="64"/>
+ <objectgroup id="4" name="Chair" locked="1">
+  <object id="334" gid="2562" x="320" y="640" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="335" gid="2563" x="512" y="704" width="32" height="64">
+   <properties>
+    <property name="direction" value="left"/>
+   </properties>
+  </object>
+  <object id="340" gid="2564" x="256" y="704" width="32" height="64">
+   <properties>
+    <property name="direction" value="right"/>
+   </properties>
+  </object>
+  <object id="342" gid="2562" x="384" y="640" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="346" gid="2573" x="544" y="416" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="347" gid="2574" x="288" y="416" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="348" gid="2574" x="256" y="416" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="349" gid="2573" x="576" y="416" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="350" gid="2569" x="960" y="192" width="32" height="64">
+   <properties>
+    <property name="direction" value="left"/>
+   </properties>
+  </object>
+  <object id="361" gid="2574" x="224" y="416" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="363" gid="2573" x="512" y="416" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="364" gid="2573" x="480" y="416" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="365" gid="2562" x="448" y="640" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="438" gid="2566" x="320" y="736" width="32" height="64">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
+  <object id="439" gid="2566" x="384" y="736" width="32" height="64">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
+  <object id="440" gid="2566" x="448" y="736" width="32" height="64">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
+  <object id="618" gid="2572" x="1184" y="576" width="32" height="64">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
+  <object id="619" gid="2572" x="1088" y="576" width="32" height="64">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
+  <object id="620" gid="2572" x="992" y="576" width="32" height="64">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
+  <object id="621" gid="2568" x="1184" y="480" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="622" gid="2568" x="1088" y="480" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="677" gid="2562" x="1184" y="736" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="678" gid="2562" x="1088" y="736" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="679" gid="2562" x="992" y="736" width="32" height="64">
+   <properties>
+    <property name="direction" value="down"/>
+   </properties>
+  </object>
+  <object id="680" gid="2566" x="1184" y="832" width="32" height="64">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
+  <object id="681" gid="2566" x="992" y="832" width="32" height="64">
+   <properties>
+    <property name="direction" value="up"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="5" name="Objects">
   <object id="366" gid="2945" x="224" y="160" width="32" height="32"/>
@@ -12934,8 +13038,6 @@
   <object id="379" gid="2773" x="320" y="352" width="32" height="32"/>
   <object id="380" gid="2789" x="192" y="384" width="32" height="32"/>
   <object id="381" gid="2789" x="320" y="384" width="32" height="32"/>
-  <object id="382" gid="2805" x="192" y="416" width="32" height="32"/>
-  <object id="383" gid="2805" x="320" y="416" width="32" height="32"/>
   <object id="384" gid="2943" x="288" y="160" width="32" height="32"/>
   <object id="385" gid="2959" x="288" y="192" width="32" height="32"/>
   <object id="386" gid="2975" x="288" y="224" width="32" height="32"/>
@@ -12944,7 +13046,6 @@
   <object id="389" gid="2976" x="320" y="224" width="32" height="32"/>
   <object id="390" gid="2773" x="448" y="352" width="32" height="32"/>
   <object id="391" gid="2789" x="448" y="384" width="32" height="32"/>
-  <object id="392" gid="2805" x="448" y="416" width="32" height="32"/>
   <object id="393" gid="2822" x="192" y="512" width="32" height="32"/>
   <object id="394" gid="2838" x="192" y="544" width="32" height="32"/>
   <object id="396" gid="2823" x="224" y="512" width="32" height="32"/>
@@ -13028,7 +13129,7 @@
   <object id="686" gid="3102" x="1216" y="736" width="32" height="32"/>
   <object id="687" gid="3101" x="1184" y="736" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="7" name="ObjectsOnCollide">
+ <objectgroup id="7" name="ObjectsOnCollide" locked="1">
   <object id="418" gid="2604" x="480" y="672" width="32" height="32"/>
   <object id="419" gid="2603" x="448" y="672" width="32" height="32"/>
   <object id="426" gid="2603" x="416" y="672" width="32" height="32"/>
@@ -13173,8 +13274,11 @@
   <object id="494" gid="2806" x="1024" y="352" width="32" height="32"/>
   <object id="495" gid="2807" x="1056" y="352" width="32" height="32"/>
   <object id="499" gid="2757" x="1216" y="352" width="32" height="32"/>
+  <object id="382" gid="2805" x="192" y="416" width="32" height="32"/>
+  <object id="383" gid="2805" x="320" y="416" width="32" height="32"/>
+  <object id="392" gid="2805" x="448" y="416" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="6" name="GenericObjects">
+ <objectgroup id="6" name="GenericObjects" locked="1">
   <object id="707" gid="4121" x="928" y="64" width="32" height="32"/>
   <object id="708" gid="4122" x="960" y="64" width="32" height="32"/>
   <object id="709" gid="4137" x="928" y="96" width="32" height="32"/>
@@ -13214,7 +13318,7 @@
   <object id="835" gid="3636" x="512" y="160" width="32" height="32"/>
   <object id="836" gid="3652" x="512" y="192" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="8" name="GenericObjectsOnCollide">
+ <objectgroup id="8" name="GenericObjectsOnCollide" locked="1">
   <object id="716" gid="4454" x="736" y="128" width="32" height="32"/>
   <object id="787" gid="3552" x="256" y="256" width="32" height="32"/>
   <object id="788" gid="3553" x="288" y="256" width="32" height="32"/>

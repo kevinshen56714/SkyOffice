@@ -65,10 +65,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             callback: () => {
               this.setVelocity(0, 0)
               this.setPosition(
-                item.x + sittingShiftData[item.itemType][0],
-                item.y + sittingShiftData[item.itemType][1]
-              ).setDepth(item.depth + sittingShiftData[item.itemType][2])
-              this.play(`player_sit_${item.itemType}`, true)
+                item.x + sittingShiftData[item.itemDirection][0],
+                item.y + sittingShiftData[item.itemDirection][1]
+              ).setDepth(item.depth + sittingShiftData[item.itemDirection][2])
+              this.play(`player_sit_${item.itemDirection}`, true)
               playerSelector.setPosition(0, 0)
             },
             loop: false,
@@ -109,6 +109,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           parts[1] = 'idle'
           this.play(parts.join('_'), true)
           this._playerState = PlayerState.IDLE
+          playerSelector.setPosition(this.x, this.y)
+          playerSelector.update(this, cursors)
         }
         break
     }
