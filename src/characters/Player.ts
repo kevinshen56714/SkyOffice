@@ -85,8 +85,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         let vy = 0
         if (cursors.left?.isDown) vx -= speed
         if (cursors.right?.isDown) vx += speed
-        if (cursors.up?.isDown) vy -= speed
-        if (cursors.down?.isDown) vy += speed
+        if (cursors.up?.isDown) {
+          vy -= speed
+          this.setDepth(this.y) //Changes player.depth if player.y changes
+        }
+        if (cursors.down?.isDown) {
+          vy += speed
+          this.setDepth(this.y) //Changes player.depth if player.y changes
+        }
         this.setVelocity(vx, vy)
         this.body.velocity.setLength(speed)
 
@@ -97,10 +103,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
           this.play('player_run_left', true)
         } else if (vy > 0) {
           this.play('player_run_down', true)
-          this.setDepth(this.y) //Changes player.depth if player.y changes
         } else if (vy < 0) {
           this.play('player_run_up', true)
-          this.setDepth(this.y) //Changes player.depth if player.y changes
         } else {
           const parts = this.anims.currentAnim.key.split('_')
           parts[1] = 'idle'
