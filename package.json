@@ -5,8 +5,8 @@
 	"scripts": {
 		"start": "parcel src/client/index.html -p 8000",
 		"start-server": "ts-node-dev --project tsconfig.server.json --respawn --transpile-only src/server/index.ts",
-		"build-client": "parcel build src/client/index.html --out-dir dist",
-		"build": "tsc --project tsconfig.server.json && parcel build src/client/index.html --out-dir dist",
+		"build": "parcel build src/client/index.html --out-dir dist",
+		"heroku-postbuild": "tsc --project tsconfig.server.json",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"lint": "eslint ./src --ext .js,.jsx,.ts,.tsx"
 	},
@@ -41,7 +41,8 @@
 		"express": "^4.16.4",
 		"parcel-bundler": "^1.12.5",
 		"phaser": "^3.55.2",
-		"regenerator-runtime": "^0.13.7"
+		"regenerator-runtime": "^0.13.7",
+		"tslib": "^2.3.0"
 	},
 	"parcelCleanPaths": [
 		"dist"
