@@ -6,7 +6,7 @@
 		"start": "parcel src/client/index.html -p 8000",
 		"start-server": "ts-node-dev --project tsconfig.server.json --respawn --transpile-only src/server/index.ts",
 		"build": "parcel build src/client/index.html --out-dir dist",
-		// "build-server": "parcel build src/server/index.html --out-dir dist && node dist-server/node.js",
+		"build-server": "tsc --project tsconfig.server.json && node lib/index.js",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"lint": "eslint ./src --ext .js,.jsx,.ts,.tsx"
 	},

@@ -12,6 +12,6 @@
         "forceConsistentCasingInFileNames": true
     },
     "include": [
-        "src"
+        "src/server"
     ]
 }
