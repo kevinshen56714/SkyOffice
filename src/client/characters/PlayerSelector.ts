@@ -1,14 +1,17 @@
 import Phaser from 'phaser'
 import Player from './Player'
+import { PlayerState } from './Player'
 import Item from '../items/Item'
-
-enum PlayerState {
-  IDLE,
-  SITTING,
-}
 
 export default class PlayerSelector extends Phaser.GameObjects.Zone {
   private _selectedItem?: Item
+  set selectedItem(item: Item | undefined) {
+    this._selectedItem = item
+  }
+  get selectedItem() {
+    return this._selectedItem
+  }
+
   constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
     super(scene, x, y, width, height)
 
@@ -40,19 +43,11 @@ export default class PlayerSelector extends Phaser.GameObjects.Zone {
      * while currently selecting an item,
      * if the selector and selection item stop overlapping, clear the dialog box and selected item
      */
-    if (this._selectedItem) {
-      if (!this.scene.physics.overlap(this, this._selectedItem)) {
-        this._selectedItem.clearDialogBox()
-        this._selectedItem = undefined
+    if (this.selectedItem) {
+      if (!this.scene.physics.overlap(this, this.selectedItem)) {
+        this.selectedItem.clearDialogBox()
+        this.selectedItem = undefined
       }
     }
-  }
-
-  setSelectedItem(item: Item) {
-    this._selectedItem = item
-  }
-
-  get selectedItem() {
-    return this._selectedItem
   }
 }
