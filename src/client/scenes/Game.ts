@@ -22,8 +22,15 @@ export default class Game extends Phaser.Scene {
     super('game')
   }
 
-  init() {
-    this.client = new Colyseus.Client(`ws://${location.hostname}:2567`)
+  async init() {
+    try {
+      this.client = new Colyseus.Client(`ws://${location.hostname}:2567`)
+      const room = await this.client.joinOrCreate('my_room')
+      console.log(room.sessionId)
+    } catch (Error) {
+      this.client = new Colyseus.Client('ws://sky-office.herokuapp.com')
+      const room = await this.client.joinOrCreate('my_room')
+    }
   }
 
   preload() {
@@ -31,9 +38,6 @@ export default class Game extends Phaser.Scene {
   }
 
   async create() {
-    const room = await this.client.joinOrCreate('my_room')
-    console.log(room.sessionId)
-
     createCharacterAnims(this.anims)
 
     const map = this.make.tilemap({ key: 'tilemap' })
