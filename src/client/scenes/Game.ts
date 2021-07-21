@@ -28,7 +28,7 @@ export default class Game extends Phaser.Scene {
       const room = await this.client.joinOrCreate('my_room')
       console.log(room.sessionId)
     } catch (Error) {
-      this.client = new Colyseus.Client('ws://sky-office.herokuapp.com')
+      this.client = new Colyseus.Client('wss://sky-office.herokuapp.com')
       const room = await this.client.joinOrCreate('my_room')
     }
   }
