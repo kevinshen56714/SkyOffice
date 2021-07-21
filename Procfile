@@ -1,1 +1,1 @@
-web: node run build-server
+web: node lib/index.js
