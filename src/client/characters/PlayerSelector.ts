@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 import Player from './Player'
-import { PlayerState } from './Player'
+import { PlayerBehavior } from '../../types/PlayerBehavior'
 import Item from '../items/Item'
 
 export default class PlayerSelector extends Phaser.GameObjects.Zone {
@@ -24,7 +24,7 @@ export default class PlayerSelector extends Phaser.GameObjects.Zone {
     }
 
     // no need to update player selection while sitting
-    if (player.playerState === PlayerState.SITTING) {
+    if (player.playerBehavior === PlayerBehavior.SITTING) {
       return
     }
 

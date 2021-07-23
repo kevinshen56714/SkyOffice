@@ -1,9 +1,9 @@
 import { Room, Client } from 'colyseus'
-import { MyRoomState } from './schema/MyRoomState'
+import { PlayerState, OfficeState } from './schema/OfficeState'
 
-export class MyRoom extends Room<MyRoomState> {
+export class SkyOffice extends Room<OfficeState> {
   onCreate(options: any) {
-    this.setState(new MyRoomState())
+    this.setState(new OfficeState())
 
     this.onMessage('type', (client, message) => {
       //
@@ -14,6 +14,7 @@ export class MyRoom extends Room<MyRoomState> {
 
   onJoin(client: Client, options: any) {
     console.log(client.sessionId, 'joined!')
+    this.state.playerStates.push(new PlayerState(client.sessionId))
   }
 
   onLeave(client: Client, consented: boolean) {

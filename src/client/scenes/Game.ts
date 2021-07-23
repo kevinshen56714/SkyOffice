@@ -23,14 +23,13 @@ export default class Game extends Phaser.Scene {
   }
 
   async init() {
-    try {
-      this.client = new Colyseus.Client(`ws://${location.hostname}:2567`)
-      const room = await this.client.joinOrCreate('my_room')
-      console.log(room.sessionId)
-    } catch (Error) {
-      this.client = new Colyseus.Client('wss://sky-office.herokuapp.com')
-      const room = await this.client.joinOrCreate('my_room')
-    }
+    const protocol = window.location.protocol.replace('http', 'wss')
+    const endpoint =
+      process.env.NODE_ENV === 'production'
+        ? `wss://sky-office.herokuapp.com`
+        : `${protocol}//${window.location.hostname}:2567`
+    this.client = new Colyseus.Client(endpoint)
+    const room = await this.client.joinOrCreate('skyoffice')
   }
 
   preload() {
