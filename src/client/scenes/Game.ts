@@ -10,11 +10,9 @@ import PlayerSelector from '../characters/PlayerSelector'
 
 export default class Game extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
+  private map!: Phaser.Tilemaps.Tilemap
   private player!: Phaser.Physics.Arcade.Sprite
-  private upperWalls!: Phaser.Physics.Arcade.StaticGroup
   private items!: Phaser.Physics.Arcade.StaticGroup
-  private nonInteractiveItems!: Phaser.Physics.Arcade.StaticGroup
-  private nonInteractiveItemsOnCollide!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
   private client!: Colyseus.Client
 
@@ -23,7 +21,7 @@ export default class Game extends Phaser.Scene {
   }
 
   async init() {
-    const protocol = window.location.protocol.replace('http', 'wss')
+    const protocol = window.location.protocol.replace('http', 'ws')
     const endpoint =
       process.env.NODE_ENV === 'production'
         ? `wss://sky-office.herokuapp.com`
@@ -39,102 +37,37 @@ export default class Game extends Phaser.Scene {
   async create() {
     createCharacterAnims(this.anims)
 
-    const map = this.make.tilemap({ key: 'tilemap' })
-    const FloorAndGround = map.addTilesetImage('FloorAndGround', 'tiles_wall')
+    this.map = this.make.tilemap({ key: 'tilemap' })
+    const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
 
-    const groundLayer = map.createLayer('Ground', FloorAndGround)
+    const groundLayer = this.map.createLayer('Ground', FloorAndGround)
     groundLayer.setCollisionByProperty({ collides: true })
 
     // debugDraw(groundLayer, this)
 
-    // import wall objects from Tiled map to Phaser
-    this.upperWalls = this.physics.add.staticGroup()
-    const upperWallLayer = map.getObjectLayer('Wall')
-    upperWallLayer.objects.forEach((wallObj) => {
-      const actualX = wallObj.x! + wallObj.width! * 0.5
-      const actualY = wallObj.y! - wallObj.height! * 0.5
-      this.upperWalls
-        .get(
-          actualX,
-          actualY,
-          'tiles_wall',
-          wallObj.gid! - map.getTileset('FloorAndGround').firstgid
-        )
-        .setDepth(actualY)
-    })
+    this.player = this.add.player(705, 500, 'player')
+    this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
     // import item objects (currently chairs) from Tiled map to Phaser
-    this.items = this.physics.add.staticGroup({
-      classType: Item,
-    })
-    const chairLayer = map.getObjectLayer('Chair')
+    this.items = this.physics.add.staticGroup({ classType: Item })
+    const chairLayer = this.map.getObjectLayer('Chair')
     chairLayer.objects.forEach((chairObj) => {
-      const actualX = chairObj.x! + chairObj.width! * 0.5
-      const actualY = chairObj.y! - chairObj.height! * 0.5
-      const item = this.items
-        .get(actualX, actualY, 'chairs', chairObj.gid! - map.getTileset('chair').firstgid)
-        .setDepth(actualY)
-      // custom properties[0] is the object direction set from Tiled
+      const item = this.addObjectFromTiled(this.items, chairObj, 'chairs', 'chair')
+      // custom properties[0] is the object direction specified in Tiled
       item.itemDirection = chairObj.properties[0].value
     })
 
-    // import all other objects from Tiled map to Phaser
-    this.nonInteractiveItems = this.physics.add.staticGroup()
-    const objLayer = map.getObjectLayer('Objects')
-    objLayer.objects.forEach((obj) => {
-      const actualX = obj.x! + obj.width! * 0.5
-      const actualY = obj.y! - obj.height! * 0.5
-      this.nonInteractiveItems
-        .get(
-          actualX,
-          actualY,
-          'office',
-          obj.gid! - map.getTileset('Modern_Office_Black_Shadow').firstgid
-        )
-        .setDepth(actualY)
-    })
-    const genericLayer = map.getObjectLayer('GenericObjects')
-    genericLayer.objects.forEach((obj) => {
-      const actualX = obj.x! + obj.width! * 0.5
-      const actualY = obj.y! - obj.height! * 0.5
-      this.nonInteractiveItems
-        .get(actualX, actualY, 'generic', obj.gid! - map.getTileset('Generic').firstgid)
-        .setDepth(actualY)
-    })
-
-    // import all other objects that are collidable from Tiled map to Phaser
-    this.nonInteractiveItemsOnCollide = this.physics.add.staticGroup()
-    const objOnCollideLayer = map.getObjectLayer('ObjectsOnCollide')
-    objOnCollideLayer.objects.forEach((obj) => {
-      const actualX = obj.x! + obj.width! * 0.5
-      const actualY = obj.y! - obj.height! * 0.5
-      this.nonInteractiveItemsOnCollide
-        .get(
-          actualX,
-          actualY,
-          'office',
-          obj.gid! - map.getTileset('Modern_Office_Black_Shadow').firstgid
-        )
-        .setDepth(actualY)
-    })
-    const genericOnCollideLayer = map.getObjectLayer('GenericObjectsOnCollide')
-    genericOnCollideLayer.objects.forEach((obj) => {
-      const actualX = obj.x! + obj.width! * 0.5
-      const actualY = obj.y! - obj.height! * 0.5
-      this.nonInteractiveItemsOnCollide
-        .get(actualX, actualY, 'generic', obj.gid! - map.getTileset('Generic').firstgid)
-        .setDepth(actualY)
-    })
-
-    this.player = this.add.player(705, 500, 'player')
-
-    this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
+    // import other objects from Tiled map to Phaser
+    this.addGroupFromTiled('Wall', 'tiles_wall', 'FloorAndGround', false)
+    this.addGroupFromTiled('Objects', 'office', 'Modern_Office_Black_Shadow', false)
+    this.addGroupFromTiled('GenericObjects', 'generic', 'Generic', false)
+    this.addGroupFromTiled('ObjectsOnCollide', 'office', 'Modern_Office_Black_Shadow', true)
+    this.addGroupFromTiled('GenericObjectsOnCollide', 'generic', 'Generic', true)
 
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.player, true)
 
     this.physics.add.collider(this.player, groundLayer)
-    this.physics.add.collider(this.player, this.nonInteractiveItemsOnCollide)
     this.physics.add.overlap(
       this.playerSelector,
       this.items,
@@ -158,6 +91,38 @@ export default class Game extends Phaser.Scene {
     // set selected item and set up new dialog
     playerSelector.selectedItem = selectionItem
     selectionItem.setDialogBox('Press E to sit', 80)
+  }
+
+  private addObjectFromTiled(
+    group: Phaser.Physics.Arcade.StaticGroup,
+    object: Phaser.Types.Tilemaps.TiledObject,
+    key: string,
+    tilesetName: string
+  ) {
+    const actualX = object.x! + object.width! * 0.5
+    const actualY = object.y! - object.height! * 0.5
+    const obj = group
+      .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
+      .setDepth(actualY)
+    return obj
+  }
+
+  private addGroupFromTiled(
+    objectLayerName: string,
+    key: string,
+    tilesetName: string,
+    collidable: boolean
+  ) {
+    const group = this.physics.add.staticGroup()
+    const objectLayer = this.map.getObjectLayer(objectLayerName)
+    objectLayer.objects.forEach((object) => {
+      const actualX = object.x! + object.width! * 0.5
+      const actualY = object.y! - object.height! * 0.5
+      group
+        .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
+        .setDepth(actualY)
+    })
+    if (this.player && collidable) this.physics.add.collider(this.player, group)
   }
 
   update(t: number, dt: number) {
