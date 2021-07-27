@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import * as Colyseus from 'colyseus.js'
+import { Client, Room } from 'colyseus.js'
 
 import { debugDraw } from '../utils/debug'
 import { createCharacterAnims } from '../anims/CharacterAnims'
@@ -7,6 +7,9 @@ import { createCharacterAnims } from '../anims/CharacterAnims'
 import Item from '../items/Item'
 import '../characters/Player'
 import PlayerSelector from '../characters/PlayerSelector'
+import Network from '../services/Network'
+import { IPlayer } from '~/types/IOfficeState'
+import Player from '../characters/Player'
 
 export default class Game extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
@@ -14,20 +17,15 @@ export default class Game extends Phaser.Scene {
   private player!: Phaser.Physics.Arcade.Sprite
   private items!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
-  private client!: Colyseus.Client
+  private network?: Network
+  private otherPlayers?: Phaser.Physics.Arcade.Group
 
   constructor() {
     super('game')
   }
 
-  async init() {
-    const protocol = window.location.protocol.replace('http', 'ws')
-    const endpoint =
-      process.env.NODE_ENV === 'production'
-        ? `wss://sky-office.herokuapp.com`
-        : `${protocol}//${window.location.hostname}:2567`
-    this.client = new Colyseus.Client(endpoint)
-    const room = await this.client.joinOrCreate('skyoffice')
+  init() {
+    this.network = new Network()
   }
 
   preload() {
@@ -35,6 +33,12 @@ export default class Game extends Phaser.Scene {
   }
 
   async create() {
+    // initialize network instance (connect to server)
+    if (!this.network) {
+      throw new Error('server instance missing')
+    }
+    await this.network.join()
+
     createCharacterAnims(this.anims)
 
     this.map = this.make.tilemap({ key: 'tilemap' })
@@ -45,7 +49,7 @@ export default class Game extends Phaser.Scene {
 
     // debugDraw(groundLayer, this)
 
-    this.player = this.add.player(705, 500, 'player')
+    this.player = this.add.player(705, 500, 'player', this.network.mySessionId)
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
     // import item objects (currently chairs) from Tiled map to Phaser
@@ -75,6 +79,9 @@ export default class Game extends Phaser.Scene {
       undefined,
       this
     )
+
+    this.network.onPlayerJoined(this.handlePlayerJoined, this)
+    this.network.onPlayerLeft(this.handlePlayerLeft, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -123,6 +130,24 @@ export default class Game extends Phaser.Scene {
         .setDepth(actualY)
     })
     if (this.player && collidable) this.physics.add.collider(this.player, group)
+  }
+
+  private handlePlayerJoined(newPlayer: IPlayer, key: string) {
+    if (!this.otherPlayers) {
+      this.otherPlayers = this.physics.add.group({ classType: Player })
+    }
+    this.otherPlayers.get(newPlayer.x, newPlayer.y, 'player', key)
+    console.log(newPlayer)
+    console.log(key)
+  }
+
+  private handlePlayerLeft(key: string) {
+    const leftPlayer = this.otherPlayers
+      ?.getChildren()
+      .find((player) => (player as Player).playerId === key)
+    if (leftPlayer) {
+      this.otherPlayers?.remove(leftPlayer, true, true)
+    }
   }
 
   update(t: number, dt: number) {

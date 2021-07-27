@@ -16,13 +16,21 @@ const sittingShiftData = {
 declare global {
   namespace Phaser.GameObjects {
     interface GameObjectFactory {
-      player(x: number, y: number, texture: string, frame?: string | number): Player
+      player(x: number, y: number, texture: string, id: string, frame?: string | number): Player
     }
   }
 }
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   public keyE!: Phaser.Input.Keyboard.Key
+
+  private _playerId!: string
+  set playerId(id: string) {
+    this._playerId = id
+  }
+  get playerId() {
+    return this._playerId
+  }
 
   private _playerBehavior = PlayerBehavior.IDLE
   set playerBehavior(playerBehavior: PlayerBehavior) {
@@ -32,9 +40,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     return this._playerBehavior
   }
 
-  constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    texture: string,
+    id: string,
+    frame?: string | number
+  ) {
     super(scene, x, y, texture, frame)
 
+    this.playerId = id
     this.anims.play('player_idle_down', true)
 
     // maybe we can have a dedicated method for adding keys if more keys are needed in the future
@@ -130,9 +146,10 @@ Phaser.GameObjects.GameObjectFactory.register(
     x: number,
     y: number,
     texture: string,
+    id: string,
     frame?: string | number
   ) {
-    const sprite = new Player(this.scene, x, y, texture, frame)
+    const sprite = new Player(this.scene, x, y, texture, id, frame)
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)
