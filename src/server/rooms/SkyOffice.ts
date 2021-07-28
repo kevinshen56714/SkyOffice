@@ -34,11 +34,9 @@ export class SkyOffice extends Room<OfficeState> {
   }
 
   onLeave(client: Client, consented: boolean) {
-    delete this.state.players[client.sessionId]
-
-    // if (this.state.players.has(client.sessionId)) {
-    //   this.state.players.delete(client.sessionId)
-    // }
+    if (this.state.players.has(client.sessionId)) {
+      this.state.players.delete(client.sessionId)
+    }
   }
 
   onDispose() {

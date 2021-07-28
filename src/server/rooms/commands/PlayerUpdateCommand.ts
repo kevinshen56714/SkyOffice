@@ -13,8 +13,11 @@ export default class PlayerUpdateCommand extends Command<IOfficeState, Payload> 
   execute(data: Payload) {
     const { client, x, y, anim } = data
 
-    this.room.state.players[client.sessionId].x = x
-    this.room.state.players[client.sessionId].y = y
-    this.room.state.players[client.sessionId].anim = anim
+    let player = this.room.state.players.get(client.sessionId)
+
+    if (!player) return
+    player.x = x
+    player.y = y
+    player.anim = anim
   }
 }

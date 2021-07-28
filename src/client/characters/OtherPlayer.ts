@@ -41,6 +41,7 @@ export default class OtherPlayer extends Player {
     }
   }
 
+  // preUpdate is called every frame for every game object
   preUpdate(t: number, dt: number) {
     super.preUpdate(t, dt)
     this.setDepth(this.y) // change player.depth based on player.y
@@ -50,8 +51,8 @@ export default class OtherPlayer extends Player {
       this.setDepth(this.depth + sittingShiftData[animDir][2])
     } // set hardcoded depth if player sits down
 
-    const speed = 200
-    const delta = speed / dt / 5 // minimum distance that player can move in a frame
+    const speed = 200 // speed is in unit of pixels per secnod
+    const delta = (speed / 1000) * dt // minimum distance that player can move in a frame (dt is in unit of ms)
     var dx = this.targetPosition[0] - this.x
     var dy = this.targetPosition[1] - this.y
 
@@ -70,11 +71,9 @@ export default class OtherPlayer extends Player {
     let vy = 0
     if (dx > 0) vx += speed
     else if (dx < 0) vx -= speed
-    if (dy > 0) {
-      vy += speed
-    } else if (dy < 0) {
-      vy -= speed
-    }
+    if (dy > 0) vy += speed
+    else if (dy < 0) vy -= speed
+
     this.setVelocity(vx, vy)
     this.body.velocity.setLength(speed)
   }
