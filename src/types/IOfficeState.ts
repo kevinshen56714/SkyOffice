@@ -1,10 +1,9 @@
 import { Schema, MapSchema } from '@colyseus/schema'
-import { PlayerBehavior } from './PlayerBehavior'
 
 export interface IPlayer extends Schema {
   x: number
   y: number
-  playerBehavior: PlayerBehavior
+  anim: string
 }
 
 export interface IOfficeState extends Schema {

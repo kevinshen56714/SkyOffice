@@ -1,11 +1,10 @@
 import { Schema, MapSchema, Context, type } from '@colyseus/schema'
 import { IPlayer, IOfficeState } from '../../../types/IOfficeState'
-import { PlayerBehavior } from '../../../types/PlayerBehavior'
 
 export class Player extends Schema implements IPlayer {
   @type('number') x = 705
   @type('number') y = 500
-  @type('number') playerBehavior = PlayerBehavior.IDLE
+  @type('string') anim = 'player_idle_down'
 }
 
 // export class PlayerState extends Schema implements IPlayerState {
