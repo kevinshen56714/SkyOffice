@@ -4,6 +4,7 @@ import { sittingShiftData } from './Player'
 
 export default class OtherPlayer extends Player {
   private targetPosition: Array<number>
+  private lastUpdateTimestamp?: number
 
   constructor(
     scene: Phaser.Scene,
@@ -44,6 +45,19 @@ export default class OtherPlayer extends Player {
   // preUpdate is called every frame for every game object
   preUpdate(t: number, dt: number) {
     super.preUpdate(t, dt)
+
+    /**
+     * if Phaser has not updated the canvas (when the game tab is not active) for more than 1 sec
+     * directly snap players to current location
+     */
+    if (this.lastUpdateTimestamp && t - this.lastUpdateTimestamp > 1000) {
+      this.lastUpdateTimestamp = t
+      this.x = this.targetPosition[0]
+      this.y = this.targetPosition[1]
+      return
+    }
+
+    this.lastUpdateTimestamp = t
     this.setDepth(this.y) // change player.depth based on player.y
     const animState = this.anims.currentAnim.key.split('_')[1]
     const animDir = this.anims.currentAnim.key.split('_')[2]
