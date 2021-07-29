@@ -55,6 +55,7 @@ export default class MyPlayer extends Player {
               ).setDepth(item.depth + sittingShiftData[item.itemDirection][2])
               this.play(`player_sit_${item.itemDirection}`, true)
               playerSelector.setPosition(0, 0)
+              // send new location and anim to server
               network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
             },
             loop: false,
@@ -73,16 +74,16 @@ export default class MyPlayer extends Player {
         if (cursors.right?.isDown) vx += speed
         if (cursors.up?.isDown) {
           vy -= speed
-          this.setDepth(this.y) //Changes player.depth if player.y changes
+          this.setDepth(this.y) //change player.depth if player.y changes
         }
         if (cursors.down?.isDown) {
           vy += speed
-          this.setDepth(this.y) //Changes player.depth if player.y changes
+          this.setDepth(this.y) //change player.depth if player.y changes
         }
         this.setVelocity(vx, vy)
         this.body.velocity.setLength(speed)
 
-        // Update animation according to velocity.
+        // update animation according to velocity and send new location and anim to server
         if (vx != 0 || vy != 0) network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
         if (vx > 0) {
           this.play('player_run_right', true)
@@ -96,8 +97,10 @@ export default class MyPlayer extends Player {
           const parts = this.anims.currentAnim.key.split('_')
           parts[1] = 'idle'
           const newAnim = parts.join('_')
+          // this prevents idle animation keeps getting called
           if (this.anims.currentAnim.key != newAnim) {
             this.play(parts.join('_'), true)
+            // send new location and anim to server
             network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
           }
         }

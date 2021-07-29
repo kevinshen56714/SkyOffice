@@ -65,7 +65,7 @@ export default class OtherPlayer extends Player {
       this.setDepth(this.depth + sittingShiftData[animDir][2])
     } // set hardcoded depth if player sits down
 
-    const speed = 200 // speed is in unit of pixels per secnod
+    const speed = 200 // speed is in unit of pixels per second
     const delta = (speed / 1000) * dt // minimum distance that player can move in a frame (dt is in unit of ms)
     var dx = this.targetPosition[0] - this.x
     var dy = this.targetPosition[1] - this.y

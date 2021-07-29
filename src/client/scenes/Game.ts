@@ -136,7 +136,7 @@ export default class Game extends Phaser.Scene {
     if (this.myPlayer && collidable) this.physics.add.collider(this.myPlayer, group)
   }
 
-  // Add new player to the otherPlayer group
+  // function to add new player to the otherPlayer group
   private handlePlayerJoined(newPlayer: IPlayer, key: string) {
     if (!this.otherPlayers) {
       this.otherPlayers = this.physics.add.group({ classType: OtherPlayer })
@@ -144,7 +144,7 @@ export default class Game extends Phaser.Scene {
     this.otherPlayers.get(newPlayer.x, newPlayer.y, 'player', key) as OtherPlayer
   }
 
-  // removed the player who left from the otherPlayer group
+  // function to remove the player who left from the otherPlayer group
   private handlePlayerLeft(key: string) {
     const player = this.getOtherPlayerByID(key)
     if (player) {
@@ -152,7 +152,7 @@ export default class Game extends Phaser.Scene {
     }
   }
 
-  // call update target position when receive player updates
+  // function to update target position upon receiving player updates
   private handlePlayerUpdated(field: string, value: number | string, key: string) {
     const player = this.getOtherPlayerByID(key) as OtherPlayer
     if (player) {
