@@ -2,6 +2,7 @@ import { Client, Room } from 'colyseus.js'
 import Phaser from 'phaser'
 import { IOfficeState, IPlayer } from '../../types/IOfficeState'
 import { Message } from '../../types/Messages'
+import WebRTC from '../web/WebRTC'
 
 enum Event {
   PLAYER_JOINED = 'player-joined',
@@ -12,6 +13,7 @@ enum Event {
 export default class Network {
   private client: Client
   private room?: Room<IOfficeState>
+  private webRTC?: WebRTC
   private events = new Phaser.Events.EventEmitter()
 
   mySessionId!: string
@@ -28,12 +30,14 @@ export default class Network {
   async join() {
     this.room = await this.client.joinOrCreate('skyoffice')
     this.mySessionId = this.room.sessionId
+    this.webRTC = new WebRTC(this.mySessionId)
 
     // new instance added to the players MapSchema
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
       if (key === this.mySessionId) return
 
       this.events.emit(Event.PLAYER_JOINED, player, key)
+      if (this.webRTC) this.webRTC.connectToNewUser(key)
 
       // track changes on every child object inside the players MapSchema
       player.onChange = (changes) => {
@@ -47,6 +51,7 @@ export default class Network {
     // an instance removed from the players MapSchema
     this.room.state.players.onRemove = (player: IPlayer, key: string) => {
       this.events.emit(Event.PLAYER_LEFT, key)
+      if (this.webRTC) this.webRTC.deleteVideoStream(key)
     }
   }
 

@@ -41,6 +41,7 @@
 		"cors": "^2.8.5",
 		"express": "^4.16.4",
 		"parcel-bundler": "^1.12.5",
+		"peerjs": "^1.3.2",
 		"phaser": "^3.55.2",
 		"regenerator-runtime": "^0.13.7",
 		"tslib": "^2.3.0"
