@@ -5,6 +5,7 @@ export default class WebRTC {
   private myPeer: Peer
   private peers = {}
   private videoGrid: HTMLElement | null
+  private buttonGrid: HTMLElement | null
   private myVideo: HTMLVideoElement
 
   private _myStream?: MediaStream
@@ -18,6 +19,7 @@ export default class WebRTC {
   constructor(userId: string, network: Network) {
     this.myPeer = new Peer(userId)
     this.videoGrid = document.getElementById('video-grid')
+    this.buttonGrid = document.getElementById('button-grid')
     this.myVideo = document.createElement('video')
     this.myVideo.muted = true
     navigator.mediaDevices
@@ -42,6 +44,8 @@ export default class WebRTC {
           this.peers[call.peer] = call
         })
 
+        this.setUpButtons()
+
         network.readyToConnect()
       })
   }
@@ -65,10 +69,47 @@ export default class WebRTC {
     video.addEventListener('loadedmetadata', () => {
       video.play()
     })
-    if (this.videoGrid) this.videoGrid.append(video)
+    if (this.videoGrid) {
+      this.videoGrid.append(video)
+    }
   }
 
   deleteVideoStream(userId: string) {
     if (this.peers[userId]) this.peers[userId].close()
+  }
+
+  setUpButtons() {
+    const audioButton = document.createElement('button')
+    audioButton.innerHTML = 'Mute'
+    audioButton.addEventListener('click', () => {
+      if (this.myStream) {
+        const audioTrack = this.myStream.getAudioTracks()[0]
+        if (audioTrack.enabled) {
+          audioTrack.enabled = false
+          audioButton.innerHTML = 'Unmute'
+        } else {
+          audioTrack.enabled = true
+          audioButton.innerHTML = 'Mute'
+        }
+      }
+    })
+    const videoButton = document.createElement('button')
+    videoButton.innerHTML = 'Video off'
+    videoButton.addEventListener('click', () => {
+      if (this.myStream) {
+        const audioTrack = this.myStream.getVideoTracks()[0]
+        if (audioTrack.enabled) {
+          audioTrack.enabled = false
+          videoButton.innerHTML = 'Video on'
+        } else {
+          audioTrack.enabled = true
+          videoButton.innerHTML = 'Video off'
+        }
+      }
+    })
+    if (this.buttonGrid) {
+      this.buttonGrid.append(audioButton)
+      this.buttonGrid.append(videoButton)
+    }
   }
 }
