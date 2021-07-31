@@ -12,7 +12,7 @@ export class SkyOffice extends Room<OfficeState> {
 
     // when receiving updatePlayer message, call the PlayerUpdateCommand
     this.onMessage(
-      Message.updatePlayer,
+      Message.UPDATEPLAYER,
       (client, message: { x: number; y: number; anim: string }) => {
         this.dispatcher.dispatch(new PlayerUpdateCommand(), {
           client,
@@ -26,11 +26,6 @@ export class SkyOffice extends Room<OfficeState> {
 
   onJoin(client: Client, options: any) {
     this.state.players.set(client.sessionId, new Player())
-    // this.state.players.forEach((value, key) => {
-    //   console.log('key =>', key)
-    //   console.log('value =>', value.x)
-    // })
-    // client.send('string', this.state.players)
   }
 
   onLeave(client: Client, consented: boolean) {

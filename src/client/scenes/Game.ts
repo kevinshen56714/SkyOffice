@@ -5,20 +5,21 @@ import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
 import '../characters/MyPlayer'
+import '../characters/OtherPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
 import Network from '../services/Network'
-import { IPlayer } from '~/types/IOfficeState'
+import { IPlayer } from '../../types/IOfficeState'
 import OtherPlayer from '../characters/OtherPlayer'
 
 export default class Game extends Phaser.Scene {
+  private network?: Network
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
   private myPlayer!: Phaser.Physics.Arcade.Sprite
   private items!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
-  private network?: Network
-  private otherPlayers?: Phaser.Physics.Arcade.Group
+  private otherPlayers?: Map<string, OtherPlayer>
 
   constructor() {
     super('game')
@@ -139,31 +140,28 @@ export default class Game extends Phaser.Scene {
   // function to add new player to the otherPlayer group
   private handlePlayerJoined(newPlayer: IPlayer, key: string) {
     if (!this.otherPlayers) {
-      this.otherPlayers = this.physics.add.group({ classType: OtherPlayer })
+      this.otherPlayers = new Map<string, OtherPlayer>()
     }
-    this.otherPlayers.get(newPlayer.x, newPlayer.y, 'player', key) as OtherPlayer
+    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'player')
+    this.otherPlayers.set(key, otherPlayer)
   }
 
   // function to remove the player who left from the otherPlayer group
   private handlePlayerLeft(key: string) {
-    const player = this.getOtherPlayerByID(key)
-    if (player) {
-      this.otherPlayers?.remove(player, true, true)
+    if (this.otherPlayers?.has(key)) {
+      const otherPlayer = this.otherPlayers.get(key)
+      if (otherPlayer) otherPlayer.destroy()
+
+      this.otherPlayers.delete(key)
     }
   }
 
   // function to update target position upon receiving player updates
   private handlePlayerUpdated(field: string, value: number | string, key: string) {
-    const player = this.getOtherPlayerByID(key) as OtherPlayer
-    if (player) {
-      player.updateTargetPosition(field, value)
+    const otherPlayer = this.otherPlayers?.get(key)
+    if (otherPlayer) {
+      otherPlayer.updateOtherPlayer(field, value)
     }
-  }
-
-  private getOtherPlayerByID(key: string) {
-    return this.otherPlayers
-      ?.getChildren()
-      .find((player) => (player as OtherPlayer).playerId === key)
   }
 
   update(t: number, dt: number) {

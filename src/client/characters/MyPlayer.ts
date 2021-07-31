@@ -5,19 +5,6 @@ import { sittingShiftData } from './Player'
 import Player from './Player'
 import Network from '../services/Network'
 
-/**
- * shifting distance for sitting animation
- * format: direction: [xShift, yShift, depthShift]
- */
-
-declare global {
-  namespace Phaser.GameObjects {
-    interface GameObjectFactory {
-      myPlayer(x: number, y: number, texture: string, frame?: string | number): MyPlayer
-    }
-  }
-}
-
 export default class MyPlayer extends Player {
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
     super(scene, x, y, texture, frame)
@@ -118,6 +105,14 @@ export default class MyPlayer extends Player {
           network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
         }
         break
+    }
+  }
+}
+
+declare global {
+  namespace Phaser.GameObjects {
+    interface GameObjectFactory {
+      myPlayer(x: number, y: number, texture: string, frame?: string | number): MyPlayer
     }
   }
 }

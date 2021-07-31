@@ -1,3 +1,3 @@
 export enum Message {
-  updatePlayer,
+  UPDATEPLAYER,
 }
