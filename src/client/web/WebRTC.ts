@@ -4,24 +4,18 @@ import Network from '../services/Network'
 export default class WebRTC {
   private myPeer: Peer
   private peers = {}
-  private videoGrid: HTMLElement | null
-  private buttonGrid: HTMLElement | null
-  private myVideo: HTMLVideoElement
-
-  private _myStream?: MediaStream
-  set myStream(stream: MediaStream | undefined) {
-    this._myStream = stream
-  }
-  get myStream() {
-    if (this._myStream) return this._myStream
-  }
+  private videoGrid = document.getElementById('video-grid')
+  private buttonGrid = document.getElementById('button-grid')
+  private myVideo = document.createElement('video')
+  private myStream?: MediaStream
 
   constructor(userId: string, network: Network) {
     this.myPeer = new Peer(userId)
-    this.videoGrid = document.getElementById('video-grid')
-    this.buttonGrid = document.getElementById('button-grid')
-    this.myVideo = document.createElement('video')
+
+    // mute your own video stream (you don't want to hear to yourself)
     this.myVideo.muted = true
+
+    // ask the browser to get use media
     navigator.mediaDevices
       .getUserMedia({
         video: true,
@@ -31,6 +25,7 @@ export default class WebRTC {
         this.myStream = stream
         this.addVideoStream(this.myVideo, this.myStream)
 
+        // prepare to be called
         this.myPeer.on('call', (call) => {
           call.answer(this.myStream)
           const video = document.createElement('video')
@@ -50,6 +45,7 @@ export default class WebRTC {
       })
   }
 
+  // method to call a peer
   connectToNewUser(userId: string) {
     if (!this.myStream) return
     const call = this.myPeer.call(userId, this.myStream)
@@ -64,6 +60,7 @@ export default class WebRTC {
     this.peers[userId] = call
   }
 
+  // method to add new video stream to videoGrid div
   addVideoStream(video: HTMLVideoElement, stream: MediaStream) {
     video.srcObject = stream
     video.addEventListener('loadedmetadata', () => {
@@ -74,10 +71,12 @@ export default class WebRTC {
     }
   }
 
+  // method to remove video stream a peer disconnects
   deleteVideoStream(userId: string) {
     if (this.peers[userId]) this.peers[userId].close()
   }
 
+  // method to set up mute/unmute and video on/off buttons
   setUpButtons() {
     const audioButton = document.createElement('button')
     audioButton.innerHTML = 'Mute'

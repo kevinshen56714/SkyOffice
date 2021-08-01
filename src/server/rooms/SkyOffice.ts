@@ -23,8 +23,8 @@ export class SkyOffice extends Room<OfficeState> {
       }
     )
 
-    this.onMessage(Message.readyToConnect, (client) => {
-      this.broadcast(Message.readyToConnect, client.sessionId, { except: client })
+    this.onMessage(Message.READYTOCONNECT, (client) => {
+      this.broadcast(Message.READYTOCONNECT, client.sessionId, { except: client })
     })
   }
 

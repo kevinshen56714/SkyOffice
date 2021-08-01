@@ -4,13 +4,7 @@ import { PlayerBehavior } from '../../types/PlayerBehavior'
 import Item from '../items/Item'
 
 export default class PlayerSelector extends Phaser.GameObjects.Zone {
-  private _selectedItem?: Item
-  set selectedItem(item: Item | undefined) {
-    this._selectedItem = item
-  }
-  get selectedItem() {
-    return this._selectedItem
-  }
+  selectedItem?: Item
 
   constructor(scene: Phaser.Scene, x: number, y: number, width: number, height: number) {
     super(scene, x, y, width, height)
@@ -39,10 +33,9 @@ export default class PlayerSelector extends Phaser.GameObjects.Zone {
     } else if (cursors.down?.isDown) {
       this.setPosition(x, y + 32)
     }
-    /**
-     * while currently selecting an item,
-     * if the selector and selection item stop overlapping, clear the dialog box and selected item
-     */
+
+    // while currently selecting an item,
+    // if the selector and selection item stop overlapping, clear the dialog box and selected item
     if (this.selectedItem) {
       if (!this.scene.physics.overlap(this, this.selectedItem)) {
         this.selectedItem.clearDialogBox()

@@ -29,12 +29,12 @@ export default class Network {
 
   async join() {
     this.room = await this.client.joinOrCreate('skyoffice')
-    this.mySessionId = this.room.sessionId
-    this.webRTC = new WebRTC(this.mySessionId, this)
+    const mySessionId = this.room.sessionId
+    this.webRTC = new WebRTC(mySessionId, this)
 
     // new instance added to the players MapSchema
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
-      if (key === this.mySessionId) return
+      if (key === mySessionId) return
 
       this.events.emit(Event.PLAYER_JOINED, player, key)
       if (this.webRTC) this.webRTC.connectToNewUser(key)
@@ -55,7 +55,7 @@ export default class Network {
     }
 
     // when a peer is ready to connect with myPeer
-    this.room.onMessage(Message.readyToConnect, (clientId) => {
+    this.room.onMessage(Message.READYTOCONNECT, (clientId) => {
       if (this.webRTC) this.webRTC.connectToNewUser(clientId)
     })
   }
@@ -87,6 +87,6 @@ export default class Network {
   // method to send ready to connect signal to Colyseus server
   readyToConnect() {
     if (!this.room) return
-    this.room.send(Message.readyToConnect)
+    this.room.send(Message.READYTOCONNECT)
   }
 }
