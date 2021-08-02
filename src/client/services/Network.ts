@@ -55,8 +55,8 @@ export default class Network {
     }
 
     // when a peer is ready to connect with myPeer
-    this.room.onMessage(Message.READYTOCONNECT, (clientId) => {
-      if (this.webRTC) this.webRTC.connectToNewUser(clientId)
+    this.room.onMessage(Message.READY_TO_CONNECT, (clientId) => {
+      this.webRTC?.connectToNewUser(clientId)
     })
   }
 
@@ -87,6 +87,6 @@ export default class Network {
   // method to send ready to connect signal to Colyseus server
   readyToConnect() {
     if (!this.room) return
-    this.room.send(Message.READYTOCONNECT)
+    this.room.send(Message.READY_TO_CONNECT)
   }
 }

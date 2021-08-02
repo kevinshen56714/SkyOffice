@@ -1,4 +1,4 @@
 export enum Message {
   UPDATE_PLAYER,
-  READYTOCONNECT,
+  READY_TO_CONNECT,
 }

@@ -3,19 +3,19 @@ import Network from '../services/Network'
 
 export default class WebRTC {
   private myPeer: Peer
-  private peers = {}
-  private videoGrid = document.getElementById('video-grid')
-  private buttonGrid = document.getElementById('button-grid')
+  private peers = new Map<string, Peer.MediaConnection>()
+  private videoGrid = document.querySelector('.video-grid')
+  private buttonGrid = document.querySelector('.button-grid')
   private myVideo = document.createElement('video')
   private myStream?: MediaStream
 
   constructor(userId: string, network: Network) {
     this.myPeer = new Peer(userId)
 
-    // mute your own video stream (you don't want to hear to yourself)
+    // mute your own video stream (you don't want to hear yourself)
     this.myVideo.muted = true
 
-    // ask the browser to get use media
+    // ask the browser to get user media
     navigator.mediaDevices
       .getUserMedia({
         video: true,
@@ -36,7 +36,7 @@ export default class WebRTC {
             video.remove()
           })
 
-          this.peers[call.peer] = call
+          this.peers.set(call.peer, call)
         })
 
         this.setUpButtons()
@@ -57,7 +57,7 @@ export default class WebRTC {
       video.remove()
     })
 
-    this.peers[userId] = call
+    this.peers.set(userId, call)
   }
 
   // method to add new video stream to videoGrid div
@@ -66,49 +66,50 @@ export default class WebRTC {
     video.addEventListener('loadedmetadata', () => {
       video.play()
     })
-    if (this.videoGrid) {
-      this.videoGrid.append(video)
-    }
+    if (this.videoGrid) this.videoGrid.append(video)
   }
 
   // method to remove video stream a peer disconnects
   deleteVideoStream(userId: string) {
-    if (this.peers[userId]) this.peers[userId].close()
+    if (this.peers.has(userId)) {
+      const peer = this.peers.get(userId)
+      if (!peer) return
+      peer.close()
+      this.peers.delete(userId)
+    }
   }
 
   // method to set up mute/unmute and video on/off buttons
   setUpButtons() {
     const audioButton = document.createElement('button')
-    audioButton.innerHTML = 'Mute'
+    audioButton.innerText = 'Mute'
     audioButton.addEventListener('click', () => {
       if (this.myStream) {
         const audioTrack = this.myStream.getAudioTracks()[0]
         if (audioTrack.enabled) {
           audioTrack.enabled = false
-          audioButton.innerHTML = 'Unmute'
+          audioButton.innerText = 'Unmute'
         } else {
           audioTrack.enabled = true
-          audioButton.innerHTML = 'Mute'
+          audioButton.innerText = 'Mute'
         }
       }
     })
     const videoButton = document.createElement('button')
-    videoButton.innerHTML = 'Video off'
+    videoButton.innerText = 'Video off'
     videoButton.addEventListener('click', () => {
       if (this.myStream) {
         const audioTrack = this.myStream.getVideoTracks()[0]
         if (audioTrack.enabled) {
           audioTrack.enabled = false
-          videoButton.innerHTML = 'Video on'
+          videoButton.innerText = 'Video on'
         } else {
           audioTrack.enabled = true
-          videoButton.innerHTML = 'Video off'
+          videoButton.innerText = 'Video off'
         }
       }
     })
-    if (this.buttonGrid) {
-      this.buttonGrid.append(audioButton)
-      this.buttonGrid.append(videoButton)
-    }
+    this.buttonGrid?.append(audioButton)
+    this.buttonGrid?.append(videoButton)
   }
 }
