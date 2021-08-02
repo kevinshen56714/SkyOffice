@@ -1,141 +1,83 @@
 import Phaser from 'phaser'
-import * as Colyseus from 'colyseus.js'
 
 import { debugDraw } from '../utils/debug'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
-import '../characters/Player'
+import '../characters/MyPlayer'
+import '../characters/OtherPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
+import Network from '../services/Network'
+import { IPlayer } from '../../types/IOfficeState'
+import OtherPlayer from '../characters/OtherPlayer'
 
 export default class Game extends Phaser.Scene {
+  private network?: Network
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
-  private player!: Phaser.Physics.Arcade.Sprite
-  private upperWalls!: Phaser.Physics.Arcade.StaticGroup
+  private keyE!: Phaser.Input.Keyboard.Key
+  private map!: Phaser.Tilemaps.Tilemap
+  private myPlayer!: Phaser.Physics.Arcade.Sprite
   private items!: Phaser.Physics.Arcade.StaticGroup
-  private nonInteractiveItems!: Phaser.Physics.Arcade.StaticGroup
-  private nonInteractiveItemsOnCollide!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
-  private client!: Colyseus.Client
+  private otherPlayers!: Phaser.Physics.Arcade.Group
+  private otherPlayerMap = new Map<string, OtherPlayer>()
 
   constructor() {
     super('game')
   }
 
-  async init() {
-    try {
-      this.client = new Colyseus.Client(`ws://${location.hostname}:2567`)
-      const room = await this.client.joinOrCreate('my_room')
-      console.log(room.sessionId)
-    } catch (Error) {
-      this.client = new Colyseus.Client('wss://sky-office.herokuapp.com')
-      const room = await this.client.joinOrCreate('my_room')
-    }
+  init() {
+    this.network = new Network()
   }
 
   preload() {
     this.cursors = this.input.keyboard.createCursorKeys()
+    // maybe we can have a dedicated method for adding keys if more keys are needed in the future
+    this.keyE = this.input.keyboard.addKey('E')
   }
 
   async create() {
+    // initialize network instance (connect to server)
+    if (!this.network) {
+      throw new Error('server instance missing')
+    }
+    await this.network.join()
+
     createCharacterAnims(this.anims)
 
-    const map = this.make.tilemap({ key: 'tilemap' })
-    const FloorAndGround = map.addTilesetImage('FloorAndGround', 'tiles_wall')
+    this.map = this.make.tilemap({ key: 'tilemap' })
+    const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
 
-    const groundLayer = map.createLayer('Ground', FloorAndGround)
+    const groundLayer = this.map.createLayer('Ground', FloorAndGround)
     groundLayer.setCollisionByProperty({ collides: true })
 
     // debugDraw(groundLayer, this)
 
-    // import wall objects from Tiled map to Phaser
-    this.upperWalls = this.physics.add.staticGroup()
-    const upperWallLayer = map.getObjectLayer('Wall')
-    upperWallLayer.objects.forEach((wallObj) => {
-      const actualX = wallObj.x! + wallObj.width! * 0.5
-      const actualY = wallObj.y! - wallObj.height! * 0.5
-      this.upperWalls
-        .get(
-          actualX,
-          actualY,
-          'tiles_wall',
-          wallObj.gid! - map.getTileset('FloorAndGround').firstgid
-        )
-        .setDepth(actualY)
-    })
+    this.myPlayer = this.add.myPlayer(705, 500, 'player', this.network.mySessionId)
+    this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
     // import item objects (currently chairs) from Tiled map to Phaser
-    this.items = this.physics.add.staticGroup({
-      classType: Item,
-    })
-    const chairLayer = map.getObjectLayer('Chair')
+    this.items = this.physics.add.staticGroup({ classType: Item })
+    const chairLayer = this.map.getObjectLayer('Chair')
     chairLayer.objects.forEach((chairObj) => {
-      const actualX = chairObj.x! + chairObj.width! * 0.5
-      const actualY = chairObj.y! - chairObj.height! * 0.5
-      const item = this.items
-        .get(actualX, actualY, 'chairs', chairObj.gid! - map.getTileset('chair').firstgid)
-        .setDepth(actualY)
-      // custom properties[0] is the object direction set from Tiled
+      const item = this.addObjectFromTiled(this.items, chairObj, 'chairs', 'chair') as Item
+      // custom properties[0] is the object direction specified in Tiled
       item.itemDirection = chairObj.properties[0].value
     })
 
-    // import all other objects from Tiled map to Phaser
-    this.nonInteractiveItems = this.physics.add.staticGroup()
-    const objLayer = map.getObjectLayer('Objects')
-    objLayer.objects.forEach((obj) => {
-      const actualX = obj.x! + obj.width! * 0.5
-      const actualY = obj.y! - obj.height! * 0.5
-      this.nonInteractiveItems
-        .get(
-          actualX,
-          actualY,
-          'office',
-          obj.gid! - map.getTileset('Modern_Office_Black_Shadow').firstgid
-        )
-        .setDepth(actualY)
-    })
-    const genericLayer = map.getObjectLayer('GenericObjects')
-    genericLayer.objects.forEach((obj) => {
-      const actualX = obj.x! + obj.width! * 0.5
-      const actualY = obj.y! - obj.height! * 0.5
-      this.nonInteractiveItems
-        .get(actualX, actualY, 'generic', obj.gid! - map.getTileset('Generic').firstgid)
-        .setDepth(actualY)
-    })
+    // import other objects from Tiled map to Phaser
+    this.addGroupFromTiled('Wall', 'tiles_wall', 'FloorAndGround', false)
+    this.addGroupFromTiled('Objects', 'office', 'Modern_Office_Black_Shadow', false)
+    this.addGroupFromTiled('GenericObjects', 'generic', 'Generic', false)
+    this.addGroupFromTiled('ObjectsOnCollide', 'office', 'Modern_Office_Black_Shadow', true)
+    this.addGroupFromTiled('GenericObjectsOnCollide', 'generic', 'Generic', true)
 
-    // import all other objects that are collidable from Tiled map to Phaser
-    this.nonInteractiveItemsOnCollide = this.physics.add.staticGroup()
-    const objOnCollideLayer = map.getObjectLayer('ObjectsOnCollide')
-    objOnCollideLayer.objects.forEach((obj) => {
-      const actualX = obj.x! + obj.width! * 0.5
-      const actualY = obj.y! - obj.height! * 0.5
-      this.nonInteractiveItemsOnCollide
-        .get(
-          actualX,
-          actualY,
-          'office',
-          obj.gid! - map.getTileset('Modern_Office_Black_Shadow').firstgid
-        )
-        .setDepth(actualY)
-    })
-    const genericOnCollideLayer = map.getObjectLayer('GenericObjectsOnCollide')
-    genericOnCollideLayer.objects.forEach((obj) => {
-      const actualX = obj.x! + obj.width! * 0.5
-      const actualY = obj.y! - obj.height! * 0.5
-      this.nonInteractiveItemsOnCollide
-        .get(actualX, actualY, 'generic', obj.gid! - map.getTileset('Generic').firstgid)
-        .setDepth(actualY)
-    })
-
-    this.player = this.add.player(705, 500, 'player')
-
-    this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
+    this.otherPlayers = this.physics.add.group({ classType: OtherPlayer })
 
     this.cameras.main.zoom = 1.5
-    this.cameras.main.startFollow(this.player, true)
+    this.cameras.main.startFollow(this.myPlayer, true)
 
-    this.physics.add.collider(this.player, groundLayer)
-    this.physics.add.collider(this.player, this.nonInteractiveItemsOnCollide)
+    this.physics.add.collider(this.myPlayer, groundLayer)
     this.physics.add.overlap(
       this.playerSelector,
       this.items,
@@ -143,6 +85,11 @@ export default class Game extends Phaser.Scene {
       undefined,
       this
     )
+
+    // register network event listeners
+    this.network.onPlayerJoined(this.handlePlayerJoined, this)
+    this.network.onPlayerLeft(this.handlePlayerLeft, this)
+    this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -161,10 +108,67 @@ export default class Game extends Phaser.Scene {
     selectionItem.setDialogBox('Press E to sit', 80)
   }
 
+  private addObjectFromTiled(
+    group: Phaser.Physics.Arcade.StaticGroup,
+    object: Phaser.Types.Tilemaps.TiledObject,
+    key: string,
+    tilesetName: string
+  ) {
+    const actualX = object.x! + object.width! * 0.5
+    const actualY = object.y! - object.height! * 0.5
+    const obj = group
+      .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
+      .setDepth(actualY)
+    return obj
+  }
+
+  private addGroupFromTiled(
+    objectLayerName: string,
+    key: string,
+    tilesetName: string,
+    collidable: boolean
+  ) {
+    const group = this.physics.add.staticGroup()
+    const objectLayer = this.map.getObjectLayer(objectLayerName)
+    objectLayer.objects.forEach((object) => {
+      const actualX = object.x! + object.width! * 0.5
+      const actualY = object.y! - object.height! * 0.5
+      group
+        .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
+        .setDepth(actualY)
+    })
+    if (this.myPlayer && collidable) this.physics.add.collider(this.myPlayer, group)
+  }
+
+  // function to add new player to the otherPlayer group
+  private handlePlayerJoined(newPlayer: IPlayer, id: string) {
+    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'player', id)
+    // this.otherPlayers.get(newPlayer.x, newPlayer.y, 'player') as OtherPlayer
+    this.otherPlayers.add(otherPlayer)
+    this.otherPlayerMap.set(id, otherPlayer)
+  }
+
+  // function to remove the player who left from the otherPlayer group
+  private handlePlayerLeft(id: string) {
+    if (this.otherPlayerMap.has(id)) {
+      const otherPlayer = this.otherPlayerMap.get(id)
+      if (!otherPlayer) return
+      this.otherPlayers.remove(otherPlayer, true, true)
+      this.otherPlayerMap.delete(id)
+    }
+  }
+
+  // function to update target position upon receiving player updates
+  private handlePlayerUpdated(field: string, value: number | string, id: string) {
+    const otherPlayer = this.otherPlayerMap.get(id)
+    if (!otherPlayer) return
+    otherPlayer.updateOtherPlayer(field, value)
+  }
+
   update(t: number, dt: number) {
-    if (this.player) {
-      this.playerSelector.update(this.player, this.cursors)
-      this.player.update(this.playerSelector, this.cursors)
+    if (this.myPlayer) {
+      this.playerSelector.update(this.myPlayer, this.cursors)
+      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.network)
     }
   }
 }

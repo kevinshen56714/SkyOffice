@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
-import Player from './Player'
-import { PlayerState } from './Player'
+import MyPlayer from './MyPlayer'
+import { PlayerBehavior } from '../../types/PlayerBehavior'
 import Item from '../items/Item'
 
 export default class PlayerSelector extends Phaser.GameObjects.Zone {
@@ -18,13 +18,13 @@ export default class PlayerSelector extends Phaser.GameObjects.Zone {
     scene.physics.add.existing(this)
   }
 
-  update(player: Player, cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
+  update(player: MyPlayer, cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
     if (!cursors) {
       return
     }
 
     // no need to update player selection while sitting
-    if (player.playerState === PlayerState.SITTING) {
+    if (player.playerBehavior === PlayerBehavior.SITTING) {
       return
     }
 
