@@ -29,15 +29,14 @@ export default class Network {
 
   async join() {
     this.room = await this.client.joinOrCreate('skyoffice')
-    const mySessionId = this.room.sessionId
-    this.webRTC = new WebRTC(mySessionId, this)
+    this.mySessionId = this.room.sessionId
+    this.webRTC = new WebRTC(this.mySessionId, this)
 
     // new instance added to the players MapSchema
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
-      if (key === mySessionId) return
+      if (key === this.mySessionId) return
 
       this.events.emit(Event.PLAYER_JOINED, player, key)
-      if (this.webRTC) this.webRTC.connectToNewUser(key)
 
       // track changes on every child object inside the players MapSchema
       player.onChange = (changes) => {
@@ -51,7 +50,7 @@ export default class Network {
     // an instance removed from the players MapSchema
     this.room.state.players.onRemove = (player: IPlayer, key: string) => {
       this.events.emit(Event.PLAYER_LEFT, key)
-      if (this.webRTC) this.webRTC.deleteVideoStream(key)
+      this.webRTC?.deleteVideoStream(key)
     }
 
     // when a peer is ready to connect with myPeer
@@ -80,13 +79,11 @@ export default class Network {
 
   // method to send player updates to Colyseus server
   updatePlayer(currentX: number, currentY: number, currentAnim: string) {
-    if (!this.room) return
-    this.room.send(Message.UPDATE_PLAYER, { x: currentX, y: currentY, anim: currentAnim })
+    this.room?.send(Message.UPDATE_PLAYER, { x: currentX, y: currentY, anim: currentAnim })
   }
 
   // method to send ready to connect signal to Colyseus server
   readyToConnect() {
-    if (!this.room) return
-    this.room.send(Message.READY_TO_CONNECT)
+    this.room?.send(Message.READY_TO_CONNECT)
   }
 }
