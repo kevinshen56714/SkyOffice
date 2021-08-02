@@ -2,6 +2,7 @@ import { Client, Room } from 'colyseus.js'
 import Phaser from 'phaser'
 import { IOfficeState, IPlayer } from '../../types/IOfficeState'
 import { Message } from '../../types/Messages'
+import WebRTC from '../web/WebRTC'
 
 enum Event {
   PLAYER_JOINED = 'player-joined',
@@ -12,6 +13,7 @@ enum Event {
 export default class Network {
   private client: Client
   private room?: Room<IOfficeState>
+  private webRTC?: WebRTC
   private events = new Phaser.Events.EventEmitter()
 
   mySessionId!: string
@@ -28,6 +30,7 @@ export default class Network {
   async join() {
     this.room = await this.client.joinOrCreate('skyoffice')
     this.mySessionId = this.room.sessionId
+    this.webRTC = new WebRTC(this.mySessionId, this)
 
     // new instance added to the players MapSchema
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
@@ -47,7 +50,13 @@ export default class Network {
     // an instance removed from the players MapSchema
     this.room.state.players.onRemove = (player: IPlayer, key: string) => {
       this.events.emit(Event.PLAYER_LEFT, key)
+      this.webRTC?.deleteVideoStream(key)
     }
+
+    // when a peer is ready to connect with myPeer
+    this.room.onMessage(Message.READY_TO_CONNECT, (clientId) => {
+      this.webRTC?.connectToNewUser(clientId)
+    })
   }
 
   // method to register event listener and call back function when a player joined
@@ -70,7 +79,11 @@ export default class Network {
 
   // method to send player updates to Colyseus server
   updatePlayer(currentX: number, currentY: number, currentAnim: string) {
-    if (!this.room) return
-    this.room.send(Message.UPDATE_PLAYER, { x: currentX, y: currentY, anim: currentAnim })
+    this.room?.send(Message.UPDATE_PLAYER, { x: currentX, y: currentY, anim: currentAnim })
+  }
+
+  // method to send ready to connect signal to Colyseus server
+  readyToConnect() {
+    this.room?.send(Message.READY_TO_CONNECT)
   }
 }
