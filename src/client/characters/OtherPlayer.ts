@@ -6,8 +6,15 @@ export default class OtherPlayer extends Player {
   private targetPosition: [number, number]
   private lastUpdateTimestamp?: number
 
-  constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
-    super(scene, x, y, texture, frame)
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    texture: string,
+    id: string,
+    frame?: string | number
+  ) {
+    super(scene, x, y, texture, id, frame)
     this.targetPosition = [x, y]
   }
 
@@ -33,7 +40,7 @@ export default class OtherPlayer extends Player {
     }
   }
 
-  /* preUpdate is called every frame for every game object */
+  /** preUpdate is called every frame for every game object. */
   preUpdate(t: number, dt: number) {
     super.preUpdate(t, dt)
 
@@ -50,7 +57,7 @@ export default class OtherPlayer extends Player {
     this.setDepth(this.y) // change player.depth based on player.y
     const animParts = this.anims.currentAnim.key.split('_')
     const animState = animParts[1]
-    if (animState[1] === 'sit') {
+    if (animState === 'sit') {
       const animDir = animParts[2]
       const sittingShift = sittingShiftData[animDir]
       if (sittingShift) {
@@ -90,7 +97,13 @@ export default class OtherPlayer extends Player {
 declare global {
   namespace Phaser.GameObjects {
     interface GameObjectFactory {
-      otherPlayer(x: number, y: number, texture: string, frame?: string | number): OtherPlayer
+      otherPlayer(
+        x: number,
+        y: number,
+        texture: string,
+        id: string,
+        frame?: string | number
+      ): OtherPlayer
     }
   }
 }
@@ -102,9 +115,10 @@ Phaser.GameObjects.GameObjectFactory.register(
     x: number,
     y: number,
     texture: string,
+    id: string,
     frame?: string | number
   ) {
-    const sprite = new OtherPlayer(this.scene, x, y, texture, frame)
+    const sprite = new OtherPlayer(this.scene, x, y, texture, id, frame)
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)

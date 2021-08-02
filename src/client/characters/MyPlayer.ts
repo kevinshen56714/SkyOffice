@@ -6,8 +6,15 @@ import Player from './Player'
 import Network from '../services/Network'
 
 export default class MyPlayer extends Player {
-  constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
-    super(scene, x, y, texture, frame)
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    texture: string,
+    id: string,
+    frame?: string | number
+  ) {
+    super(scene, x, y, texture, id, frame)
 
     this.anims.play('player_idle_down', true)
   }
@@ -112,7 +119,7 @@ export default class MyPlayer extends Player {
 declare global {
   namespace Phaser.GameObjects {
     interface GameObjectFactory {
-      myPlayer(x: number, y: number, texture: string, frame?: string | number): MyPlayer
+      myPlayer(x: number, y: number, texture: string, id: string, frame?: string | number): MyPlayer
     }
   }
 }
@@ -124,9 +131,10 @@ Phaser.GameObjects.GameObjectFactory.register(
     x: number,
     y: number,
     texture: string,
+    id: string,
     frame?: string | number
   ) {
-    const sprite = new MyPlayer(this.scene, x, y, texture, frame)
+    const sprite = new MyPlayer(this.scene, x, y, texture, id, frame)
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)

@@ -19,7 +19,8 @@ export default class Game extends Phaser.Scene {
   private myPlayer!: Phaser.Physics.Arcade.Sprite
   private items!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
-  private otherPlayers?: Map<string, OtherPlayer>
+  private otherPlayers!: Phaser.Physics.Arcade.Group
+  private otherPlayerMap = new Map<string, OtherPlayer>()
 
   constructor() {
     super('game')
@@ -52,7 +53,7 @@ export default class Game extends Phaser.Scene {
 
     // debugDraw(groundLayer, this)
 
-    this.myPlayer = this.add.myPlayer(705, 500, 'player')
+    this.myPlayer = this.add.myPlayer(705, 500, 'player', this.network.mySessionId)
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
     // import item objects (currently chairs) from Tiled map to Phaser
@@ -70,6 +71,8 @@ export default class Game extends Phaser.Scene {
     this.addGroupFromTiled('GenericObjects', 'generic', 'Generic', false)
     this.addGroupFromTiled('ObjectsOnCollide', 'office', 'Modern_Office_Black_Shadow', true)
     this.addGroupFromTiled('GenericObjectsOnCollide', 'generic', 'Generic', true)
+
+    this.otherPlayers = this.physics.add.group({ classType: OtherPlayer })
 
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.myPlayer, true)
@@ -138,30 +141,28 @@ export default class Game extends Phaser.Scene {
   }
 
   // function to add new player to the otherPlayer group
-  private handlePlayerJoined(newPlayer: IPlayer, key: string) {
-    if (!this.otherPlayers) {
-      this.otherPlayers = new Map<string, OtherPlayer>()
-    }
-    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'player')
-    this.otherPlayers.set(key, otherPlayer)
+  private handlePlayerJoined(newPlayer: IPlayer, id: string) {
+    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'player', id)
+    // this.otherPlayers.get(newPlayer.x, newPlayer.y, 'player') as OtherPlayer
+    this.otherPlayers.add(otherPlayer)
+    this.otherPlayerMap.set(id, otherPlayer)
   }
 
   // function to remove the player who left from the otherPlayer group
-  private handlePlayerLeft(key: string) {
-    if (this.otherPlayers?.has(key)) {
-      const otherPlayer = this.otherPlayers.get(key)
-      if (otherPlayer) otherPlayer.destroy()
-
-      this.otherPlayers.delete(key)
+  private handlePlayerLeft(id: string) {
+    if (this.otherPlayerMap.has(id)) {
+      const otherPlayer = this.otherPlayerMap.get(id)
+      if (!otherPlayer) return
+      this.otherPlayers.remove(otherPlayer, true, true)
+      this.otherPlayerMap.delete(id)
     }
   }
 
   // function to update target position upon receiving player updates
-  private handlePlayerUpdated(field: string, value: number | string, key: string) {
-    const otherPlayer = this.otherPlayers?.get(key)
-    if (otherPlayer) {
-      otherPlayer.updateOtherPlayer(field, value)
-    }
+  private handlePlayerUpdated(field: string, value: number | string, id: string) {
+    const otherPlayer = this.otherPlayerMap.get(id)
+    if (!otherPlayer) return
+    otherPlayer.updateOtherPlayer(field, value)
   }
 
   update(t: number, dt: number) {
