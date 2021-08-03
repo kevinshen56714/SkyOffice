@@ -1,10 +1,15 @@
 import Phaser from 'phaser'
 import Player from './Player'
+import MyPlayer from './MyPlayer'
 import { sittingShiftData } from './Player'
+import WebRTC from '../web/WebRTC'
+import { Event, phaserEvents } from '../events/EventCenter'
 
 export default class OtherPlayer extends Player {
   private targetPosition: [number, number]
   private lastUpdateTimestamp?: number
+  private connectionBufferTime = 0
+  private connected = false
 
   constructor(
     scene: Phaser.Scene,
@@ -18,7 +23,20 @@ export default class OtherPlayer extends Player {
     this.targetPosition = [x, y]
   }
 
-  updateOtherPlayer(field: string, value: number | string) {
+  makeCall(myPlayer: MyPlayer, webRTC: WebRTC) {
+    const myPlayerId = myPlayer.playerId
+    if (
+      myPlayerId > this.playerId &&
+      myPlayer.readyToConnect &&
+      this.readyToConnect &&
+      !this.connected
+    ) {
+      webRTC.connectToNewUser(this.playerId)
+      this.connected = true
+    }
+  }
+
+  updateOtherPlayer(field: string, value: number | string | boolean) {
     switch (field) {
       case 'x':
         if (typeof value === 'number') {
@@ -35,6 +53,12 @@ export default class OtherPlayer extends Player {
       case 'anim':
         if (typeof value === 'string') {
           this.anims.play(value, true)
+        }
+        break
+
+      case 'readyToConnect':
+        if (typeof value === 'boolean') {
+          this.readyToConnect = value
         }
         break
     }
@@ -91,6 +115,17 @@ export default class OtherPlayer extends Player {
 
     this.setVelocity(vx, vy)
     this.body.velocity.setLength(speed)
+
+    // while currently connected with myPlayer
+    // if myPlayer and the otherPlayer stop overlapping, delete video stream
+    this.connectionBufferTime += dt
+    const touching = this.body.touching.none
+    const embedded = this.body.embedded
+    if (this.connected && !embedded && touching && this.connectionBufferTime >= 1000) {
+      this.connected = false
+      phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
+      this.connectionBufferTime = 0
+    }
   }
 }
 
@@ -124,6 +159,14 @@ Phaser.GameObjects.GameObjectFactory.register(
     this.updateList.add(sprite)
 
     this.scene.physics.world.enableBody(sprite, Phaser.Physics.Arcade.DYNAMIC_BODY)
+
+    const collisionScale = [6, 4]
+    sprite.body
+      .setSize(sprite.width * collisionScale[0], sprite.height * collisionScale[1])
+      .setOffset(
+        sprite.width * (1 - collisionScale[0]) * 0.5,
+        sprite.height * (1 - collisionScale[1]) * 0.5 + 17
+      )
 
     return sprite
   }
