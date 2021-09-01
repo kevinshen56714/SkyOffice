@@ -8,7 +8,6 @@ import { phaserEvents, Event } from '../events/EventCenter'
 export default class Network {
   private client: Client
   private room?: Room<IOfficeState>
-  // private events = new Phaser.Events.EventEmitter()
   webRTC?: WebRTC
 
   mySessionId!: string
