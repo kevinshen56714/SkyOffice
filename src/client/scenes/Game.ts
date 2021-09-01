@@ -6,6 +6,7 @@ import { createCharacterAnims } from '../anims/CharacterAnims'
 import Item from '../items/Item'
 import '../characters/MyPlayer'
 import '../characters/OtherPlayer'
+import MyPlayer from '../characters/MyPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
 import Network from '../services/Network'
 import { IPlayer } from '../../types/IOfficeState'
@@ -16,7 +17,7 @@ export default class Game extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
-  private myPlayer!: Phaser.Physics.Arcade.Sprite
+  private myPlayer!: MyPlayer
   private items!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
   private otherPlayers!: Phaser.Physics.Arcade.Group
@@ -86,10 +87,20 @@ export default class Game extends Phaser.Scene {
       this
     )
 
+    this.physics.add.overlap(
+      this.myPlayer,
+      this.otherPlayers,
+      this.handlePlayersOverlap,
+      undefined,
+      this
+    )
+
     // register network event listeners
     this.network.onPlayerJoined(this.handlePlayerJoined, this)
     this.network.onPlayerLeft(this.handlePlayerLeft, this)
+    this.network.onMyPlayerReady(this.handleMyPlayerReady, this)
     this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
+    this.network.onPlayerDisconnect(this.handlePlayerDisconnected, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -143,7 +154,6 @@ export default class Game extends Phaser.Scene {
   // function to add new player to the otherPlayer group
   private handlePlayerJoined(newPlayer: IPlayer, id: string) {
     const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'player', id)
-    // this.otherPlayers.get(newPlayer.x, newPlayer.y, 'player') as OtherPlayer
     this.otherPlayers.add(otherPlayer)
     this.otherPlayerMap.set(id, otherPlayer)
   }
@@ -158,15 +168,26 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  private handleMyPlayerReady() {
+    this.myPlayer.readyToConnect = true
+  }
+
   // function to update target position upon receiving player updates
   private handlePlayerUpdated(field: string, value: number | string, id: string) {
     const otherPlayer = this.otherPlayerMap.get(id)
-    if (!otherPlayer) return
-    otherPlayer.updateOtherPlayer(field, value)
+    otherPlayer?.updateOtherPlayer(field, value)
+  }
+
+  private handlePlayersOverlap(myPlayer, otherPlayer) {
+    otherPlayer.makeCall(myPlayer, this.network?.webRTC)
+  }
+
+  private handlePlayerDisconnected(id: string) {
+    this.network?.playerStreamDisconnect(id)
   }
 
   update(t: number, dt: number) {
-    if (this.myPlayer) {
+    if (this.myPlayer && this.network) {
       this.playerSelector.update(this.myPlayer, this.cursors)
       this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.network)
     }

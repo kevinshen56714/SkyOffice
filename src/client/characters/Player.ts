@@ -15,6 +15,7 @@ export const sittingShiftData = {
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   playerId: string
   playerBehavior = PlayerBehavior.IDLE
+  readyToConnect = false
 
   constructor(
     scene: Phaser.Scene,

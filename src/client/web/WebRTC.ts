@@ -3,7 +3,8 @@ import Network from '../services/Network'
 
 export default class WebRTC {
   private myPeer: Peer
-  private peers = new Map<string, Peer.MediaConnection>()
+  peers = new Map<string, Peer.MediaConnection>()
+  onCalledVideos = new Map<string, HTMLVideoElement>()
   private videoGrid = document.querySelector('.video-grid')
   private buttonGrid = document.querySelector('.button-grid')
   private myVideo = document.createElement('video')
@@ -29,14 +30,16 @@ export default class WebRTC {
         this.myPeer.on('call', (call) => {
           call.answer(this.myStream)
           const video = document.createElement('video')
+
           call.on('stream', (userVideoStream) => {
             this.addVideoStream(video, userVideoStream)
           })
-          call.on('close', () => {
+          // triggered only when the connected peer is destroyed
+          call.on('closed', () => {
             video.remove()
+            this.onCalledVideos.delete(call.peer)
           })
-
-          this.peers.set(call.peer, call)
+          this.onCalledVideos.set(call.peer, video)
         })
 
         this.setUpButtons()
@@ -69,13 +72,21 @@ export default class WebRTC {
     if (this.videoGrid) this.videoGrid.append(video)
   }
 
-  // method to remove video stream a peer disconnects
+  // method to remove video stream (when we are the host of the call)
   deleteVideoStream(userId: string) {
     if (this.peers.has(userId)) {
-      const peer = this.peers.get(userId)
-      if (!peer) return
-      peer.close()
+      const peerCall = this.peers.get(userId)
+      peerCall?.close()
       this.peers.delete(userId)
+    }
+  }
+
+  // method to remove video stream (when we are the guest of the call)
+  deleteOnCalledVideoStream(userId: string) {
+    if (this.onCalledVideos.has(userId)) {
+      const video = this.onCalledVideos.get(userId)
+      video?.remove()
+      this.onCalledVideos.delete(userId)
     }
   }
 

@@ -3,18 +3,12 @@ import Phaser from 'phaser'
 import { IOfficeState, IPlayer } from '../../types/IOfficeState'
 import { Message } from '../../types/Messages'
 import WebRTC from '../web/WebRTC'
-
-enum Event {
-  PLAYER_JOINED = 'player-joined',
-  PLAYER_UPDATED = 'player-updated',
-  PLAYER_LEFT = 'player-left',
-}
+import { phaserEvents, Event } from '../events/EventCenter'
 
 export default class Network {
   private client: Client
   private room?: Room<IOfficeState>
-  private webRTC?: WebRTC
-  private events = new Phaser.Events.EventEmitter()
+  webRTC?: WebRTC
 
   mySessionId!: string
 
@@ -36,37 +30,47 @@ export default class Network {
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
       if (key === this.mySessionId) return
 
-      this.events.emit(Event.PLAYER_JOINED, player, key)
+      phaserEvents.emit(Event.PLAYER_JOINED, player, key)
 
       // track changes on every child object inside the players MapSchema
       player.onChange = (changes) => {
         changes.forEach((change) => {
           const { field, value } = change
-          this.events.emit(Event.PLAYER_UPDATED, field, value, key)
+          phaserEvents.emit(Event.PLAYER_UPDATED, field, value, key)
         })
       }
     }
 
     // an instance removed from the players MapSchema
     this.room.state.players.onRemove = (player: IPlayer, key: string) => {
-      this.events.emit(Event.PLAYER_LEFT, key)
+      phaserEvents.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
+      this.webRTC?.deleteOnCalledVideoStream(key)
     }
 
-    // when a peer is ready to connect with myPeer
-    this.room.onMessage(Message.READY_TO_CONNECT, (clientId) => {
-      this.webRTC?.connectToNewUser(clientId)
+    // when a peer disconnect with myPeer
+    this.room.onMessage(Message.DISCONNECT_STREAM, (clientId: string) => {
+      this.webRTC?.deleteOnCalledVideoStream(clientId)
     })
   }
 
   // method to register event listener and call back function when a player joined
   onPlayerJoined(callback: (Player: IPlayer, key: string) => void, context?: any) {
-    this.events.on(Event.PLAYER_JOINED, callback, context)
+    phaserEvents.on(Event.PLAYER_JOINED, callback, context)
   }
 
   // method to register event listener and call back function when a player left
   onPlayerLeft(callback: (key: string) => void, context?: any) {
-    this.events.on(Event.PLAYER_LEFT, callback, context)
+    phaserEvents.on(Event.PLAYER_LEFT, callback, context)
+  }
+
+  // method to register event listener and call back function when myPlayer is ready to connect
+  onMyPlayerReady(callback: (key: string) => void, context?: any) {
+    phaserEvents.on(Event.MY_PLAYER_READY, callback, context)
+  }
+
+  onPlayerDisconnect(callback: (key: string) => void, context?: any) {
+    phaserEvents.on(Event.PLAYER_DISCONNECTED, callback, context)
   }
 
   // method to register event listener and call back function when a player updated
@@ -74,7 +78,7 @@ export default class Network {
     callback: (field: string, value: number | string, key: string) => void,
     context?: any
   ) {
-    this.events.on(Event.PLAYER_UPDATED, callback, context)
+    phaserEvents.on(Event.PLAYER_UPDATED, callback, context)
   }
 
   // method to send player updates to Colyseus server
@@ -82,8 +86,15 @@ export default class Network {
     this.room?.send(Message.UPDATE_PLAYER, { x: currentX, y: currentY, anim: currentAnim })
   }
 
-  // method to send ready to connect signal to Colyseus server
+  // method to send ready-to-connect signal to Colyseus server
   readyToConnect() {
     this.room?.send(Message.READY_TO_CONNECT)
+    phaserEvents.emit(Event.MY_PLAYER_READY)
+  }
+
+  // method to send stream-disconnection signal to Colyseus server
+  playerStreamDisconnect(id: string) {
+    this.room?.send(Message.DISCONNECT_STREAM, { clientId: id })
+    this.webRTC?.deleteVideoStream(id)
   }
 }
