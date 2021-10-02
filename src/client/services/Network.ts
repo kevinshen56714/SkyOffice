@@ -1,5 +1,4 @@
 import { Client, Room } from 'colyseus.js'
-import Phaser from 'phaser'
 import { IOfficeState, IPlayer } from '../../types/IOfficeState'
 import { Message } from '../../types/Messages'
 import WebRTC from '../web/WebRTC'
