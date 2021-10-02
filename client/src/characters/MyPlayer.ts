@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 import PlayerSelector from './PlayerSelector'
-import { PlayerBehavior } from '../../types/PlayerBehavior'
+import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import { sittingShiftData } from './Player'
 import Player from './Player'
 import Network from '../services/Network'
@@ -78,7 +78,7 @@ export default class MyPlayer extends Player {
         this.body.velocity.setLength(speed)
 
         // update animation according to velocity and send new location and anim to server
-        if (vx != 0 || vy != 0) network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
+        if (vx !== 0 || vy !== 0) network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
         if (vx > 0) {
           this.play('player_run_right', true)
         } else if (vx < 0) {
@@ -92,7 +92,7 @@ export default class MyPlayer extends Player {
           parts[1] = 'idle'
           const newAnim = parts.join('_')
           // this prevents idle animation keeps getting called
-          if (this.anims.currentAnim.key != newAnim) {
+          if (this.anims.currentAnim.key !== newAnim) {
             this.play(parts.join('_'), true)
             // send new location and anim to server
             network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
