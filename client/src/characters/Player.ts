@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { PlayerBehavior } from '../../types/PlayerBehavior'
+import { PlayerBehavior } from '../../../types/PlayerBehavior'
 
 /**
  * shifting distance for sitting animation

@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 
-import { debugDraw } from '../utils/debug'
+// import { debugDraw } from '../utils/debug'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
@@ -9,7 +9,7 @@ import '../characters/OtherPlayer'
 import MyPlayer from '../characters/MyPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
 import Network from '../services/Network'
-import { IPlayer } from '../../types/IOfficeState'
+import { IPlayer } from '../../../types/IOfficeState'
 import OtherPlayer from '../characters/OtherPlayer'
 
 export default class Game extends Phaser.Scene {

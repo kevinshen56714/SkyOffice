@@ -1,0 +1,9 @@
+[build]
+  command = "cd types && npm i && cd ../client && npm i && npm run build"
+  publish = "client/build"
+
+# Rule for router history mode
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
