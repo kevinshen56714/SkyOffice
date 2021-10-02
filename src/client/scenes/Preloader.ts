@@ -91,16 +91,6 @@ export default class Preloader extends Phaser.Scene {
       loop: true,
     })
 
-    // ORIGINAL CODE
-    // this.scene.run('game')
-
-    // DEMO CODE
-    this.time.addEvent({
-      delay: 5000,
-      callback: () => {
-        this.scene.run('game')
-      },
-      loop: false,
-    })
+    this.scene.run('game')
   }
 }
