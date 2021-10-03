@@ -3,6 +3,8 @@ import { IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
+import store from '../stores'
+import { setSessionId } from '../stores/UserStore'
 
 export default class Network {
   private client: Client
@@ -23,6 +25,7 @@ export default class Network {
   async join() {
     this.room = await this.client.joinOrCreate('skyoffice')
     this.mySessionId = this.room.sessionId
+    store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)
 
     // new instance added to the players MapSchema

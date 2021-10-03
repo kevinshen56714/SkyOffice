@@ -16,6 +16,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   playerId: string
   playerBehavior = PlayerBehavior.IDLE
   readyToConnect = false
+  playerName: Phaser.GameObjects.Text
 
   constructor(
     scene: Phaser.Scene,
@@ -29,5 +30,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.playerId = id
     this.setDepth(this.y)
+
+    this.playerName = this.scene.add
+      .text(this.x, this.y + 20, '')
+      .setFontFamily('Arial')
+      .setFontSize(12)
+      .setColor('#000000')
+  }
+
+  setPlayerName(name: string) {
+    this.playerName.setText(name)
   }
 }

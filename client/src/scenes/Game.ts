@@ -17,7 +17,7 @@ export default class Game extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
-  private myPlayer!: MyPlayer
+  myPlayer!: MyPlayer
   private items!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
   private otherPlayers!: Phaser.Physics.Arcade.Group

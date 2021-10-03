@@ -1,10 +1,10 @@
 import React from 'react'
-import Video from './components/Video'
+import Debug from './components/Debug'
 
 function App() {
   return (
     <div className="App">
-      <Video />
+      <Debug />
     </div>
   )
 }
