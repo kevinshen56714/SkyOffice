@@ -4,7 +4,6 @@
   "description": "Server for SkyOffice",
   "scripts": {
     "start": "ts-node-dev --project tsconfig.server.json --respawn --transpile-only index.ts",
-		"heroku-postbuild": "tsc --project tsconfig.server.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
