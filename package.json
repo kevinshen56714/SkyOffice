@@ -1,23 +1,24 @@
 {
   "name": "skyoffice",
   "version": "1.0.0",
-  "description": "![phaser3-parceljs-template](https://user-images.githubusercontent.com/2236153/71606463-37a0da80-2b2e-11ea-9b5f-5d26ccc84f91.png)",
+  "description": "Server for SkyOffice",
   "main": ".eslintrc.js",
   "scripts": {
+    "start": "cd server && ts-node-dev --project tsconfig.server.json --respawn --transpile-only index.ts",
     "heroku-postbuild": "npm i && cd types && npm i && cd ../server && tsc --project tsconfig.server.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DaxChen/SkyOffice.git"
+    "url": "git+https://github.com/kevinshen56714/SkyOffice.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "kevinshen56714",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/DaxChen/SkyOffice/issues"
+    "url": "https://github.com/kevinshen56714/SkyOffice/issues"
   },
-  "homepage": "https://github.com/DaxChen/SkyOffice#readme",
+  "homepage": "https://github.com/kevinshen56714/SkyOffice#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
