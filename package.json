@@ -4,7 +4,7 @@
   "description": "![phaser3-parceljs-template](https://user-images.githubusercontent.com/2236153/71606463-37a0da80-2b2e-11ea-9b5f-5d26ccc84f91.png)",
   "main": ".eslintrc.js",
   "scripts": {
-    "heroku-postbuild": "cd types && npm i && cd ../server && npm i && tsc --project tsconfig.server.json",
+    "heroku-postbuild": "npm i && cd types && npm i && cd ../server && npm i && tsc --project tsconfig.server.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/DaxChen/SkyOffice/issues"
   },
-  "homepage": "https://github.com/DaxChen/SkyOffice#readme"
+  "homepage": "https://github.com/DaxChen/SkyOffice#readme",
+  "dependencies": {
+    "typescript": "^3.8.3",
+    "ts-node": "^8.1.0",
+    "tslib": "^2.3.0"
+  }
 }
