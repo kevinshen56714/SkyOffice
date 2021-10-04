@@ -17,7 +17,7 @@ export default class Game extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
-  private myPlayer!: MyPlayer
+  myPlayer!: MyPlayer
   private items!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
   private otherPlayers!: Phaser.Physics.Arcade.Group
@@ -81,7 +81,7 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.myPlayer, true)
 
-    this.physics.add.collider(this.myPlayer, groundLayer)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerNameContainer], groundLayer)
     this.physics.add.overlap(
       this.playerSelector,
       this.items,
@@ -151,12 +151,13 @@ export default class Game extends Phaser.Scene {
         .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
         .setDepth(actualY)
     })
-    if (this.myPlayer && collidable) this.physics.add.collider(this.myPlayer, group)
+    if (this.myPlayer && collidable)
+      this.physics.add.collider([this.myPlayer, this.myPlayer.playerNameContainer], group)
   }
 
   // function to add new player to the otherPlayer group
   private handlePlayerJoined(newPlayer: IPlayer, id: string) {
-    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'player', id)
+    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'player', id, newPlayer.name)
     this.otherPlayers.add(otherPlayer)
     this.otherPlayerMap.set(id, otherPlayer)
   }

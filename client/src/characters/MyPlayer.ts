@@ -6,6 +6,7 @@ import Player from './Player'
 import Network from '../services/Network'
 
 export default class MyPlayer extends Player {
+  private playNameContainerBody: Phaser.Physics.Arcade.Body
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -15,6 +16,7 @@ export default class MyPlayer extends Player {
     frame?: string | number
   ) {
     super(scene, x, y, texture, id, frame)
+    this.playNameContainerBody = this.playerNameContainer.body as Phaser.Physics.Arcade.Body
 
     this.anims.play('player_idle_down', true)
   }
@@ -42,11 +44,19 @@ export default class MyPlayer extends Player {
           this.scene.time.addEvent({
             delay: 10,
             callback: () => {
+              // update character velocity and position
               this.setVelocity(0, 0)
               this.setPosition(
                 item.x + sittingShiftData[item.itemDirection][0],
                 item.y + sittingShiftData[item.itemDirection][1]
               ).setDepth(item.depth + sittingShiftData[item.itemDirection][2])
+              // also update playerNameContainer velocity and position
+              this.playNameContainerBody.setVelocity(0, 0)
+              this.playerNameContainer.setPosition(
+                item.x + sittingShiftData[item.itemDirection][0],
+                item.y + sittingShiftData[item.itemDirection][1] - 30
+              )
+
               this.play(`player_sit_${item.itemDirection}`, true)
               playerSelector.setPosition(0, 0)
               // send new location and anim to server
@@ -74,8 +84,12 @@ export default class MyPlayer extends Player {
           vy += speed
           this.setDepth(this.y) //change player.depth if player.y changes
         }
+        // update character velocity
         this.setVelocity(vx, vy)
         this.body.velocity.setLength(speed)
+        // also update playerNameContainer velocity
+        this.playNameContainerBody.setVelocity(vx, vy)
+        this.playNameContainerBody.velocity.setLength(speed)
 
         // update animation according to velocity and send new location and anim to server
         if (vx !== 0 || vy !== 0) network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)

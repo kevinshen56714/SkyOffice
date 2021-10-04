@@ -3,6 +3,8 @@ import { IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
+import store from '../stores'
+import { setSessionId } from '../stores/UserStore'
 
 export default class Network {
   private client: Client
@@ -18,11 +20,14 @@ export default class Network {
         ? `wss://sky-office.herokuapp.com`
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
+
+    phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
   }
 
   async join() {
     this.room = await this.client.joinOrCreate('skyoffice')
     this.mySessionId = this.room.sessionId
+    store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)
 
     // new instance added to the players MapSchema
@@ -83,6 +88,11 @@ export default class Network {
   // method to send player updates to Colyseus server
   updatePlayer(currentX: number, currentY: number, currentAnim: string) {
     this.room?.send(Message.UPDATE_PLAYER, { x: currentX, y: currentY, anim: currentAnim })
+  }
+
+  // method to send player name to Colyseus server
+  updatePlayerName(currentName: string) {
+    this.room?.send(Message.UPDATE_PLAYER_NAME, { name: currentName })
   }
 
   // method to send ready-to-connect signal to Colyseus server
