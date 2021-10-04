@@ -17,10 +17,13 @@ export default class OtherPlayer extends Player {
     y: number,
     texture: string,
     id: string,
+    name: string,
     frame?: string | number
   ) {
     super(scene, x, y, texture, id, frame)
     this.targetPosition = [x, y]
+
+    this.playerName.setText(name)
   }
 
   makeCall(myPlayer: MyPlayer, webRTC: WebRTC) {
@@ -38,6 +41,12 @@ export default class OtherPlayer extends Player {
 
   updateOtherPlayer(field: string, value: number | string | boolean) {
     switch (field) {
+      case 'name':
+        if (typeof value === 'string') {
+          this.playerName.setText(value)
+        }
+        break
+
       case 'x':
         if (typeof value === 'number') {
           this.targetPosition[0] = value
@@ -64,6 +73,12 @@ export default class OtherPlayer extends Player {
     }
   }
 
+  destroy(fromScene?: boolean) {
+    this.playerNameContainer.destroy()
+
+    super.destroy(fromScene)
+  }
+
   /** preUpdate is called every frame for every game object. */
   preUpdate(t: number, dt: number) {
     super.preUpdate(t, dt)
@@ -74,6 +89,8 @@ export default class OtherPlayer extends Player {
       this.lastUpdateTimestamp = t
       this.x = this.targetPosition[0]
       this.y = this.targetPosition[1]
+      this.playerNameContainer.x = this.targetPosition[0]
+      this.playerNameContainer.y = this.targetPosition[1] - 30
       return
     }
 
@@ -98,10 +115,12 @@ export default class OtherPlayer extends Player {
     // if the player is close enough to the target position, directly snap the player to that position
     if (Math.abs(dx) < delta) {
       this.x = this.targetPosition[0]
+      this.playerNameContainer.x = this.targetPosition[0]
       dx = 0
     }
     if (Math.abs(dy) < delta) {
       this.y = this.targetPosition[1]
+      this.playerNameContainer.y = this.targetPosition[1] - 30
       dy = 0
     }
 
@@ -113,8 +132,14 @@ export default class OtherPlayer extends Player {
     if (dy > 0) vy += speed
     else if (dy < 0) vy -= speed
 
+    // update character velocity
     this.setVelocity(vx, vy)
     this.body.velocity.setLength(speed)
+    // also update playerNameContainer velocity
+    if (this.playerNameContainer.body instanceof Phaser.Physics.Arcade.Body) {
+      this.playerNameContainer.body.setVelocity(vx, vy)
+      this.playerNameContainer.body.velocity.setLength(speed)
+    }
 
     // while currently connected with myPlayer
     // if myPlayer and the otherPlayer stop overlapping, delete video stream
@@ -137,6 +162,7 @@ declare global {
         y: number,
         texture: string,
         id: string,
+        name: string,
         frame?: string | number
       ): OtherPlayer
     }
@@ -151,9 +177,10 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     id: string,
+    name: string,
     frame?: string | number
   ) {
-    const sprite = new OtherPlayer(this.scene, x, y, texture, id, frame)
+    const sprite = new OtherPlayer(this.scene, x, y, texture, id, name, frame)
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)

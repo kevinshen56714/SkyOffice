@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
-
+import { phaserEvents, Event } from '../events/EventCenter'
 /**
  * shifting distance for sitting animation
  * format: direction: [xShift, yShift, depthShift]
@@ -52,5 +52,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   setPlayerName(name: string) {
     this.playerName.setText(name)
+    phaserEvents.emit(Event.MY_PLAYER_NAME_CHANGE, name)
   }
 }

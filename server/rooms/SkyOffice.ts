@@ -3,6 +3,7 @@ import { Dispatcher } from '@colyseus/command'
 import { Player, OfficeState } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
+import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
 
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
@@ -22,6 +23,14 @@ export class SkyOffice extends Room<OfficeState> {
         })
       }
     )
+
+    // when receiving updatePlayerName message, call the PlayerUpdateNameCommand
+    this.onMessage(Message.UPDATE_PLAYER_NAME, (client, message: { name: string }) => {
+      this.dispatcher.dispatch(new PlayerUpdateNameCommand(), {
+        client,
+        name: message.name,
+      })
+    })
 
     // when a player is ready to connect, call the PlayerReadyToConnectCommand
     this.onMessage(Message.READY_TO_CONNECT, (client) => {

@@ -1,5 +1,6 @@
 export enum Message {
   UPDATE_PLAYER,
+  UPDATE_PLAYER_NAME,
   READY_TO_CONNECT,
   DISCONNECT_STREAM,
 }
