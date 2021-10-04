@@ -42,12 +42,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.playerNameContainer.add(this.playerName)
     this.scene.physics.world.enable(this.playerNameContainer)
-    if (this.playerNameContainer.body instanceof Phaser.Physics.Arcade.Body) {
-      const collisionScale = [0.5, 0.2]
-      this.playerNameContainer.body
-        .setSize(this.width * collisionScale[0], this.height * collisionScale[1])
-        .setOffset(-8, this.height * (1 - collisionScale[1]) + 6)
-    }
+    const playNameContainerBody = this.playerNameContainer.body as Phaser.Physics.Arcade.Body
+    const collisionScale = [0.5, 0.2]
+    playNameContainerBody
+      .setSize(this.width * collisionScale[0], this.height * collisionScale[1])
+      .setOffset(-8, this.height * (1 - collisionScale[1]) + 6)
   }
 
   setPlayerName(name: string) {
