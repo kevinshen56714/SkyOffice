@@ -42,11 +42,20 @@ export default class MyPlayer extends Player {
           this.scene.time.addEvent({
             delay: 10,
             callback: () => {
+              // update character velocity and position
               this.setVelocity(0, 0)
               this.setPosition(
                 item.x + sittingShiftData[item.itemDirection][0],
                 item.y + sittingShiftData[item.itemDirection][1]
               ).setDepth(item.depth + sittingShiftData[item.itemDirection][2])
+              // also update playerNameContainer velocity and position
+              if (this.playerNameContainer.body instanceof Phaser.Physics.Arcade.Body) {
+                this.playerNameContainer.body.setVelocity(0, 0)
+                this.playerNameContainer.setPosition(
+                  item.x + sittingShiftData[item.itemDirection][0],
+                  item.y + sittingShiftData[item.itemDirection][1] - 30
+                )
+              }
               this.play(`player_sit_${item.itemDirection}`, true)
               playerSelector.setPosition(0, 0)
               // send new location and anim to server
@@ -74,8 +83,14 @@ export default class MyPlayer extends Player {
           vy += speed
           this.setDepth(this.y) //change player.depth if player.y changes
         }
+        // update character velocity
         this.setVelocity(vx, vy)
         this.body.velocity.setLength(speed)
+        // also update playerNameContainer velocity
+        if (this.playerNameContainer.body instanceof Phaser.Physics.Arcade.Body) {
+          this.playerNameContainer.body.setVelocity(vx, vy)
+          this.playerNameContainer.body.velocity.setLength(speed)
+        }
 
         // update animation according to velocity and send new location and anim to server
         if (vx !== 0 || vy !== 0) network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
