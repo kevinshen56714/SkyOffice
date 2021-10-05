@@ -1,10 +1,19 @@
 import React from 'react'
-import Debug from './components/Debug'
+
+import { useAppSelector } from './hooks'
+
+import LoginDialog from './components/LoginDialog'
+// import Debug from './components/Debug'
 
 function App() {
+  const loggedIn = useAppSelector((state) => state.user.loggedIn)
+
   return (
     <div className="App">
-      <Debug />
+      {/* <Debug /> */}
+
+      {/* Render the LoginDialog if not logged in yet. */}
+      {!loggedIn && <LoginDialog />}
     </div>
   )
 }
