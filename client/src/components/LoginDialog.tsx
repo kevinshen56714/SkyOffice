@@ -12,8 +12,11 @@ import Adam from '../assets/Adam_login.png'
 import Ash from '../assets/Ash_login.png'
 import Lucy from '../assets/Lucy_login.png'
 import Nancy from '../assets/Nancy_login.png'
-import { useAppDispatch } from '../hooks'
+import { useAppSelector, useAppDispatch } from '../hooks'
 import { setLoggedIn } from '../stores/UserStore'
+
+import phaserGame from '../PhaserGame'
+import Game from '../scenes/Game'
 
 SwiperCore.use([Navigation])
 
@@ -89,6 +92,7 @@ export default function LoginDialog() {
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
   const dispatch = useAppDispatch()
+  const connected = useAppSelector((state) => state.user.connected)
 
   return (
     <Wrapper>
@@ -114,7 +118,13 @@ export default function LoginDialog() {
             label="Name"
             variant="outlined"
             color="secondary"
-            onInput={(e) => setName((e.target as HTMLInputElement).value)}
+            onInput={(e) => {
+              setName((e.target as HTMLInputElement).value)
+              if (connected) {
+                const game = phaserGame.scene.keys.game as Game
+                game.myPlayer.setPlayerName(name)
+              }
+            }}
           />
         </Right>
       </Content>
@@ -124,8 +134,13 @@ export default function LoginDialog() {
           color="secondary"
           size="large"
           onClick={() => {
-            console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
-            dispatch(setLoggedIn(true))
+            if (connected) {
+              console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
+              const game = phaserGame.scene.keys.game as Game
+              game.registerKeys()
+              game.myPlayer.setPlayerName(name)
+              dispatch(setLoggedIn(true))
+            }
           }}
         >
           Join

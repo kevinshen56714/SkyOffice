@@ -12,8 +12,11 @@ import Network from '../services/Network'
 import { IPlayer } from '../../../types/IOfficeState'
 import OtherPlayer from '../characters/OtherPlayer'
 
+import store from '../stores'
+import { setConnected } from '../stores/UserStore'
+
 export default class Game extends Phaser.Scene {
-  private network?: Network
+  network!: Network
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
@@ -27,14 +30,14 @@ export default class Game extends Phaser.Scene {
     super('game')
   }
 
-  init() {
-    this.network = new Network()
-  }
-
-  preload() {
+  registerKeys() {
     this.cursors = this.input.keyboard.createCursorKeys()
     // maybe we can have a dedicated method for adding keys if more keys are needed in the future
     this.keyE = this.input.keyboard.addKey('E')
+  }
+
+  init() {
+    this.network = new Network()
   }
 
   async create() {
@@ -43,6 +46,7 @@ export default class Game extends Phaser.Scene {
       throw new Error('server instance missing')
     }
     await this.network.join()
+    store.dispatch(setConnected(true))
 
     // if in the future we have a bootstrap scene to manage all the scene transferring, we can put this line there
     this.scene.stop('preloader')
