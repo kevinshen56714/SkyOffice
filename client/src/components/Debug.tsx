@@ -23,8 +23,9 @@ export default function Video() {
   // const dispatch = useAppDispatch()
 
   return (
-    <Wrapper>
-      {/* <Button
+    <>
+      <Wrapper>
+        {/* <Button
         variant="contained"
         onClick={() => {
           setShowVideo(!showVideo)
@@ -56,23 +57,23 @@ export default function Video() {
       >
         -
       </Button> */}
-      {/* {count} */}
-      <div>sessionId: {sessionId}</div>
-      <TextField
-        label="PlayerName"
-        variant="outlined"
-        onInput={(e) => {
-          const text = (e.target as HTMLInputElement).value
-          const game = phaserGame.scene.keys.game as Game
-          game.myPlayer.setPlayerName(text)
-        }}
-      />
+        {/* {count} */}
+        <div>sessionId: {sessionId}</div>
+        <TextField
+          label="PlayerName"
+          variant="outlined"
+          onInput={(e) => {
+            const text = (e.target as HTMLInputElement).value
+            const game = phaserGame.scene.keys.game as Game
+            game.myPlayer.setPlayerName(text)
+          }}
+        />
 
-      {/* This is how you write if-else (or conditionally render in react) */}
-      {/* {showVideo ? <h1>haha</h1> : null} */}
+        {/* This is how you write if-else (or conditionally render in react) */}
+        {/* {showVideo ? <h1>haha</h1> : null} */}
 
-      {/* This is how you write for-loops (or render multiple elements dynamically in react) */}
-      {/* {videos.map((video, i) => (
+        {/* This is how you write for-loops (or render multiple elements dynamically in react) */}
+        {/* {videos.map((video, i) => (
         <div>
           {video}
           <IconButton
@@ -86,6 +87,7 @@ export default function Video() {
           </IconButton>
         </div>
       ))} */}
-    </Wrapper>
+      </Wrapper>
+    </>
   )
 }

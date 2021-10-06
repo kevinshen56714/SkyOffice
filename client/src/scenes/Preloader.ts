@@ -30,13 +30,28 @@ export default class Preloader extends Phaser.Scene {
       frameHeight: 32,
     })
 
-    this.load.spritesheet('player', 'assets/character/adam.png', {
+    this.load.spritesheet('adam', 'assets/character/adam.png', {
+      frameWidth: 32,
+      frameHeight: 48,
+    })
+
+    this.load.spritesheet('ash', 'assets/character/ash.png', {
+      frameWidth: 32,
+      frameHeight: 48,
+    })
+
+    this.load.spritesheet('lucy', 'assets/character/lucy.png', {
+      frameWidth: 32,
+      frameHeight: 48,
+    })
+
+    this.load.spritesheet('nancy', 'assets/character/nancy.png', {
       frameWidth: 32,
       frameHeight: 48,
     })
   }
 
-  async create() {
+  create() {
     // create loading texts
     const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2
     const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2

@@ -4,21 +4,22 @@ export const userSlice = createSlice({
   name: 'user',
   initialState: {
     sessionId: '',
-    counter: 0,
+    connected: false,
+    loggedIn: false,
   },
   reducers: {
     setSessionId: (state, action: PayloadAction<string>) => {
       state.sessionId = action.payload
     },
-    increment: (state) => {
-      state.counter++
+    setConnected: (state, action: PayloadAction<boolean>) => {
+      state.connected = action.payload
     },
-    decrement: (state) => {
-      state.counter--
+    setLoggedIn: (state, action: PayloadAction<boolean>) => {
+      state.loggedIn = action.payload
     },
   },
 })
 
-export const { setSessionId, increment, decrement } = userSlice.actions
+export const { setSessionId, setConnected, setLoggedIn } = userSlice.actions
 
 export default userSlice.reducer

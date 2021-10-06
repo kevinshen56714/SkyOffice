@@ -17,8 +17,6 @@ export default class MyPlayer extends Player {
   ) {
     super(scene, x, y, texture, id, frame)
     this.playNameContainerBody = this.playerNameContainer.body as Phaser.Physics.Arcade.Body
-
-    this.anims.play('player_idle_down', true)
   }
 
   update(
@@ -57,7 +55,7 @@ export default class MyPlayer extends Player {
                 item.y + sittingShiftData[item.itemDirection][1] - 30
               )
 
-              this.play(`player_sit_${item.itemDirection}`, true)
+              this.play(`${this.playerTexture}_sit_${item.itemDirection}`, true)
               playerSelector.setPosition(0, 0)
               // send new location and anim to server
               network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
@@ -94,13 +92,13 @@ export default class MyPlayer extends Player {
         // update animation according to velocity and send new location and anim to server
         if (vx !== 0 || vy !== 0) network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
         if (vx > 0) {
-          this.play('player_run_right', true)
+          this.play(`${this.playerTexture}_run_right`, true)
         } else if (vx < 0) {
-          this.play('player_run_left', true)
+          this.play(`${this.playerTexture}_run_left`, true)
         } else if (vy > 0) {
-          this.play('player_run_down', true)
+          this.play(`${this.playerTexture}_run_down`, true)
         } else if (vy < 0) {
-          this.play('player_run_up', true)
+          this.play(`${this.playerTexture}_run_up`, true)
         } else {
           const parts = this.anims.currentAnim.key.split('_')
           parts[1] = 'idle'

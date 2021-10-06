@@ -12,8 +12,11 @@ import Network from '../services/Network'
 import { IPlayer } from '../../../types/IOfficeState'
 import OtherPlayer from '../characters/OtherPlayer'
 
+import store from '../stores'
+import { setConnected } from '../stores/UserStore'
+
 export default class Game extends Phaser.Scene {
-  private network?: Network
+  network!: Network
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
@@ -27,14 +30,14 @@ export default class Game extends Phaser.Scene {
     super('game')
   }
 
-  init() {
-    this.network = new Network()
-  }
-
-  preload() {
+  registerKeys() {
     this.cursors = this.input.keyboard.createCursorKeys()
     // maybe we can have a dedicated method for adding keys if more keys are needed in the future
     this.keyE = this.input.keyboard.addKey('E')
+  }
+
+  init() {
+    this.network = new Network()
   }
 
   async create() {
@@ -43,6 +46,7 @@ export default class Game extends Phaser.Scene {
       throw new Error('server instance missing')
     }
     await this.network.join()
+    store.dispatch(setConnected(true))
 
     // if in the future we have a bootstrap scene to manage all the scene transferring, we can put this line there
     this.scene.stop('preloader')
@@ -57,7 +61,7 @@ export default class Game extends Phaser.Scene {
 
     // debugDraw(groundLayer, this)
 
-    this.myPlayer = this.add.myPlayer(705, 500, 'player', this.network.mySessionId)
+    this.myPlayer = this.add.myPlayer(705, 500, 'adam', this.network.mySessionId)
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
     // import item objects (currently chairs) from Tiled map to Phaser
@@ -103,7 +107,6 @@ export default class Game extends Phaser.Scene {
     this.network.onPlayerLeft(this.handlePlayerLeft, this)
     this.network.onMyPlayerReady(this.handleMyPlayerReady, this)
     this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
-    this.network.onPlayerDisconnect(this.handlePlayerDisconnected, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -157,7 +160,7 @@ export default class Game extends Phaser.Scene {
 
   // function to add new player to the otherPlayer group
   private handlePlayerJoined(newPlayer: IPlayer, id: string) {
-    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'player', id, newPlayer.name)
+    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'adam', id, newPlayer.name)
     this.otherPlayers.add(otherPlayer)
     this.otherPlayerMap.set(id, otherPlayer)
   }
@@ -184,10 +187,6 @@ export default class Game extends Phaser.Scene {
 
   private handlePlayersOverlap(myPlayer, otherPlayer) {
     otherPlayer.makeCall(myPlayer, this.network?.webRTC)
-  }
-
-  private handlePlayerDisconnected(id: string) {
-    this.network?.playerStreamDisconnect(id)
   }
 
   update(t: number, dt: number) {
