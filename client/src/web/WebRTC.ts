@@ -12,6 +12,9 @@ export default class WebRTC {
 
   constructor(userId: string, network: Network) {
     this.myPeer = new Peer(userId)
+    this.myPeer.on('error', (err) => {
+      console.log(err)
+    })
 
     // mute your own video stream (you don't want to hear yourself)
     this.myVideo.muted = true
@@ -56,19 +59,19 @@ export default class WebRTC {
     if (!this.myStream) return false
     const call = this.myPeer.call(userId, this.myStream)
     console.log(call)
-    const video = document.createElement('video')
-    call.on('stream', (userVideoStream) => {
-      this.addVideoStream(video, userVideoStream)
-    })
-    call.on('close', () => {
-      video.remove()
-    })
-    call.on('error', (err) => {
-      console.log(err)
-    })
+    if (call) {
+      const video = document.createElement('video')
+      call.on('stream', (userVideoStream) => {
+        this.addVideoStream(video, userVideoStream)
+      })
+      call.on('close', () => {
+        video.remove()
+      })
 
-    this.peers.set(userId, call)
-    return true
+      this.peers.set(userId, call)
+      return true
+    }
+    return false
   }
 
   // method to add new video stream to videoGrid div
