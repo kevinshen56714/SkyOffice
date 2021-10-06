@@ -13,6 +13,7 @@ export default class WebRTC {
   constructor(userId: string, network: Network) {
     this.myPeer = new Peer(userId)
     this.myPeer.on('error', (err) => {
+      console.log(err.type)
       console.log(err)
     })
 
