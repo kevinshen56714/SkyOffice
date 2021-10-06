@@ -9,4 +9,5 @@ export enum Event {
   PLAYER_DISCONNECTED = 'player-disconnected',
   MY_PLAYER_READY = 'my-player-ready',
   MY_PLAYER_NAME_CHANGE = 'my-player-name-change',
+  MY_PLAYER_TEXTURE_CHANGE = 'my-player-texture-change',
 }

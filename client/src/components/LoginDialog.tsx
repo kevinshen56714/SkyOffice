@@ -82,10 +82,10 @@ const Bottom = styled.div`
 `
 
 const avatars = [
-  { name: 'Adam', img: Adam },
-  { name: 'Ash', img: Ash },
-  { name: 'Lucy', img: Lucy },
-  { name: 'Nancy', img: Nancy },
+  { name: 'adam', img: Adam },
+  { name: 'ash', img: Ash },
+  { name: 'lucy', img: Lucy },
+  { name: 'nancy', img: Nancy },
 ]
 
 export default function LoginDialog() {
@@ -104,7 +104,11 @@ export default function LoginDialog() {
             navigation
             spaceBetween={0}
             slidesPerView={1}
-            onSlideChange={(swiper) => setAvatarIndex(swiper.activeIndex)}
+            onSlideChange={(swiper) => {
+              setAvatarIndex(swiper.activeIndex)
+              const game = phaserGame.scene.keys.game as Game
+              game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+            }}
           >
             {avatars.map((avatar) => (
               <SwiperSlide key={avatar.name}>
@@ -139,6 +143,7 @@ export default function LoginDialog() {
               const game = phaserGame.scene.keys.game as Game
               game.registerKeys()
               game.myPlayer.setPlayerName(name)
+              game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
               dispatch(setLoggedIn(true))
             }
           }}
