@@ -11,7 +11,8 @@ export default class WebRTC {
   private myStream?: MediaStream
 
   constructor(userId: string, network: Network) {
-    this.myPeer = new Peer(userId)
+    const sanatizedId = this.replaceInvalidId(userId)
+    this.myPeer = new Peer(sanatizedId)
     this.myPeer.on('error', (err) => {
       console.log(err.type)
       console.log(err)
@@ -55,10 +56,16 @@ export default class WebRTC {
       })
   }
 
+  // PeerJS throws invalid_id error if it contains some characters such as - that colyseus generates.
+  replaceInvalidId(userId: string) {
+    return userId.replace(/[^0-9a-z]/gi, '_')
+  }
+
   // method to call a peer
   connectToNewUser(userId: string) {
     if (!this.myStream) return false
-    const call = this.myPeer.call(userId, this.myStream)
+    const sanatizedId = this.replaceInvalidId(userId)
+    const call = this.myPeer.call(sanatizedId, this.myStream)
     console.log(call)
     if (call) {
       const video = document.createElement('video')
