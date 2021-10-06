@@ -13,6 +13,8 @@ export default class WebRTC {
   constructor(userId: string, network: Network) {
     const sanatizedId = this.replaceInvalidId(userId)
     this.myPeer = new Peer(sanatizedId)
+    console.log('userId:', userId)
+    console.log('sanatizedId:', sanatizedId)
     this.myPeer.on('error', (err) => {
       console.log(err.type)
       console.log(err)
@@ -56,9 +58,10 @@ export default class WebRTC {
       })
   }
 
-  // PeerJS throws invalid_id error if it contains some characters such as - that colyseus generates.
+  // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
+  // https://peerjs.com/docs.html#peer-id
   replaceInvalidId(userId: string) {
-    return userId.replace(/[^0-9a-z]/gi, '_')
+    return userId.replace(/[^0-9a-z]/gi, 'G')
   }
 
   // method to call a peer
