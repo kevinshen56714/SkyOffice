@@ -36,8 +36,7 @@ export default class OtherPlayer extends Player {
       this.readyToConnect &&
       !this.connected
     ) {
-      webRTC.connectToNewUser(this.playerId)
-      this.connected = true
+      this.connected = webRTC.connectToNewUser(this.playerId)
     }
   }
 
@@ -147,9 +146,9 @@ export default class OtherPlayer extends Player {
     const touching = this.body.touching.none
     const embedded = this.body.embedded
     if (this.connected && !embedded && touching && this.connectionBufferTime >= 1000) {
-      this.connected = false
       phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
       this.connectionBufferTime = 0
+      this.connected = false
     }
   }
 }

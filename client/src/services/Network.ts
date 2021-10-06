@@ -22,6 +22,7 @@ export default class Network {
     this.client = new Client(endpoint)
 
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
+    phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
   }
 
   async join() {
@@ -71,10 +72,6 @@ export default class Network {
   // method to register event listener and call back function when myPlayer is ready to connect
   onMyPlayerReady(callback: (key: string) => void, context?: any) {
     phaserEvents.on(Event.MY_PLAYER_READY, callback, context)
-  }
-
-  onPlayerDisconnect(callback: (key: string) => void, context?: any) {
-    phaserEvents.on(Event.PLAYER_DISCONNECTED, callback, context)
   }
 
   // method to register event listener and call back function when a player updated

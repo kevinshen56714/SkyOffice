@@ -50,17 +50,22 @@ export default class WebRTC {
 
   // method to call a peer
   connectToNewUser(userId: string) {
-    if (!this.myStream) return
+    if (!this.myStream) return false
     const call = this.myPeer.call(userId, this.myStream)
-    const video = document.createElement('video')
-    call.on('stream', (userVideoStream) => {
-      this.addVideoStream(video, userVideoStream)
-    })
-    call.on('close', () => {
-      video.remove()
-    })
+    console.log(call)
+    if (call) {
+      const video = document.createElement('video')
+      call.on('stream', (userVideoStream) => {
+        this.addVideoStream(video, userVideoStream)
+      })
+      call.on('close', () => {
+        video.remove()
+      })
 
-    this.peers.set(userId, call)
+      this.peers.set(userId, call)
+      return true
+    }
+    return false
   }
 
   // method to add new video stream to videoGrid div

@@ -107,7 +107,6 @@ export default class Game extends Phaser.Scene {
     this.network.onPlayerLeft(this.handlePlayerLeft, this)
     this.network.onMyPlayerReady(this.handleMyPlayerReady, this)
     this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
-    this.network.onPlayerDisconnect(this.handlePlayerDisconnected, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -188,10 +187,6 @@ export default class Game extends Phaser.Scene {
 
   private handlePlayersOverlap(myPlayer, otherPlayer) {
     otherPlayer.makeCall(myPlayer, this.network?.webRTC)
-  }
-
-  private handlePlayerDisconnected(id: string) {
-    this.network?.playerStreamDisconnect(id)
   }
 
   update(t: number, dt: number) {
