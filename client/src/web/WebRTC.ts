@@ -39,6 +39,9 @@ export default class WebRTC {
             video.remove()
             this.onCalledVideos.delete(call.peer)
           })
+          call.on('error', (err) => {
+            console.log(err)
+          })
           this.onCalledVideos.set(call.peer, video)
         })
 
@@ -53,19 +56,19 @@ export default class WebRTC {
     if (!this.myStream) return false
     const call = this.myPeer.call(userId, this.myStream)
     console.log(call)
-    if (call) {
-      const video = document.createElement('video')
-      call.on('stream', (userVideoStream) => {
-        this.addVideoStream(video, userVideoStream)
-      })
-      call.on('close', () => {
-        video.remove()
-      })
+    const video = document.createElement('video')
+    call.on('stream', (userVideoStream) => {
+      this.addVideoStream(video, userVideoStream)
+    })
+    call.on('close', () => {
+      video.remove()
+    })
+    call.on('error', (err) => {
+      console.log(err)
+    })
 
-      this.peers.set(userId, call)
-      return true
-    }
-    return false
+    this.peers.set(userId, call)
+    return true
   }
 
   // method to add new video stream to videoGrid div
