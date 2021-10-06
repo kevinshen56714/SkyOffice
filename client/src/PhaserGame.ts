@@ -4,6 +4,7 @@ import Preloader from './scenes/Preloader'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
+  parent: 'phaser-container',
   backgroundColor: '#CFF5FC',
   pixelArt: true, // Prevent pixel art from becoming blurred when scaled.
   scale: {
