@@ -11,6 +11,7 @@ export default class OtherPlayer extends Player {
   private connectionBufferTime = 0
   private connected = false
   private playNameContainerBody: Phaser.Physics.Arcade.Body
+  private myPlayer?: MyPlayer
 
   constructor(
     scene: Phaser.Scene,
@@ -29,6 +30,7 @@ export default class OtherPlayer extends Player {
   }
 
   makeCall(myPlayer: MyPlayer, webRTC: WebRTC) {
+    this.myPlayer = myPlayer
     const myPlayerId = myPlayer.playerId
     if (
       myPlayerId > this.playerId &&
@@ -144,10 +146,16 @@ export default class OtherPlayer extends Player {
     // while currently connected with myPlayer
     // if myPlayer and the otherPlayer stop overlapping, delete video stream
     this.connectionBufferTime += dt
-    if (this.connected && !this.body.embedded && this.body.touching.none) {
-      phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
-      this.connectionBufferTime = 0
-      this.connected = false
+    if (
+      this.connected &&
+      this.myPlayer &&
+      (!(this.x < 600 && this.y > 515) || !(this.myPlayer.x < 600 && this.myPlayer.y > 515))
+    ) {
+      if (!this.body.embedded && this.body.touching.none) {
+        phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
+        this.connectionBufferTime = 0
+        this.connected = false
+      }
     }
   }
 }
