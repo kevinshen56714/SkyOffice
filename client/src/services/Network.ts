@@ -49,14 +49,11 @@ export default class Network {
 
     // new instance added to the computers MapSchema
     this.room.state.computers.onAdd = (computer: IComputer, key: string) => {
+      // track changes on every child object's connectedUser
       computer.connectedUser.onAdd = (item, index) => {
-        console.log('computer:', key)
-        console.log('added user:', index, item)
         phaserEvents.emit(Event.ITEM_USER_ADDED, item, key)
       }
       computer.connectedUser.onRemove = (item, index) => {
-        console.log('computer:', key)
-        console.log('removed user:', index, item)
         phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key)
       }
     }

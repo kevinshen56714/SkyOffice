@@ -65,7 +65,7 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
     const statusBoxWidth = width
     const statusBoxHeight = 15
     const statusBoxX = this.x - statusBoxWidth * 0.5
-    const statusBoxY = this.y
+    const statusBoxY = this.y - this.height * 0.25
     this.statusBox.add(
       this.scene.add
         .graphics()
