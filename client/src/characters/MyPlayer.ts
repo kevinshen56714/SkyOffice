@@ -33,7 +33,7 @@ export default class MyPlayer extends Player {
     const item = playerSelector.selectedItem
 
     if (Phaser.Input.Keyboard.JustDown(keyR) && item?.texture.key === 'computers') {
-      console.log('computer')
+      network.connectToComputer(item.id)
     }
 
     switch (this.playerBehavior) {

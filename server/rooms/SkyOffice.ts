@@ -1,15 +1,29 @@
 import { Room, Client } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
-import { Player, OfficeState } from './schema/OfficeState'
+import { Player, OfficeState, Computer } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
 import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
+import ComputerUpdateArrayCommand from './commands/ComputerUpdateArrayCommand'
 
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
 
   onCreate(options: any) {
     this.setState(new OfficeState())
+
+    // HARD-CODED: Add 5 computers in a room
+    for (let i = 0; i < 5; i++) {
+      this.state.computers.set(String(i), new Computer())
+    }
+
+    // when a player connect to a computer, add to the computer connectedUser array
+    this.onMessage(Message.CONNECT_TO_COMPUTER, (client, message: { computerId: string }) => {
+      this.dispatcher.dispatch(new ComputerUpdateArrayCommand(), {
+        client,
+        computerId: message.computerId,
+      })
+    })
 
     // when receiving updatePlayer message, call the PlayerUpdateCommand
     this.onMessage(

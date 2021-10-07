@@ -18,6 +18,14 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
     return this._itemDirection
   }
 
+  private _id!: string
+  set id(id: string) {
+    this._id = id
+  }
+  get id() {
+    return this._id
+  }
+
   onOverlapDialog() {
     switch (this.texture.key) {
       case 'chairs':

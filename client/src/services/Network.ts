@@ -104,4 +104,8 @@ export default class Network {
     this.room?.send(Message.DISCONNECT_STREAM, { clientId: id })
     this.webRTC?.deleteVideoStream(id)
   }
+
+  connectToComputer(id: string) {
+    this.room?.send(Message.CONNECT_TO_COMPUTER, { computerId: id })
+  }
 }

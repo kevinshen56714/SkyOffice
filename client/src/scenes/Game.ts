@@ -77,9 +77,12 @@ export default class Game extends Phaser.Scene {
     })
 
     const computerLayer = this.map.getObjectLayer('Computer')
+    var counter = 0
     computerLayer.objects.forEach((Obj) => {
       const item = this.addObjectFromTiled(this.items, Obj, 'computers', 'computer') as Item
       item.setDepth(item.y + item.height * 0.27)
+      item.id = String(counter)
+      ++counter
     })
 
     // import other objects from Tiled map to Phaser

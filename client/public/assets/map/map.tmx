@@ -13303,7 +13303,7 @@
   <object id="835" gid="3636" x="512" y="160" width="32" height="32"/>
   <object id="836" gid="3652" x="512" y="192" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="8" name="GenericObjectsOnCollide" locked="1" opacity="0.9">
+ <objectgroup id="8" name="GenericObjectsOnCollide" locked="1">
   <object id="716" gid="4454" x="736" y="128" width="32" height="32"/>
   <object id="787" gid="3552" x="256" y="256" width="32" height="32"/>
   <object id="788" gid="3553" x="288" y="256" width="32" height="32"/>
@@ -13322,7 +13322,7 @@
   <object id="838" gid="4380" x="1152" y="928" width="32" height="32"/>
   <object id="839" gid="4396" x="1184" y="928" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="9" name="Computer">
+ <objectgroup id="9" name="Computer" locked="1">
   <object id="875" gid="4671" x="1152" y="544" width="96" height="64"/>
   <object id="876" gid="4673" x="1056" y="544" width="96" height="64"/>
   <object id="877" gid="4675" x="960" y="544" width="96" height="64"/>
