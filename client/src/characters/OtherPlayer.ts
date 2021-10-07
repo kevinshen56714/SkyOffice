@@ -32,9 +32,10 @@ export default class OtherPlayer extends Player {
     const myPlayerId = myPlayer.playerId
     if (
       myPlayerId > this.playerId &&
+      !this.connected &&
+      this.connectionBufferTime >= 1000 &&
       myPlayer.readyToConnect &&
-      this.readyToConnect &&
-      !this.connected
+      this.readyToConnect
     ) {
       this.connected = webRTC.connectToNewUser(this.playerId)
     }
@@ -143,9 +144,7 @@ export default class OtherPlayer extends Player {
     // while currently connected with myPlayer
     // if myPlayer and the otherPlayer stop overlapping, delete video stream
     this.connectionBufferTime += dt
-    const touching = this.body.touching.none
-    const embedded = this.body.embedded
-    if (this.connected && !embedded && touching && this.connectionBufferTime >= 1000) {
+    if (this.connected && !this.body.embedded && this.body.touching.none) {
       phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
       this.connectionBufferTime = 0
       this.connected = false

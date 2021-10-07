@@ -18,13 +18,25 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
     return this._itemDirection
   }
 
+  onOverlapDialog() {
+    switch (this.texture.key) {
+      case 'chairs':
+        this.setDialogBox('Press E to sit', 80)
+        break
+
+      case 'computers':
+        this.setDialogBox('Press R to use computer', 140)
+        break
+    }
+  }
+
   // add dialog box into the item container
   setDialogBox(text: string, width: number) {
     const dialogBoxWidth = width
     const dialogBoxHeight = 20
     const dialogBoxX = this.x - dialogBoxWidth * 0.5
-    const dialogBoxY = this.y + this.height * 0.5
-
+    const dialogBoxY =
+      this.texture.key === 'chairs' ? this.y + this.height * 0.5 : this.y - this.height * 0.75
     this.dialogBox.add(
       this.scene.add
         .graphics()

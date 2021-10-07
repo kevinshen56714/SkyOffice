@@ -69,7 +69,6 @@ export default class WebRTC {
     if (!this.myStream) return false
     const sanatizedId = this.replaceInvalidId(userId)
     const call = this.myPeer.call(sanatizedId, this.myStream)
-    console.log(call)
     if (call) {
       const video = document.createElement('video')
       call.on('stream', (userVideoStream) => {
