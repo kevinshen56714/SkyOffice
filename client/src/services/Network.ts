@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus.js'
-import { IOfficeState, IPlayer } from '../../../types/IOfficeState'
+import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
@@ -47,6 +47,20 @@ export default class Network {
       }
     }
 
+    // new instance added to the computers MapSchema
+    this.room.state.computers.onAdd = (computer: IComputer, key: string) => {
+      computer.connectedUser.onAdd = (item, index) => {
+        console.log('computer:', key)
+        console.log('added user:', index, item)
+        phaserEvents.emit(Event.ITEM_USER_ADDED, item, key)
+      }
+      computer.connectedUser.onRemove = (item, index) => {
+        console.log('computer:', key)
+        console.log('removed user:', index, item)
+        phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key)
+      }
+    }
+
     // an instance removed from the players MapSchema
     this.room.state.players.onRemove = (player: IPlayer, key: string) => {
       phaserEvents.emit(Event.PLAYER_LEFT, key)
@@ -58,6 +72,16 @@ export default class Network {
     this.room.onMessage(Message.DISCONNECT_STREAM, (clientId: string) => {
       this.webRTC?.deleteOnCalledVideoStream(clientId)
     })
+  }
+
+  // method to register event listener and call back function when a item user added
+  onItemUserAdded(callback: (playerId: string, key: string) => void, context?: any) {
+    phaserEvents.on(Event.ITEM_USER_ADDED, callback, context)
+  }
+
+  // method to register event listener and call back function when a item user removed
+  onItemUserRemoved(callback: (playerId: string, key: string) => void, context?: any) {
+    phaserEvents.on(Event.ITEM_USER_REMOVED, callback, context)
   }
 
   // method to register event listener and call back function when a player joined

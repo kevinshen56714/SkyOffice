@@ -32,7 +32,7 @@ export default class MyPlayer extends Player {
 
     const item = playerSelector.selectedItem
 
-    if (Phaser.Input.Keyboard.JustDown(keyR) && item?.texture.key === 'computers') {
+    if (Phaser.Input.Keyboard.JustDown(keyR) && item?.texture.key === 'computers' && item.id) {
       network.connectToComputer(item.id)
     }
 
@@ -51,16 +51,18 @@ export default class MyPlayer extends Player {
             callback: () => {
               // update character velocity and position
               this.setVelocity(0, 0)
-              this.setPosition(
-                item.x + sittingShiftData[item.itemDirection][0],
-                item.y + sittingShiftData[item.itemDirection][1]
-              ).setDepth(item.depth + sittingShiftData[item.itemDirection][2])
-              // also update playerNameContainer velocity and position
-              this.playNameContainerBody.setVelocity(0, 0)
-              this.playerNameContainer.setPosition(
-                item.x + sittingShiftData[item.itemDirection][0],
-                item.y + sittingShiftData[item.itemDirection][1] - 30
-              )
+              if (item.itemDirection) {
+                this.setPosition(
+                  item.x + sittingShiftData[item.itemDirection][0],
+                  item.y + sittingShiftData[item.itemDirection][1]
+                ).setDepth(item.depth + sittingShiftData[item.itemDirection][2])
+                // also update playerNameContainer velocity and position
+                this.playNameContainerBody.setVelocity(0, 0)
+                this.playerNameContainer.setPosition(
+                  item.x + sittingShiftData[item.itemDirection][0],
+                  item.y + sittingShiftData[item.itemDirection][1] - 30
+                )
+              }
 
               this.play(`${this.playerTexture}_sit_${item.itemDirection}`, true)
               playerSelector.selectedItem = undefined

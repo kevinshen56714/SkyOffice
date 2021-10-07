@@ -1,7 +1,7 @@
-import { Schema, MapSchema } from '@colyseus/schema'
+import { Schema, ArraySchema, MapSchema } from '@colyseus/schema'
 
 export interface IComputer extends Schema {
-  connectedUser: [string]
+  connectedUser: ArraySchema<string>
 }
 
 export interface IPlayer extends Schema {

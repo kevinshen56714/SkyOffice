@@ -27,6 +27,7 @@ export default class Game extends Phaser.Scene {
   private playerSelector!: Phaser.GameObjects.Zone
   private otherPlayers!: Phaser.Physics.Arcade.Group
   private otherPlayerMap = new Map<string, OtherPlayer>()
+  private computerMap = new Map<string, Item>()
 
   constructor() {
     super('game')
@@ -81,7 +82,9 @@ export default class Game extends Phaser.Scene {
     computerLayer.objects.forEach((Obj) => {
       const item = this.addObjectFromTiled(this.items, Obj, 'computers', 'computer') as Item
       item.setDepth(item.y + item.height * 0.27)
-      item.id = String(counter)
+      const id = String(counter)
+      item.id = id
+      this.computerMap.set(id, item)
       ++counter
     })
 
@@ -119,6 +122,8 @@ export default class Game extends Phaser.Scene {
     this.network.onPlayerLeft(this.handlePlayerLeft, this)
     this.network.onMyPlayerReady(this.handleMyPlayerReady, this)
     this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
+    this.network.onItemUserAdded(this.handleItemUserAdded, this)
+    this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -200,6 +205,18 @@ export default class Game extends Phaser.Scene {
 
   private handlePlayersOverlap(myPlayer, otherPlayer) {
     otherPlayer.makeCall(myPlayer, this.network?.webRTC)
+  }
+
+  private handleItemUserAdded(playerId: string, itemId: string) {
+    const computer = this.computerMap.get(itemId)
+    computer?.addCurrentUser(playerId)
+    computer?.updateStatus()
+  }
+
+  private handleItemUserRemoved(playerId: string, itemId: string) {
+    const computer = this.computerMap.get(itemId)
+    computer?.removeCurrentUser(playerId)
+    computer?.updateStatus()
   }
 
   update(t: number, dt: number) {

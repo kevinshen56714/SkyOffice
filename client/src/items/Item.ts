@@ -2,28 +2,17 @@ import Phaser from 'phaser'
 
 export default class Item extends Phaser.Physics.Arcade.Sprite {
   private dialogBox!: Phaser.GameObjects.Container
+  private statusBox!: Phaser.GameObjects.Container
+  itemDirection?: string
+  id?: string
+  currentUsers = new Array<string>()
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
     super(scene, x, y, texture, frame)
 
-    // add a container on top of everything which we can add text in later
+    // add dialogBox and statusBox containers on top of everything which we can add text in later
     this.dialogBox = this.scene.add.container().setDepth(10000)
-  }
-
-  private _itemDirection!: string
-  set itemDirection(direction: string) {
-    this._itemDirection = direction
-  }
-  get itemDirection() {
-    return this._itemDirection
-  }
-
-  private _id!: string
-  set id(id: string) {
-    this._id = id
-  }
-  get id() {
-    return this._id
+    this.statusBox = this.scene.add.container().setDepth(10000)
   }
 
   onOverlapDialog() {
@@ -33,18 +22,22 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
         break
 
       case 'computers':
-        this.setDialogBox('Press R to use computer', 140)
+        if (this.currentUsers.length === 0) {
+          this.setDialogBox('Press R to use computer', 140)
+        } else {
+          this.setDialogBox('Press R join', 70)
+        }
         break
     }
   }
 
-  // add dialog box into the item container
+  // add texts into dialog box container
   setDialogBox(text: string, width: number) {
     const dialogBoxWidth = width
     const dialogBoxHeight = 20
     const dialogBoxX = this.x - dialogBoxWidth * 0.5
-    const dialogBoxY =
-      this.texture.key === 'chairs' ? this.y + this.height * 0.5 : this.y - this.height * 0.75
+    const dialogBoxY = this.y + this.height * 0.5
+    // this.texture.key === 'chairs' ? this.y + this.height * 0.5 : this.y - this.height * 0.75
     this.dialogBox.add(
       this.scene.add
         .graphics()
@@ -62,8 +55,60 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
     )
   }
 
-  // remove everything in the item container
+  // remove everything in the dialog box container
   clearDialogBox() {
     this.dialogBox.removeAll(true)
+  }
+
+  // add text into status box container
+  setStatusBox(text: string, width: number) {
+    const statusBoxWidth = width
+    const statusBoxHeight = 15
+    const statusBoxX = this.x - statusBoxWidth * 0.5
+    const statusBoxY = this.y
+    this.statusBox.add(
+      this.scene.add
+        .graphics()
+        .fillStyle(0xffffff, 1)
+        .fillRoundedRect(statusBoxX, statusBoxY, statusBoxWidth, statusBoxHeight, 3)
+        .lineStyle(2, 0x000000, 1)
+        .strokeRoundedRect(statusBoxX, statusBoxY, statusBoxWidth, statusBoxHeight, 3)
+    )
+    this.statusBox.add(
+      this.scene.add
+        .text(statusBoxX + 3, statusBoxY, text)
+        .setFontFamily('Arial')
+        .setFontSize(12)
+        .setColor('#000000')
+    )
+  }
+
+  // remove everything in the status box container
+  clearStatusBox() {
+    this.statusBox.removeAll(true)
+  }
+
+  addCurrentUser(userId: string) {
+    this.currentUsers?.push(userId)
+  }
+
+  removeCurrentUser(userId: string) {
+    if (this.currentUsers) {
+      const index = this.currentUsers.indexOf(userId)
+      if (index > -1) {
+        this.currentUsers.splice(index, 1)
+      }
+    }
+  }
+
+  updateStatus() {
+    const numberOfUsers = this.currentUsers.length
+    if (numberOfUsers === 0) {
+      this.clearStatusBox()
+    } else {
+      numberOfUsers > 1
+        ? this.setStatusBox(`${numberOfUsers} users`, 45)
+        : this.setStatusBox(`${numberOfUsers} user`, 40)
+    }
   }
 }

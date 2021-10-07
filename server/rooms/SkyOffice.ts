@@ -70,6 +70,12 @@ export class SkyOffice extends Room<OfficeState> {
     if (this.state.players.has(client.sessionId)) {
       this.state.players.delete(client.sessionId)
     }
+    this.state.computers.forEach((computer) => {
+      const index = computer.connectedUser.indexOf(client.sessionId)
+      if (index > -1) {
+        computer.connectedUser.splice(index, 1)
+      }
+    })
   }
 
   onDispose() {
