@@ -27,7 +27,10 @@ export const computerSlice = createSlice({
       state,
       action: PayloadAction<{ computerId: string; myUserId: string }>
     ) => {
-      state.shareScreenManager = new ShareScreenManager(action.payload.myUserId)
+      if (!state.shareScreenManager) {
+        state.shareScreenManager = new ShareScreenManager(action.payload.myUserId)
+      }
+      state.shareScreenManager.onOpen()
       state.computerDialogOpen = true
       state.computerId = action.payload.computerId
     },
@@ -35,8 +38,7 @@ export const computerSlice = createSlice({
       // Tell server the computer dialog is closed.
       const game = phaserGame.scene.keys.game as Game
       game.network.disconnectFromComputer(state.computerId!)
-      state.shareScreenManager?.onDestroy()
-      state.shareScreenManager = null
+      state.shareScreenManager?.onClose()
       state.computerDialogOpen = false
       state.myStream = null
       state.computerId = null

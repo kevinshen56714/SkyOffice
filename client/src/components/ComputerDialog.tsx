@@ -26,6 +26,8 @@ const Wrapper = styled.div`
   padding: 16px;
   color: #eee;
   position: relative;
+  display: flex;
+  flex-direction: column;
 
   .close {
     position: absolute;
@@ -35,6 +37,8 @@ const Wrapper = styled.div`
 `
 
 const VideoGrid = styled.div`
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -42,6 +46,8 @@ const VideoGrid = styled.div`
   video {
     width: 100%;
     height: 100%;
+    min-width: 0;
+    min-height: 0;
     object-fit: contain;
     background: black;
   }
@@ -64,15 +70,21 @@ export default function ComputerDialog() {
           <CloseIcon />
         </IconButton>
 
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            shareScreenManager?.startScreenShare()
-          }}
-        >
-          Share Screen
-        </Button>
+        <div className="toolbar">
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              if (shareScreenManager?.myStream) {
+                shareScreenManager?.stopScreenShare()
+              } else {
+                shareScreenManager?.startScreenShare()
+              }
+            }}
+          >
+            {shareScreenManager?.myStream ? 'Stop sharing' : 'Share Screen'}
+          </Button>
+        </div>
 
         <VideoGrid>
           {myStream && <Video srcObject={myStream} autoPlay></Video>}

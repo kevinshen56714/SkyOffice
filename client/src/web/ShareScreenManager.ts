@@ -29,8 +29,15 @@ export default class ShareScreenManager {
     })
   }
 
-  onDestroy() {
-    this.myPeer.destroy()
+  onOpen() {
+    if (this.myPeer.disconnected) {
+      this.myPeer.reconnect()
+    }
+  }
+
+  onClose() {
+    this.stopScreenShare(false)
+    this.myPeer.disconnect()
   }
 
   // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
@@ -47,6 +54,15 @@ export default class ShareScreenManager {
         audio: true,
       })
       .then((stream) => {
+        // Detect when user clicks "Stop sharing" outside of our UI.
+        // https://stackoverflow.com/a/25179198
+        const track = stream.getVideoTracks()[0]
+        if (track) {
+          track.onended = () => {
+            this.stopScreenShare()
+          }
+        }
+
         this.myStream = stream
         store.dispatch(setMyStream(stream))
 
@@ -59,6 +75,17 @@ export default class ShareScreenManager {
           }
         }
       })
+  }
+
+  // TODO(daxchen): Fix this trash hack, if we call store.dispatch here when calling
+  // from onClose, it causes redux reducer cycle, this may be fixable by using thunk
+  // or something.
+  stopScreenShare(shouldDispatch = true) {
+    this.myStream?.getTracks().forEach((track) => track.stop())
+    this.myStream = undefined
+    if (shouldDispatch) {
+      store.dispatch(setMyStream(null))
+    }
   }
 
   onUserJoined(userId: string) {
