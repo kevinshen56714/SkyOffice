@@ -35,6 +35,7 @@ export const computerSlice = createSlice({
       state.shareScreenManager?.onDestroy()
       state.shareScreenManager = null
       state.computerDialogOpen = false
+      state.myStream = null
       state.computerId = null
       // TODO(kevinshen56714) Tell server the computer dialog is closed.
       const game = phaserGame.scene.keys.game as Game
