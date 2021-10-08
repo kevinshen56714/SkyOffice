@@ -25,6 +25,15 @@ export class SkyOffice extends Room<OfficeState> {
       })
     })
 
+    // when a player disconnect from a computer, remove from the computer connectedUser array
+    this.onMessage(Message.DISCONNECT_FROM_COMPUTER, (client, message: { computerId: string }) => {
+      const computer = this.state.computers.get(message.computerId)
+      const index = computer.connectedUser.indexOf(client.sessionId)
+      if (index > -1) {
+        computer.connectedUser.splice(index, 1)
+      }
+    })
+
     // when receiving updatePlayer message, call the PlayerUpdateCommand
     this.onMessage(
       Message.UPDATE_PLAYER,

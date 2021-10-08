@@ -32,15 +32,14 @@ export const computerSlice = createSlice({
       state.computerId = action.payload.computerId
     },
     closeComputerDialog: (state) => {
+      // Tell server the computer dialog is closed.
+      const game = phaserGame.scene.keys.game as Game
+      game.network.disconnectFromComputer(state.computerId!)
       state.shareScreenManager?.onDestroy()
       state.shareScreenManager = null
       state.computerDialogOpen = false
       state.myStream = null
       state.computerId = null
-      // TODO(kevinshen56714) Tell server the computer dialog is closed.
-      const game = phaserGame.scene.keys.game as Game
-      console.log(game)
-      // game.todo
     },
     setMyStream: (state, action: PayloadAction<null | MediaStream>) => {
       state.myStream = action.payload

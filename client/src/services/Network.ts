@@ -129,4 +129,8 @@ export default class Network {
   connectToComputer(id: string) {
     this.room?.send(Message.CONNECT_TO_COMPUTER, { computerId: id })
   }
+
+  disconnectFromComputer(id: string) {
+    this.room?.send(Message.DISCONNECT_FROM_COMPUTER, { computerId: id })
+  }
 }
