@@ -27,7 +27,7 @@ export default class Game extends Phaser.Scene {
   private playerSelector!: Phaser.GameObjects.Zone
   private otherPlayers!: Phaser.Physics.Arcade.Group
   private otherPlayerMap = new Map<string, OtherPlayer>()
-  private computerMap = new Map<string, Item>()
+  computerMap = new Map<string, Item>()
 
   constructor() {
     super('game')

@@ -35,15 +35,15 @@ const Wrapper = styled.div`
 `
 
 const VideoGrid = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 
   video {
-    flex: 1;
     width: 100%;
     height: 100%;
     object-fit: contain;
+    background: black;
   }
 `
 

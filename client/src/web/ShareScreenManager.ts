@@ -1,12 +1,14 @@
 import Peer from 'peerjs'
 import store from '../stores'
 import { setMyStream, addVideoStream, removeVideoStream } from '../stores/ComputerStore'
+import phaserGame from '../PhaserGame'
+import Game from '../scenes/Game'
 
 export default class ShareScreenManager {
   private myPeer: Peer
   myStream?: MediaStream
 
-  constructor(userId: string) {
+  constructor(private userId: string) {
     const sanatizedId = this.makeId(userId)
     this.myPeer = new Peer(sanatizedId)
     this.myPeer.on('error', (err) => {
@@ -47,11 +49,21 @@ export default class ShareScreenManager {
       .then((stream) => {
         this.myStream = stream
         store.dispatch(setMyStream(stream))
+
+        // Call all existing users.
+        const game = phaserGame.scene.keys.game as Game
+        const computerItem = game.computerMap.get(store.getState().computer.computerId!)
+        if (computerItem) {
+          for (const userId of computerItem.currentUsers) {
+            this.onUserJoined(userId)
+          }
+        }
       })
   }
 
   onUserJoined(userId: string) {
-    if (!this.myStream) return false
+    if (!this.myStream || userId === this.userId) return
+
     const sanatizedId = this.makeId(userId)
     this.myPeer.call(sanatizedId, this.myStream)
   }
