@@ -113,12 +113,11 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
 
   updateStatus() {
     const numberOfUsers = this.currentUsers.length
-    if (numberOfUsers === 0) {
-      this.clearStatusBox()
-    } else {
-      numberOfUsers > 1
-        ? this.setStatusBox(`${numberOfUsers} users`, 45)
-        : this.setStatusBox(`${numberOfUsers} user`, 40)
+    this.clearStatusBox()
+    if (numberOfUsers === 1) {
+      this.setStatusBox(`${numberOfUsers} user`, 40)
+    } else if (numberOfUsers > 1) {
+      this.setStatusBox(`${numberOfUsers} users`, 45)
     }
   }
 }
