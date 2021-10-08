@@ -5,6 +5,8 @@ import { sittingShiftData } from './Player'
 import Player from './Player'
 import Network from '../services/Network'
 import Item from '../items/Item'
+import store from '../stores'
+import { openComputerDialog } from '../stores/ComputerStore'
 
 export default class MyPlayer extends Player {
   private playNameContainerBody: Phaser.Physics.Arcade.Body
@@ -33,6 +35,7 @@ export default class MyPlayer extends Player {
     const item = playerSelector.selectedItem
 
     if (Phaser.Input.Keyboard.JustDown(keyR) && item?.texture.key === 'computers' && item.id) {
+      store.dispatch(openComputerDialog({ computerId: item.id, myUserId: this.playerId }))
       network.connectToComputer(item.id)
     }
 

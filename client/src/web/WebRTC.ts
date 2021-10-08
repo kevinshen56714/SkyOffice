@@ -25,7 +25,7 @@ export default class WebRTC {
 
     // ask the browser to get user media
     navigator.mediaDevices
-      .getUserMedia({
+      ?.getUserMedia({
         video: true,
         audio: true,
       })
@@ -60,7 +60,7 @@ export default class WebRTC {
 
   // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
   // https://peerjs.com/docs.html#peer-id
-  replaceInvalidId(userId: string) {
+  private replaceInvalidId(userId: string) {
     return userId.replace(/[^0-9a-z]/gi, 'G')
   }
 
