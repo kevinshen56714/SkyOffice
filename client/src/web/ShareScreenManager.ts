@@ -94,4 +94,11 @@ export default class ShareScreenManager {
     const sanatizedId = this.makeId(userId)
     this.myPeer.call(sanatizedId, this.myStream)
   }
+
+  onUserLeft(userId: string) {
+    if (!this.myStream || userId === this.userId) return
+
+    const sanatizedId = this.makeId(userId)
+    store.dispatch(removeVideoStream(sanatizedId))
+  }
 }

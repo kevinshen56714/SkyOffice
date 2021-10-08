@@ -102,6 +102,11 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
       const index = this.currentUsers.indexOf(userId)
       if (index > -1) {
         this.currentUsers.splice(index, 1)
+
+        const computerState = store.getState().computer
+        if (computerState.computerId === this.id) {
+          computerState.shareScreenManager?.onUserLeft(userId)
+        }
       }
     }
   }
