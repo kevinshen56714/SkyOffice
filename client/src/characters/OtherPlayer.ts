@@ -35,11 +35,12 @@ export default class OtherPlayer extends Player {
     if (
       myPlayerId > this.playerId &&
       !this.connected &&
-      this.connectionBufferTime >= 1000 &&
+      this.connectionBufferTime >= 750 &&
       myPlayer.readyToConnect &&
       this.readyToConnect
     ) {
       this.connected = webRTC.connectToNewUser(this.playerId)
+      this.connectionBufferTime = 0
     }
   }
 
@@ -89,7 +90,7 @@ export default class OtherPlayer extends Player {
 
     // if Phaser has not updated the canvas (when the game tab is not active) for more than 1 sec
     // directly snap player to their current locations
-    if (this.lastUpdateTimestamp && t - this.lastUpdateTimestamp > 1000) {
+    if (this.lastUpdateTimestamp && t - this.lastUpdateTimestamp > 750) {
       this.lastUpdateTimestamp = t
       this.x = this.targetPosition[0]
       this.y = this.targetPosition[1]
@@ -146,7 +147,12 @@ export default class OtherPlayer extends Player {
     // while currently connected with myPlayer
     // if myPlayer and the otherPlayer stop overlapping, delete video stream
     this.connectionBufferTime += dt
-    if (this.connected && !this.body.embedded && this.body.touching.none) {
+    if (
+      this.connected &&
+      !this.body.embedded &&
+      this.body.touching.none &&
+      this.connectionBufferTime >= 750
+    ) {
       if (this.x < 610 && this.y > 515 && this.myPlayer!.x < 610 && this.myPlayer!.y > 515) return
       phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
       this.connectionBufferTime = 0
