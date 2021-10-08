@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import store from '../stores'
 
 export default class Item extends Phaser.Physics.Arcade.Sprite {
   private dialogBox!: Phaser.GameObjects.Container
@@ -90,6 +91,10 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
 
   addCurrentUser(userId: string) {
     this.currentUsers?.push(userId)
+    const computerState = store.getState().computer
+    if (computerState.computerId === this.id) {
+      computerState.shareScreenManager?.onUserJoined(userId)
+    }
   }
 
   removeCurrentUser(userId: string) {

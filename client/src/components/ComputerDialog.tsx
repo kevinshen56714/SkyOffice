@@ -1,4 +1,4 @@
-import React, { useState, VideoHTMLAttributes, useEffect, useRef } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -7,8 +7,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { closeComputerDialog } from '../stores/ComputerStore'
 
-import phaserGame from '../PhaserGame'
-import Game from '../scenes/Game'
+import Video from './Video'
 
 const Backdrop = styled.div`
   position: fixed;
@@ -49,16 +48,10 @@ const VideoGrid = styled.div`
 `
 
 export default function ComputerDialog() {
-  const refVideo = useRef<HTMLVideoElement>(null)
-
   const dispatch = useAppDispatch()
   const shareScreenManager = useAppSelector((state) => state.computer.shareScreenManager)
   const myStream = useAppSelector((state) => state.computer.myStream)
-
-  useEffect(() => {
-    if (!refVideo.current || !myStream) return
-    refVideo.current.srcObject = myStream
-  }, [myStream])
+  const peerStreams = useAppSelector((state) => state.computer.peerStreams)
 
   return (
     <Backdrop>
@@ -81,7 +74,13 @@ export default function ComputerDialog() {
           Share Screen
         </Button>
 
-        <VideoGrid>{myStream && <video ref={refVideo} autoPlay></video>}</VideoGrid>
+        <VideoGrid>
+          {myStream && <Video srcObject={myStream} autoPlay></Video>}
+
+          {[...peerStreams.entries()].map(([id, stream]) => (
+            <Video key={id} srcObject={stream} autoPlay></Video>
+          ))}
+        </VideoGrid>
       </Wrapper>
     </Backdrop>
   )

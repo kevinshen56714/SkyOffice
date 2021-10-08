@@ -4,7 +4,7 @@ import { setMyStream, addVideoStream, removeVideoStream } from '../stores/Comput
 
 export default class ShareScreenManager {
   private myPeer: Peer
-  peers = new Map<string, Peer.MediaConnection>()
+  myStream?: MediaStream
 
   constructor(userId: string) {
     const sanatizedId = this.makeId(userId)
@@ -27,6 +27,10 @@ export default class ShareScreenManager {
     })
   }
 
+  onDestroy() {
+    this.myPeer.destroy()
+  }
+
   // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
   // https://peerjs.com/docs.html#peer-id
   // Also for screen sharing ID add a `-ss` at the end.
@@ -41,7 +45,14 @@ export default class ShareScreenManager {
         audio: true,
       })
       .then((stream) => {
+        this.myStream = stream
         store.dispatch(setMyStream(stream))
       })
+  }
+
+  onUserJoined(userId: string) {
+    if (!this.myStream) return false
+    const sanatizedId = this.makeId(userId)
+    this.myPeer.call(sanatizedId, this.myStream)
   }
 }

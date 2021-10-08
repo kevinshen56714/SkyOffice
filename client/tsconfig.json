@@ -18,7 +18,8 @@
     "noImplicitAny": false,
     "importHelpers": true,
     "experimentalDecorators": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "downlevelIteration": true
   },
   "include": ["src"]
 }
