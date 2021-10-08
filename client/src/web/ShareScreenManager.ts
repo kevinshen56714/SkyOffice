@@ -85,6 +85,9 @@ export default class ShareScreenManager {
     this.myStream = undefined
     if (shouldDispatch) {
       store.dispatch(setMyStream(null))
+      // Manually let all other existing users know screen sharing is stopped
+      const game = phaserGame.scene.keys.game as Game
+      game.network.onStopScreenShare(store.getState().computer.computerId!)
     }
   }
 
@@ -96,7 +99,7 @@ export default class ShareScreenManager {
   }
 
   onUserLeft(userId: string) {
-    if (!this.myStream || userId === this.userId) return
+    if (userId === this.userId) return
 
     const sanatizedId = this.makeId(userId)
     store.dispatch(removeVideoStream(sanatizedId))

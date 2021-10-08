@@ -146,16 +146,11 @@ export default class OtherPlayer extends Player {
     // while currently connected with myPlayer
     // if myPlayer and the otherPlayer stop overlapping, delete video stream
     this.connectionBufferTime += dt
-    if (
-      this.connected &&
-      this.myPlayer &&
-      (!(this.x < 600 && this.y > 515) || !(this.myPlayer.x < 600 && this.myPlayer.y > 515))
-    ) {
-      if (!this.body.embedded && this.body.touching.none) {
-        phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
-        this.connectionBufferTime = 0
-        this.connected = false
-      }
+    if (this.connected && !this.body.embedded && this.body.touching.none) {
+      if (this.x < 610 && this.y > 515 && this.myPlayer!.x < 610 && this.myPlayer!.y > 515) return
+      phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
+      this.connectionBufferTime = 0
+      this.connected = false
     }
   }
 }

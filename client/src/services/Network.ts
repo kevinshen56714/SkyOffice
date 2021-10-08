@@ -69,6 +69,12 @@ export default class Network {
     this.room.onMessage(Message.DISCONNECT_STREAM, (clientId: string) => {
       this.webRTC?.deleteOnCalledVideoStream(clientId)
     })
+
+    // when a computer user stops sharing screen
+    this.room.onMessage(Message.STOP_SCREEN_SHARE, (clientId: string) => {
+      const computerState = store.getState().computer
+      computerState.shareScreenManager?.onUserLeft(clientId)
+    })
   }
 
   // method to register event listener and call back function when a item user added
@@ -132,5 +138,9 @@ export default class Network {
 
   disconnectFromComputer(id: string) {
     this.room?.send(Message.DISCONNECT_FROM_COMPUTER, { computerId: id })
+  }
+
+  onStopScreenShare(id: string) {
+    this.room?.send(Message.STOP_SCREEN_SHARE, { computerId: id })
   }
 }
