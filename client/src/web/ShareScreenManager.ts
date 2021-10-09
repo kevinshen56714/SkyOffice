@@ -12,9 +12,6 @@ export default class ShareScreenManager {
     const sanatizedId = this.makeId(userId)
     this.myPeer = new Peer(sanatizedId)
     this.myPeer.on('error', (err) => {
-      alert(
-        `Having trouble establishing screen connection with other users. Error type: ${err.type}. Error: ${err}`
-      )
       console.log('ShareScreenWebRTC err.type', err.type)
       console.error('ShareScreenWebRTC', err)
     })

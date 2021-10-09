@@ -16,9 +16,6 @@ export default class WebRTC {
     console.log('userId:', userId)
     console.log('sanitizedId:', sanitizedId)
     this.myPeer.on('error', (err) => {
-      alert(
-        `Having trouble establishing video connection with other users. Error type: ${err.type}. Error: ${err}`
-      )
       console.log(err.type)
       console.log(err)
     })
