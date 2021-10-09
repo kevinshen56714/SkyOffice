@@ -89,7 +89,7 @@ export default function ComputerDialog() {
         <VideoGrid>
           {myStream && <Video srcObject={myStream} autoPlay></Video>}
 
-          {[...peerStreams.entries()].map(([id, stream]) => (
+          {[...peerStreams.entries()].map(([id, { stream }]) => (
             <Video key={id} srcObject={stream} autoPlay></Video>
           ))}
         </VideoGrid>

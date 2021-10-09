@@ -107,7 +107,7 @@ export default function LoginDialog() {
             onSlideChange={(swiper) => {
               setAvatarIndex(swiper.activeIndex)
               const game = phaserGame.scene.keys.game as Game
-              if (avatars[avatarIndex]) game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+              game.myPlayer?.setPlayerTexture(avatars[avatarIndex].name)
             }}
           >
             {avatars.map((avatar) => (

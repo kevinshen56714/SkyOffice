@@ -1,3 +1,4 @@
+import Peer from 'peerjs'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import ShareScreenManager from '../web/ShareScreenManager'
 import phaserGame from '../PhaserGame'
@@ -7,7 +8,13 @@ interface ComputerState {
   computerDialogOpen: boolean
   computerId: null | string
   myStream: null | MediaStream
-  peerStreams: Map<string, MediaStream>
+  peerStreams: Map<
+    string,
+    {
+      stream: MediaStream
+      call: Peer.MediaConnection
+    }
+  >
   shareScreenManager: null | ShareScreenManager
 }
 
@@ -42,12 +49,22 @@ export const computerSlice = createSlice({
       state.computerDialogOpen = false
       state.myStream = null
       state.computerId = null
+      for (const [id, value] of state.peerStreams) {
+        value.call.close()
+      }
+      state.peerStreams.clear()
     },
     setMyStream: (state, action: PayloadAction<null | MediaStream>) => {
       state.myStream = action.payload
     },
-    addVideoStream: (state, action: PayloadAction<{ id: string; stream: MediaStream }>) => {
-      state.peerStreams.set(action.payload.id, action.payload.stream)
+    addVideoStream: (
+      state,
+      action: PayloadAction<{ id: string; call: Peer.MediaConnection; stream: MediaStream }>
+    ) => {
+      state.peerStreams.set(action.payload.id, {
+        call: action.payload.call,
+        stream: action.payload.stream,
+      })
     },
     removeVideoStream: (state, action: PayloadAction<string>) => {
       state.peerStreams.delete(action.payload)

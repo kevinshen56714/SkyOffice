@@ -20,7 +20,7 @@ export default class ShareScreenManager {
       call.answer()
 
       call.on('stream', (userVideoStream) => {
-        store.dispatch(addVideoStream({ id: call.peer, stream: userVideoStream }))
+        store.dispatch(addVideoStream({ id: call.peer, call, stream: userVideoStream }))
       })
       // triggered only when the connected peer is destroyed
       call.on('closed', () => {
