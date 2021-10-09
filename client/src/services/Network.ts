@@ -4,7 +4,7 @@ import { Message } from '../../../types/Messages'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
-import { setSessionId } from '../stores/UserStore'
+import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
 
 export default class Network {
   private client: Client
@@ -43,8 +43,19 @@ export default class Network {
         changes.forEach((change) => {
           const { field, value } = change
           phaserEvents.emit(Event.PLAYER_UPDATED, field, value, key)
+          if (field === 'name') {
+            store.dispatch(setPlayerNameMap({ id: key, name: value }))
+          }
         })
       }
+    }
+
+    // an instance removed from the players MapSchema
+    this.room.state.players.onRemove = (player: IPlayer, key: string) => {
+      phaserEvents.emit(Event.PLAYER_LEFT, key)
+      this.webRTC?.deleteVideoStream(key)
+      this.webRTC?.deleteOnCalledVideoStream(key)
+      store.dispatch(removePlayerNameMap(key))
     }
 
     // new instance added to the computers MapSchema
@@ -56,13 +67,6 @@ export default class Network {
       computer.connectedUser.onRemove = (item, index) => {
         phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key)
       }
-    }
-
-    // an instance removed from the players MapSchema
-    this.room.state.players.onRemove = (player: IPlayer, key: string) => {
-      phaserEvents.emit(Event.PLAYER_LEFT, key)
-      this.webRTC?.deleteVideoStream(key)
-      this.webRTC?.deleteOnCalledVideoStream(key)
     }
 
     // when a peer disconnect with myPeer
