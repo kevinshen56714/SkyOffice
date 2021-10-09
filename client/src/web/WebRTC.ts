@@ -11,10 +11,10 @@ export default class WebRTC {
   private myStream?: MediaStream
 
   constructor(userId: string, network: Network) {
-    const sanatizedId = this.replaceInvalidId(userId)
-    this.myPeer = new Peer(sanatizedId)
+    const sanitizedId = this.replaceInvalidId(userId)
+    this.myPeer = new Peer(sanitizedId)
     console.log('userId:', userId)
-    console.log('sanatizedId:', sanatizedId)
+    console.log('sanitizedId:', sanitizedId)
     this.myPeer.on('error', (err) => {
       console.log(err.type)
       console.log(err)
@@ -67,8 +67,8 @@ export default class WebRTC {
   // method to call a peer
   connectToNewUser(userId: string) {
     if (!this.myStream) return false
-    const sanatizedId = this.replaceInvalidId(userId)
-    const call = this.myPeer.call(sanatizedId, this.myStream)
+    const sanitizedId = this.replaceInvalidId(userId)
+    const call = this.myPeer.call(sanitizedId, this.myStream)
     if (call) {
       const video = document.createElement('video')
       call.on('stream', (userVideoStream) => {
@@ -78,7 +78,7 @@ export default class WebRTC {
         video.remove()
       })
 
-      this.peers.set(userId, call)
+      this.peers.set(sanitizedId, call)
       return true
     }
     return false
@@ -95,19 +95,21 @@ export default class WebRTC {
 
   // method to remove video stream (when we are the host of the call)
   deleteVideoStream(userId: string) {
-    if (this.peers.has(userId)) {
-      const peerCall = this.peers.get(userId)
+    const sanitizedId = this.replaceInvalidId(userId)
+    if (this.peers.has(sanitizedId)) {
+      const peerCall = this.peers.get(sanitizedId)
       peerCall?.close()
-      this.peers.delete(userId)
+      this.peers.delete(sanitizedId)
     }
   }
 
   // method to remove video stream (when we are the guest of the call)
   deleteOnCalledVideoStream(userId: string) {
-    if (this.onCalledVideos.has(userId)) {
-      const video = this.onCalledVideos.get(userId)
+    const sanitizedId = this.replaceInvalidId(userId)
+    if (this.onCalledVideos.has(sanitizedId)) {
+      const video = this.onCalledVideos.get(sanitizedId)
       video?.remove()
-      this.onCalledVideos.delete(userId)
+      this.onCalledVideos.delete(sanitizedId)
     }
   }
 
