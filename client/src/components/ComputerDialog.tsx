@@ -41,20 +41,50 @@ const VideoGrid = styled.div`
   min-height: 0;
   display: grid;
   grid-gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(40%, 1fr));
 
-  video {
-    width: 100%;
-    height: 100%;
-    min-width: 0;
-    min-height: 0;
-    object-fit: contain;
+  .video-container {
+    position: relative;
     background: black;
+    border-radius: 8px;
+    overflow: hidden;
+
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      object-fit: contain;
+    }
+
+    .player-name {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 1px 2px rgb(0 0 0 / 60%), 0 0 2px rgb(0 0 0 / 30%);
+      white-space: nowrap;
+    }
   }
 `
 
+function VideoContainer({ playerName, stream }) {
+  return (
+    <div className="video-container">
+      <Video srcObject={stream} autoPlay></Video>
+      {playerName && <div className="player-name">{playerName}</div>}
+    </div>
+  )
+}
+
 export default function ComputerDialog() {
   const dispatch = useAppDispatch()
+  const playerNameMap = useAppSelector((state) => state.user.playerNameMap)
   const shareScreenManager = useAppSelector((state) => state.computer.shareScreenManager)
   const myStream = useAppSelector((state) => state.computer.myStream)
   const peerStreams = useAppSelector((state) => state.computer.peerStreams)
@@ -87,11 +117,12 @@ export default function ComputerDialog() {
         </div>
 
         <VideoGrid>
-          {myStream && <Video srcObject={myStream} autoPlay></Video>}
+          {myStream && <VideoContainer stream={myStream} playerName="You" />}
 
-          {[...peerStreams.entries()].map(([id, { stream }]) => (
-            <Video key={id} srcObject={stream} autoPlay></Video>
-          ))}
+          {[...peerStreams.entries()].map(([id, { stream }]) => {
+            const playerName = playerNameMap.get(id)
+            return <VideoContainer key={id} playerName={playerName} stream={stream} />
+          })}
         </VideoGrid>
       </Wrapper>
     </Backdrop>
