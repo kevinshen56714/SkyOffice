@@ -1,10 +1,10 @@
 import { Client, Room } from 'colyseus.js'
-import { IOfficeState, IPlayer } from '../../../types/IOfficeState'
+import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
-import { setSessionId } from '../stores/UserStore'
+import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
 
 export default class Network {
   private client: Client
@@ -43,6 +43,9 @@ export default class Network {
         changes.forEach((change) => {
           const { field, value } = change
           phaserEvents.emit(Event.PLAYER_UPDATED, field, value, key)
+          if (field === 'name') {
+            store.dispatch(setPlayerNameMap({ id: key, name: value }))
+          }
         })
       }
     }
@@ -52,12 +55,40 @@ export default class Network {
       phaserEvents.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
       this.webRTC?.deleteOnCalledVideoStream(key)
+      store.dispatch(removePlayerNameMap(key))
+    }
+
+    // new instance added to the computers MapSchema
+    this.room.state.computers.onAdd = (computer: IComputer, key: string) => {
+      // track changes on every child object's connectedUser
+      computer.connectedUser.onAdd = (item, index) => {
+        phaserEvents.emit(Event.ITEM_USER_ADDED, item, key)
+      }
+      computer.connectedUser.onRemove = (item, index) => {
+        phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key)
+      }
     }
 
     // when a peer disconnect with myPeer
     this.room.onMessage(Message.DISCONNECT_STREAM, (clientId: string) => {
       this.webRTC?.deleteOnCalledVideoStream(clientId)
     })
+
+    // when a computer user stops sharing screen
+    this.room.onMessage(Message.STOP_SCREEN_SHARE, (clientId: string) => {
+      const computerState = store.getState().computer
+      computerState.shareScreenManager?.onUserLeft(clientId)
+    })
+  }
+
+  // method to register event listener and call back function when a item user added
+  onItemUserAdded(callback: (playerId: string, key: string) => void, context?: any) {
+    phaserEvents.on(Event.ITEM_USER_ADDED, callback, context)
+  }
+
+  // method to register event listener and call back function when a item user removed
+  onItemUserRemoved(callback: (playerId: string, key: string) => void, context?: any) {
+    phaserEvents.on(Event.ITEM_USER_REMOVED, callback, context)
   }
 
   // method to register event listener and call back function when a player joined
@@ -103,5 +134,17 @@ export default class Network {
   playerStreamDisconnect(id: string) {
     this.room?.send(Message.DISCONNECT_STREAM, { clientId: id })
     this.webRTC?.deleteVideoStream(id)
+  }
+
+  connectToComputer(id: string) {
+    this.room?.send(Message.CONNECT_TO_COMPUTER, { computerId: id })
+  }
+
+  disconnectFromComputer(id: string) {
+    this.room?.send(Message.DISCONNECT_FROM_COMPUTER, { computerId: id })
+  }
+
+  onStopScreenShare(id: string) {
+    this.room?.send(Message.STOP_SCREEN_SHARE, { computerId: id })
   }
 }

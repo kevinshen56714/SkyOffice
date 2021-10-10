@@ -6,6 +6,7 @@ export const userSlice = createSlice({
     sessionId: '',
     connected: false,
     loggedIn: false,
+    playerNameMap: new Map<string, string>(),
   },
   reducers: {
     setSessionId: (state, action: PayloadAction<string>) => {
@@ -17,9 +18,16 @@ export const userSlice = createSlice({
     setLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.loggedIn = action.payload
     },
+    setPlayerNameMap: (state, action: PayloadAction<{ id: string; name: string }>) => {
+      state.playerNameMap.set(action.payload.id, action.payload.name)
+    },
+    removePlayerNameMap: (state, action: PayloadAction<string>) => {
+      state.playerNameMap.delete(action.payload)
+    },
   },
 })
 
-export const { setSessionId, setConnected, setLoggedIn } = userSlice.actions
+export const { setSessionId, setConnected, setLoggedIn, setPlayerNameMap, removePlayerNameMap } =
+  userSlice.actions
 
 export default userSlice.reducer

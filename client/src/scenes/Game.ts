@@ -11,6 +11,7 @@ import PlayerSelector from '../characters/PlayerSelector'
 import Network from '../services/Network'
 import { IPlayer } from '../../../types/IOfficeState'
 import OtherPlayer from '../characters/OtherPlayer'
+import { PlayerBehavior } from '../../../types/PlayerBehavior'
 
 import store from '../stores'
 import { setConnected } from '../stores/UserStore'
@@ -19,12 +20,14 @@ export default class Game extends Phaser.Scene {
   network!: Network
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
+  private keyR!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
   myPlayer!: MyPlayer
   private items!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
   private otherPlayers!: Phaser.Physics.Arcade.Group
   private otherPlayerMap = new Map<string, OtherPlayer>()
+  computerMap = new Map<string, Item>()
 
   constructor() {
     super('game')
@@ -34,6 +37,7 @@ export default class Game extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys()
     // maybe we can have a dedicated method for adding keys if more keys are needed in the future
     this.keyE = this.input.keyboard.addKey('E')
+    this.keyR = this.input.keyboard.addKey('R')
   }
 
   init() {
@@ -73,12 +77,23 @@ export default class Game extends Phaser.Scene {
       item.itemDirection = chairObj.properties[0].value
     })
 
+    const computerLayer = this.map.getObjectLayer('Computer')
+    var counter = 0
+    computerLayer.objects.forEach((Obj) => {
+      const item = this.addObjectFromTiled(this.items, Obj, 'computers', 'computer') as Item
+      item.setDepth(item.y + item.height * 0.27)
+      const id = String(counter)
+      item.id = id
+      this.computerMap.set(id, item)
+      ++counter
+    })
+
     // import other objects from Tiled map to Phaser
     this.addGroupFromTiled('Wall', 'tiles_wall', 'FloorAndGround', false)
     this.addGroupFromTiled('Objects', 'office', 'Modern_Office_Black_Shadow', false)
-    this.addGroupFromTiled('GenericObjects', 'generic', 'Generic', false)
     this.addGroupFromTiled('ObjectsOnCollide', 'office', 'Modern_Office_Black_Shadow', true)
     this.addGroupFromTiled('GenericObjectsOnCollide', 'generic', 'Generic', true)
+    this.addGroupFromTiled('GenericObjects', 'generic', 'Generic', false)
 
     this.otherPlayers = this.physics.add.group({ classType: OtherPlayer })
 
@@ -107,22 +122,25 @@ export default class Game extends Phaser.Scene {
     this.network.onPlayerLeft(this.handlePlayerLeft, this)
     this.network.onMyPlayerReady(this.handleMyPlayerReady, this)
     this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
+    this.network.onItemUserAdded(this.handleItemUserAdded, this)
+    this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
-    // if the selection has not changed, do nothing
-    if (playerSelector.selectedItem === selectionItem) {
-      return
-    }
-
-    // if selection changes, clear pervious dialog
-    if (playerSelector.selectedItem) {
-      playerSelector.selectedItem.clearDialogBox()
+    const currentItem = playerSelector.selectedItem
+    // currentItem is undefined if nothing was perviously selected
+    if (currentItem) {
+      // if the selection has not changed, do nothing
+      if (currentItem === selectionItem || currentItem.depth >= selectionItem.depth) {
+        return
+      }
+      // if selection changes, clear pervious dialog
+      if (this.myPlayer.playerBehavior !== PlayerBehavior.SITTING) currentItem.clearDialogBox()
     }
 
     // set selected item and set up new dialog
     playerSelector.selectedItem = selectionItem
-    selectionItem.setDialogBox('Press E to sit', 80)
+    selectionItem.onOverlapDialog()
   }
 
   private addObjectFromTiled(
@@ -189,10 +207,22 @@ export default class Game extends Phaser.Scene {
     otherPlayer.makeCall(myPlayer, this.network?.webRTC)
   }
 
+  private handleItemUserAdded(playerId: string, itemId: string) {
+    const computer = this.computerMap.get(itemId)
+    computer?.addCurrentUser(playerId)
+    computer?.updateStatus()
+  }
+
+  private handleItemUserRemoved(playerId: string, itemId: string) {
+    const computer = this.computerMap.get(itemId)
+    computer?.removeCurrentUser(playerId)
+    computer?.updateStatus()
+  }
+
   update(t: number, dt: number) {
     if (this.myPlayer && this.network) {
       this.playerSelector.update(this.myPlayer, this.cursors)
-      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.network)
+      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR, this.network)
     }
   }
 }

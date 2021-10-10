@@ -33,7 +33,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.playerId = id
     this.playerTexture = texture
     this.setDepth(this.y)
-    this.playerNameContainer = this.scene.add.container(this.x, this.y - 30).setDepth(10000)
+    this.playerNameContainer = this.scene.add.container(this.x, this.y - 30).setDepth(5000)
 
     this.anims.play(`${this.playerTexture}_idle_down`, true)
 

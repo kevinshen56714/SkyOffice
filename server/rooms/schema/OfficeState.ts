@@ -1,5 +1,9 @@
-import { Schema, MapSchema, Context, type } from '@colyseus/schema'
-import { IPlayer, IOfficeState } from '../../../types/IOfficeState'
+import { Schema, ArraySchema, MapSchema, Context, type } from '@colyseus/schema'
+import { IPlayer, IOfficeState, IComputer } from '../../../types/IOfficeState'
+
+export class Computer extends Schema implements IComputer {
+  @type(['string']) connectedUser = new ArraySchema<string>()
+}
 
 export class Player extends Schema implements IPlayer {
   @type('string') name = ''
@@ -12,4 +16,7 @@ export class Player extends Schema implements IPlayer {
 export class OfficeState extends Schema implements IOfficeState {
   @type({ map: Player })
   players = new MapSchema<Player>()
+
+  @type({ map: Computer })
+  computers = new MapSchema<Computer>()
 }

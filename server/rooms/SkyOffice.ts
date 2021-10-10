@@ -1,15 +1,50 @@
 import { Room, Client } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
-import { Player, OfficeState } from './schema/OfficeState'
+import { Player, OfficeState, Computer } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
 import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
+import ComputerUpdateArrayCommand from './commands/ComputerUpdateArrayCommand'
 
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
 
   onCreate(options: any) {
     this.setState(new OfficeState())
+
+    // HARD-CODED: Add 5 computers in a room
+    for (let i = 0; i < 5; i++) {
+      this.state.computers.set(String(i), new Computer())
+    }
+
+    // when a player connect to a computer, add to the computer connectedUser array
+    this.onMessage(Message.CONNECT_TO_COMPUTER, (client, message: { computerId: string }) => {
+      this.dispatcher.dispatch(new ComputerUpdateArrayCommand(), {
+        client,
+        computerId: message.computerId,
+      })
+    })
+
+    // when a player disconnect from a computer, remove from the computer connectedUser array
+    this.onMessage(Message.DISCONNECT_FROM_COMPUTER, (client, message: { computerId: string }) => {
+      const computer = this.state.computers.get(message.computerId)
+      const index = computer.connectedUser.indexOf(client.sessionId)
+      if (index > -1) {
+        computer.connectedUser.splice(index, 1)
+      }
+    })
+
+    // when a player stop sharing screen
+    this.onMessage(Message.STOP_SCREEN_SHARE, (client, message: { computerId: string }) => {
+      const computer = this.state.computers.get(message.computerId)
+      computer.connectedUser.forEach((id) => {
+        this.clients.forEach((cli) => {
+          if (cli.sessionId === id && cli.sessionId !== client.sessionId) {
+            cli.send(Message.STOP_SCREEN_SHARE, client.sessionId)
+          }
+        })
+      })
+    })
 
     // when receiving updatePlayer message, call the PlayerUpdateCommand
     this.onMessage(
@@ -56,6 +91,12 @@ export class SkyOffice extends Room<OfficeState> {
     if (this.state.players.has(client.sessionId)) {
       this.state.players.delete(client.sessionId)
     }
+    this.state.computers.forEach((computer) => {
+      const index = computer.connectedUser.indexOf(client.sessionId)
+      if (index > -1) {
+        computer.connectedUser.splice(index, 1)
+      }
+    })
   }
 
   onDispose() {
