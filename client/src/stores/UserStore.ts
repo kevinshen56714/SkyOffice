@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { sanitizeId } from '../util'
 
 export const userSlice = createSlice({
   name: 'user',
@@ -19,10 +20,10 @@ export const userSlice = createSlice({
       state.loggedIn = action.payload
     },
     setPlayerNameMap: (state, action: PayloadAction<{ id: string; name: string }>) => {
-      state.playerNameMap.set(action.payload.id, action.payload.name)
+      state.playerNameMap.set(sanitizeId(action.payload.id), action.payload.name)
     },
     removePlayerNameMap: (state, action: PayloadAction<string>) => {
-      state.playerNameMap.delete(action.payload)
+      state.playerNameMap.delete(sanitizeId(action.payload))
     },
   },
 })
