@@ -7,6 +7,7 @@ import Network from '../services/Network'
 import Item from '../items/Item'
 import store from '../stores'
 import { openComputerDialog } from '../stores/ComputerStore'
+import { openWhiteboardDialog } from '../stores/WhiteboardStore'
 
 export default class MyPlayer extends Player {
   private playNameContainerBody: Phaser.Physics.Arcade.Body
@@ -34,9 +35,19 @@ export default class MyPlayer extends Player {
 
     const item = playerSelector.selectedItem
 
-    if (Phaser.Input.Keyboard.JustDown(keyR) && item?.texture.key === 'computers' && item.id) {
-      store.dispatch(openComputerDialog({ computerId: item.id, myUserId: this.playerId }))
-      network.connectToComputer(item.id)
+    if (Phaser.Input.Keyboard.JustDown(keyR)) {
+      switch (item?.texture.key) {
+        case 'computers':
+          if (item.id) {
+            store.dispatch(openComputerDialog({ computerId: item.id, myUserId: this.playerId }))
+            network.connectToComputer(item.id)
+          }
+          break
+
+        case 'whiteboards':
+          store.dispatch(openWhiteboardDialog())
+          break
+      }
     }
 
     switch (this.playerBehavior) {
