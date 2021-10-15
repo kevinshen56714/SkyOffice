@@ -29,6 +29,10 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
           this.setDialogBox('Press R join', 70)
         }
         break
+
+      case 'whiteboards':
+        this.setDialogBox('Press R to use whiteboard', 145)
+        break
     }
   }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="10" nextobjectid="880">
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="11" nextobjectid="957">
  <editorsettings>
   <export target="map.json" format="json"/>
  </editorsettings>
@@ -12818,6 +12818,9 @@
  <tileset firstgid="4671" name="computer" tilewidth="96" tileheight="64" tilecount="5" columns="5">
   <image source="../items/computer.png" width="480" height="64"/>
  </tileset>
+ <tileset firstgid="4676" name="whiteboard" tilewidth="64" tileheight="64" tilecount="3" columns="1">
+  <image source="../items/whiteboard.png" width="64" height="192"/>
+ </tileset>
  <layer id="2" name="Ground" width="40" height="30" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -13025,12 +13028,6 @@
   </object>
  </objectgroup>
  <objectgroup id="5" name="Objects" locked="1">
-  <object id="366" gid="2945" x="224" y="160" width="32" height="32"/>
-  <object id="367" gid="2961" x="224" y="192" width="32" height="32"/>
-  <object id="368" gid="2977" x="224" y="224" width="32" height="32"/>
-  <object id="369" gid="2946" x="256" y="160" width="32" height="32"/>
-  <object id="370" gid="2962" x="256" y="192" width="32" height="32"/>
-  <object id="371" gid="2978" x="256" y="224" width="32" height="32"/>
   <object id="372" gid="2767" x="704" y="288" width="32" height="32"/>
   <object id="373" gid="2768" x="736" y="288" width="32" height="32"/>
   <object id="374" gid="2783" x="704" y="320" width="32" height="32"/>
@@ -13041,28 +13038,16 @@
   <object id="379" gid="2773" x="320" y="352" width="32" height="32"/>
   <object id="380" gid="2789" x="192" y="384" width="32" height="32"/>
   <object id="381" gid="2789" x="320" y="384" width="32" height="32"/>
-  <object id="384" gid="2943" x="288" y="160" width="32" height="32"/>
-  <object id="385" gid="2959" x="288" y="192" width="32" height="32"/>
-  <object id="386" gid="2975" x="288" y="224" width="32" height="32"/>
-  <object id="387" gid="2944" x="320" y="160" width="32" height="32"/>
-  <object id="388" gid="2960" x="320" y="192" width="32" height="32"/>
-  <object id="389" gid="2976" x="320" y="224" width="32" height="32"/>
   <object id="390" gid="2773" x="448" y="352" width="32" height="32"/>
   <object id="391" gid="2789" x="448" y="384" width="32" height="32"/>
   <object id="393" gid="2822" x="192" y="512" width="32" height="32"/>
   <object id="394" gid="2838" x="192" y="544" width="32" height="32"/>
   <object id="396" gid="2823" x="224" y="512" width="32" height="32"/>
   <object id="397" gid="2839" x="224" y="544" width="32" height="32"/>
-  <object id="399" gid="2744" x="512" y="512" width="32" height="32"/>
-  <object id="400" gid="2760" x="512" y="544" width="32" height="32"/>
-  <object id="401" gid="2745" x="544" y="512" width="32" height="32"/>
-  <object id="402" gid="2761" x="544" y="544" width="32" height="32"/>
   <object id="403" gid="2762" x="832" y="288" width="32" height="32"/>
   <object id="404" gid="2763" x="864" y="288" width="32" height="32"/>
   <object id="405" gid="2827" x="800" y="288" width="32" height="32"/>
   <object id="406" gid="2843" x="800" y="320" width="32" height="32"/>
-  <object id="408" gid="2827" x="576" y="160" width="32" height="32"/>
-  <object id="409" gid="2843" x="576" y="192" width="32" height="32"/>
   <object id="411" gid="2586" x="288" y="640" width="32" height="32"/>
   <object id="412" gid="2587" x="320" y="640" width="32" height="32"/>
   <object id="413" gid="2587" x="352" y="640" width="32" height="32"/>
@@ -13075,18 +13060,10 @@
   <object id="469" gid="3333" x="960" y="192" width="32" height="32"/>
   <object id="472" gid="2778" x="736" y="64" width="32" height="32"/>
   <object id="473" gid="2779" x="768" y="64" width="32" height="32"/>
-  <object id="474" gid="2776" x="832" y="64" width="32" height="32"/>
-  <object id="475" gid="2777" x="864" y="64" width="32" height="32"/>
-  <object id="476" gid="2792" x="832" y="96" width="32" height="32"/>
-  <object id="477" gid="2793" x="864" y="96" width="32" height="32"/>
   <object id="478" gid="2693" x="1024" y="64" width="32" height="32"/>
   <object id="479" gid="2709" x="1024" y="96" width="32" height="32"/>
   <object id="481" gid="2693" x="1024" y="224" width="32" height="32"/>
   <object id="482" gid="2709" x="1024" y="256" width="32" height="32"/>
-  <object id="484" gid="2744" x="928" y="288" width="32" height="32"/>
-  <object id="485" gid="2760" x="928" y="320" width="32" height="32"/>
-  <object id="486" gid="2745" x="960" y="288" width="32" height="32"/>
-  <object id="487" gid="2761" x="960" y="320" width="32" height="32"/>
   <object id="488" gid="2743" x="992" y="288" width="32" height="32"/>
   <object id="489" gid="2759" x="992" y="320" width="32" height="32"/>
   <object id="490" gid="2774" x="1024" y="288" width="32" height="32"/>
@@ -13262,6 +13239,20 @@
   <object id="382" gid="2805" x="192" y="416" width="32" height="32"/>
   <object id="383" gid="2805" x="320" y="416" width="32" height="32"/>
   <object id="392" gid="2805" x="448" y="416" width="32" height="32"/>
+  <object id="366" gid="2945" x="256" y="160" width="32" height="32"/>
+  <object id="367" gid="2961" x="256" y="192" width="32" height="32"/>
+  <object id="368" gid="2977" x="256" y="224" width="32" height="32"/>
+  <object id="369" gid="2946" x="288" y="160" width="32" height="32"/>
+  <object id="370" gid="2962" x="288" y="192" width="32" height="32"/>
+  <object id="371" gid="2978" x="288" y="224" width="32" height="32"/>
+  <object id="384" gid="2943" x="320" y="160" width="32" height="32"/>
+  <object id="385" gid="2959" x="320" y="192" width="32" height="32"/>
+  <object id="386" gid="2975" x="320" y="224" width="32" height="32"/>
+  <object id="387" gid="2944" x="352" y="160" width="32" height="32"/>
+  <object id="388" gid="2960" x="352" y="192" width="32" height="32"/>
+  <object id="389" gid="2976" x="352" y="224" width="32" height="32"/>
+  <object id="408" gid="2827" x="576" y="160" width="32" height="32"/>
+  <object id="409" gid="2843" x="576" y="192" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="6" name="GenericObjects" locked="1">
   <object id="707" gid="4121" x="928" y="64" width="32" height="32"/>
@@ -13279,24 +13270,6 @@
   <object id="765" gid="4344" x="416" y="192" width="32" height="32"/>
   <object id="766" gid="4327" x="384" y="160" width="32" height="32"/>
   <object id="767" gid="4328" x="416" y="160" width="32" height="32"/>
-  <object id="790" gid="3554" x="352" y="256" width="32" height="32"/>
-  <object id="791" gid="3570" x="352" y="288" width="32" height="32"/>
-  <object id="792" gid="3586" x="352" y="320" width="32" height="32"/>
-  <object id="793" gid="3585" x="320" y="320" width="32" height="32"/>
-  <object id="794" gid="3587" x="288" y="320" width="32" height="32"/>
-  <object id="795" gid="3584" x="256" y="320" width="32" height="32"/>
-  <object id="796" gid="3583" x="224" y="320" width="32" height="32"/>
-  <object id="797" gid="3567" x="224" y="288" width="32" height="32"/>
-  <object id="798" gid="3551" x="224" y="256" width="32" height="32"/>
-  <object id="802" gid="3551" x="416" y="256" width="32" height="32"/>
-  <object id="806" gid="3554" x="544" y="256" width="32" height="32"/>
-  <object id="807" gid="3570" x="544" y="288" width="32" height="32"/>
-  <object id="808" gid="3586" x="544" y="320" width="32" height="32"/>
-  <object id="809" gid="3585" x="512" y="320" width="32" height="32"/>
-  <object id="810" gid="3587" x="480" y="320" width="32" height="32"/>
-  <object id="811" gid="3584" x="448" y="320" width="32" height="32"/>
-  <object id="812" gid="3583" x="416" y="320" width="32" height="32"/>
-  <object id="813" gid="3567" x="416" y="288" width="32" height="32"/>
   <object id="828" gid="4451" x="928" y="128" width="32" height="32"/>
   <object id="833" gid="3635" x="480" y="160" width="32" height="32"/>
   <object id="834" gid="3651" x="480" y="192" width="32" height="32"/>
@@ -13305,22 +13278,16 @@
  </objectgroup>
  <objectgroup id="8" name="GenericObjectsOnCollide" locked="1">
   <object id="716" gid="4454" x="736" y="128" width="32" height="32"/>
-  <object id="787" gid="3552" x="256" y="256" width="32" height="32"/>
-  <object id="788" gid="3553" x="288" y="256" width="32" height="32"/>
-  <object id="789" gid="3553" x="320" y="256" width="32" height="32"/>
-  <object id="799" gid="3568" x="256" y="288" width="32" height="32"/>
-  <object id="800" gid="3568" x="288" y="288" width="32" height="32"/>
-  <object id="801" gid="3568" x="320" y="288" width="32" height="32"/>
-  <object id="803" gid="3552" x="448" y="256" width="32" height="32"/>
-  <object id="804" gid="3552" x="480" y="256" width="32" height="32"/>
-  <object id="805" gid="3553" x="512" y="256" width="32" height="32"/>
-  <object id="814" gid="3568" x="448" y="288" width="32" height="32"/>
-  <object id="815" gid="3568" x="480" y="288" width="32" height="32"/>
-  <object id="816" gid="3568" x="512" y="288" width="32" height="32"/>
   <object id="826" gid="4379" x="1216" y="896" width="32" height="32"/>
   <object id="827" gid="4395" x="1216" y="928" width="32" height="32"/>
   <object id="838" gid="4380" x="1152" y="928" width="32" height="32"/>
   <object id="839" gid="4396" x="1184" y="928" width="32" height="32"/>
+  <object id="948" gid="4257" x="192" y="256" width="32" height="32"/>
+  <object id="949" gid="4273" x="192" y="288" width="32" height="32"/>
+  <object id="950" gid="4257" x="192" y="320" width="32" height="32"/>
+  <object id="954" gid="4260" x="576" y="256" width="32" height="32"/>
+  <object id="955" gid="4276" x="576" y="288" width="32" height="32"/>
+  <object id="956" gid="4260" x="576" y="320" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="9" name="Computer" locked="1">
   <object id="875" gid="4671" x="1152" y="544" width="96" height="64"/>
@@ -13328,5 +13295,10 @@
   <object id="877" gid="4675" x="960" y="544" width="96" height="64"/>
   <object id="878" gid="4672" x="960" y="800" width="96" height="64"/>
   <object id="879" gid="4674" x="1152" y="800" width="96" height="64"/>
+ </objectgroup>
+ <objectgroup id="10" name="Whiteboard" locked="1">
+  <object id="880" gid="4676" x="512" y="544" width="64" height="64"/>
+  <object id="881" gid="4677" x="832" y="96" width="64" height="64"/>
+  <object id="888" gid="4676" x="928" y="320" width="64" height="64"/>
  </objectgroup>
 </map>

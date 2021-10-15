@@ -88,6 +88,11 @@ export default class Game extends Phaser.Scene {
       ++counter
     })
 
+    const whiteboardLayer = this.map.getObjectLayer('Whiteboard')
+    whiteboardLayer.objects.forEach((Obj) => {
+      this.addObjectFromTiled(this.items, Obj, 'whiteboards', 'whiteboard') as Item
+    })
+
     // import other objects from Tiled map to Phaser
     this.addGroupFromTiled('Wall', 'tiles_wall', 'FloorAndGround', false)
     this.addGroupFromTiled('Objects', 'office', 'Modern_Office_Black_Shadow', false)

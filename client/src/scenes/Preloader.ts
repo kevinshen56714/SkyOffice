@@ -25,6 +25,11 @@ export default class Preloader extends Phaser.Scene {
       frameHeight: 64,
     })
 
+    this.load.spritesheet('whiteboards', 'assets/items/whiteboard.png', {
+      frameWidth: 64,
+      frameHeight: 64,
+    })
+
     this.load.spritesheet('office', 'assets/items/Modern_Office_Black_Shadow.png', {
       frameWidth: 32,
       frameHeight: 32,
