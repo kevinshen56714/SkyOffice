@@ -1,9 +1,23 @@
-![phaser3-parceljs-template](https://user-images.githubusercontent.com/2236153/71606463-37a0da80-2b2e-11ea-9b5f-5d26ccc84f91.png)
+# SkyOffice ![License](https://img.shields.io/badge/license-MIT-green) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-green.svg)
 
-# Phaser 3 + TypeScript + Parcel Template
-> For people who want to spend time making Phaser 3 games in TypeScript instead of configuring build tools.
+<img alt="Logo" align="right" src="https://user-images.githubusercontent.com/11501902/139942585-a6b044ce-3695-460a-91bd-dd9f1d4611c8.png" width="20%" />
 
-![License](https://img.shields.io/badge/license-MIT-green)
+An immersive remote-working platform - 1st Place of [2021 Monte Jade Innovation Competition](http://www.montejadese.org/pages/mjic.html)
+
+
+- Come try it out! - [Official Website link](https://skyoffice.netlify.app/)
+- Why we built this? - [Demo Video](https://www.youtube.com/watch?v=BpDqGTPh8pc)
+
+SkyOffice works on all PC browsers (mobile browsers are currently not supported)
+
+## Function Overview
+
+<img alt="Chat" src="https://user-images.githubusercontent.com/11501902/139949278-ec27b4cd-ab8d-42fc-aed8-aa81b17be6b1.PNG" width="60%" />
+
+<img alt="Chat" src="https://user-images.githubusercontent.com/11501902/139949293-be0883b8-8d90-4c24-8581-6f757e652e43.PNG" width="60%" />
+
+<img alt="Chat" src="https://user-images.githubusercontent.com/11501902/139949299-08bf9686-afb5-4734-90b0-20d5d7049081.PNG" width="60%" />
+
 
 This is a TypeScript specific fork of [phaser3-parcel-template](https://github.com/ourcade/phaser3-parcel-template).
 
