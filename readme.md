@@ -13,7 +13,7 @@ SkyOffice works on all PC browsers (mobile browsers are currently not supported)
 ## Built with
 - [Phaser3](https://github.com/photonstorm/phaser) - Game Engine
 - [Colyseus](https://github.com/colyseus/colyseus) - WebSocket-based Server Framework
-- [React/Redux](https://github.com/facebook/react) - Front-end Components
+- [React/Redux](https://github.com/facebook/react) - Front-end Framework
 - [PeerJS](https://github.com/peers/peerjs) - WebRTC for Video/screen sharing
 - [TypeScript](https://github.com/microsoft/TypeScript) and [ES6](https://github.com/eslint/eslint) - for both client and server sides 
 
