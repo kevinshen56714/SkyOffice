@@ -1,8 +1,8 @@
-# SkyOffice ![License](https://img.shields.io/badge/license-MIT-green) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-green.svg)
+# SkyOffice ![License](https://img.shields.io/badge/license-MIT-blue) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-green.svg)
 
 <img alt="Logo" align="right" src="https://user-images.githubusercontent.com/11501902/139942585-a6b044ce-3695-460a-91bd-dd9f1d4611c8.png" width="20%" />
 
-An immersive remote-working platform - 1st Place of [2021 Monte Jade Innovation Competition](http://www.montejadese.org/pages/mjic.html)
+An immersive remote-working platform - Winner of [2021 Monte Jade Innovation Competition](http://www.montejadese.org/pages/mjic.html)
 
 
 - Come try it out - [Official Website](https://skyoffice.netlify.app/)
@@ -65,7 +65,7 @@ cd SkyOffice/client or 'my-folder-name/client'
 npm install && npm run start
 ```
 
-## Credits🎉
+## Credits 🎉
 
 Big thanks to this great repo:
 https://github.com/ourcade/phaser3-typescript-parcel-template
