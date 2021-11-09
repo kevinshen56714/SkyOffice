@@ -6,6 +6,7 @@ export const userSlice = createSlice({
   initialState: {
     sessionId: '',
     connected: false,
+    videoConnected: true,
     loggedIn: false,
     playerNameMap: new Map<string, string>(),
   },
@@ -15,6 +16,9 @@ export const userSlice = createSlice({
     },
     setConnected: (state, action: PayloadAction<boolean>) => {
       state.connected = action.payload
+    },
+    setVideoConnected: (state, action: PayloadAction<boolean>) => {
+      state.videoConnected = action.payload
     },
     setLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.loggedIn = action.payload
@@ -28,7 +32,13 @@ export const userSlice = createSlice({
   },
 })
 
-export const { setSessionId, setConnected, setLoggedIn, setPlayerNameMap, removePlayerNameMap } =
-  userSlice.actions
+export const {
+  setSessionId,
+  setConnected,
+  setVideoConnected,
+  setLoggedIn,
+  setPlayerNameMap,
+  removePlayerNameMap,
+} = userSlice.actions
 
 export default userSlice.reducer

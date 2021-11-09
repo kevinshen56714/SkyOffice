@@ -37,6 +37,16 @@ const Title = styled.h1`
   text-align: center;
 `
 
+const SubTitle = styled.h1`
+  position: absolute;
+  margin-top: 15px;
+  width: 160px;
+  font-size: 16px;
+  color: #000000;
+  text-align: center;
+  z-index: 10;
+`
+
 const Content = styled.div`
   display: flex;
   margin: 36px 0;
@@ -99,6 +109,7 @@ export default function LoginDialog() {
       <Title>Welcome to SkyOffice</Title>
       <Content>
         <Left>
+          <SubTitle>Select an avatar</SubTitle>
           <Swiper
             // install Swiper modules
             navigation

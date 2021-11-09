@@ -1,5 +1,7 @@
 import Peer from 'peerjs'
 import Network from '../services/Network'
+import store from '../stores'
+import { setVideoConnected } from '../stores/UserStore'
 
 export default class WebRTC {
   private myPeer: Peer
@@ -9,10 +11,12 @@ export default class WebRTC {
   private buttonGrid = document.querySelector('.button-grid')
   private myVideo = document.createElement('video')
   private myStream?: MediaStream
+  private network: Network
 
   constructor(userId: string, network: Network) {
     const sanitizedId = this.replaceInvalidId(userId)
     this.myPeer = new Peer(sanitizedId)
+    this.network = network
     console.log('userId:', userId)
     console.log('sanitizedId:', sanitizedId)
     this.myPeer.on('error', (err) => {
@@ -23,6 +27,39 @@ export default class WebRTC {
     // mute your own video stream (you don't want to hear yourself)
     this.myVideo.muted = true
 
+    this.initialize()
+    this.getUserMedia()
+  }
+
+  // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
+  // https://peerjs.com/docs.html#peer-id
+  private replaceInvalidId(userId: string) {
+    return userId.replace(/[^0-9a-z]/gi, 'G')
+  }
+
+  initialize() {
+    this.myPeer.on('call', (call) => {
+      call.answer()
+      const video = document.createElement('video')
+
+      call.on('stream', (userVideoStream) => {
+        this.addVideoStream(video, userVideoStream)
+      })
+      // triggered only when the connected peer is destroyed
+      call.on('closed', () => {
+        video.remove()
+        this.onCalledVideos.delete(call.peer)
+      })
+      call.on('error', (err) => {
+        console.log(err)
+      })
+      this.onCalledVideos.set(call.peer, video)
+    })
+    this.network.readyToConnect()
+  }
+
+  getUserMedia() {
+    store.dispatch(setVideoConnected(true))
     // ask the browser to get user media
     navigator.mediaDevices
       ?.getUserMedia({
@@ -36,32 +73,28 @@ export default class WebRTC {
         // prepare to be called
         this.myPeer.on('call', (call) => {
           call.answer(this.myStream)
-          const video = document.createElement('video')
+          // const video = document.createElement('video')
 
-          call.on('stream', (userVideoStream) => {
-            this.addVideoStream(video, userVideoStream)
-          })
-          // triggered only when the connected peer is destroyed
-          call.on('closed', () => {
-            video.remove()
-            this.onCalledVideos.delete(call.peer)
-          })
-          call.on('error', (err) => {
-            console.log(err)
-          })
-          this.onCalledVideos.set(call.peer, video)
+          // call.on('stream', (userVideoStream) => {
+          //   this.addVideoStream(video, userVideoStream)
+          // })
+          // // triggered only when the connected peer is destroyed
+          // call.on('closed', () => {
+          //   video.remove()
+          //   this.onCalledVideos.delete(call.peer)
+          // })
+          // call.on('error', (err) => {
+          //   console.log(err)
+          // })
+          // this.onCalledVideos.set(call.peer, video)
         })
-
         this.setUpButtons()
-
-        network.readyToConnect()
+        this.network.readyToConnect()
       })
-  }
-
-  // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
-  // https://peerjs.com/docs.html#peer-id
-  private replaceInvalidId(userId: string) {
-    return userId.replace(/[^0-9a-z]/gi, 'G')
+      .catch((error) => {
+        // this.initialize()
+        store.dispatch(setVideoConnected(false))
+      })
   }
 
   // method to call a peer
