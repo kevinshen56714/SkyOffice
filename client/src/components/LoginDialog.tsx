@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
 import SwiperCore, { Navigation } from 'swiper'
@@ -13,7 +15,7 @@ import Ash from '../assets/Ash_login.png'
 import Lucy from '../assets/Lucy_login.png'
 import Nancy from '../assets/Nancy_login.png'
 import { useAppSelector, useAppDispatch } from '../hooks'
-import { setLoggedIn } from '../stores/UserStore'
+import { setEmptyNameField, setLoggedIn } from '../stores/UserStore'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
@@ -38,13 +40,10 @@ const Title = styled.h1`
 `
 
 const SubTitle = styled.h1`
-  position: absolute;
-  margin-top: 15px;
   width: 160px;
   font-size: 16px;
-  color: #000000;
+  color: #eee;
   text-align: center;
-  z-index: 10;
 `
 
 const Content = styled.div`
@@ -82,13 +81,21 @@ const Left = styled.div`
 `
 
 const Right = styled.div`
-  min-width: 300px;
+  width: 300px;
 `
 
 const Bottom = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`
+
+const Warning = styled.div`
+  margin-top: 30px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 `
 
 const avatars = [
@@ -103,6 +110,8 @@ export default function LoginDialog() {
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
   const dispatch = useAppDispatch()
   const connected = useAppSelector((state) => state.user.connected)
+  const videoConnected = useAppSelector((state) => state.user.videoConnected)
+  const emptyNameField = useAppSelector((state) => state.user.emptyNameField)
 
   return (
     <Wrapper>
@@ -130,9 +139,12 @@ export default function LoginDialog() {
         </Left>
         <Right>
           <TextField
+            fullWidth
             label="Name"
             variant="outlined"
             color="secondary"
+            error={emptyNameField}
+            helperText={emptyNameField && 'Name is required'}
             onInput={(e) => {
               setName((e.target as HTMLInputElement).value)
               if (connected) {
@@ -141,6 +153,30 @@ export default function LoginDialog() {
               }
             }}
           />
+          {!videoConnected && (
+            <Warning>
+              <Alert severity="warning">
+                <AlertTitle>Warning</AlertTitle>
+                No webcam/mic connected - <strong>connect one for best experience!</strong>
+              </Alert>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => {
+                  const game = phaserGame.scene.keys.game as Game
+                  game.network.webRTC?.getUserMedia()
+                }}
+              >
+                Connect Webcam
+              </Button>
+            </Warning>
+          )}
+
+          {videoConnected && (
+            <Warning>
+              <Alert> Webcam connected!</Alert>
+            </Warning>
+          )}
         </Right>
       </Content>
       <Bottom>
@@ -149,13 +185,17 @@ export default function LoginDialog() {
           color="secondary"
           size="large"
           onClick={() => {
-            if (connected) {
-              console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
-              const game = phaserGame.scene.keys.game as Game
-              game.registerKeys()
-              game.myPlayer.setPlayerName(name)
-              game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
-              dispatch(setLoggedIn(true))
+            if (name === '') {
+              dispatch(setEmptyNameField(true))
+            } else {
+              if (connected) {
+                console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
+                const game = phaserGame.scene.keys.game as Game
+                game.registerKeys()
+                game.myPlayer.setPlayerName(name)
+                game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+                dispatch(setLoggedIn(true))
+              }
             }
           }}
         >

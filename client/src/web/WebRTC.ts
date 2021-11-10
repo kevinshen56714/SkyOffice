@@ -27,8 +27,14 @@ export default class WebRTC {
     // mute your own video stream (you don't want to hear yourself)
     this.myVideo.muted = true
 
+    // config peerJS
     this.initialize()
-    this.getUserMedia()
+
+    // if permission has been granted before
+    const permissionName = 'microphone' as PermissionName
+    navigator.permissions.query({ name: permissionName }).then((result) => {
+      if (result.state === 'granted') this.getUserMedia()
+    })
   }
 
   // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
@@ -39,7 +45,7 @@ export default class WebRTC {
 
   initialize() {
     this.myPeer.on('call', (call) => {
-      call.answer()
+      call.answer(this.myStream)
       const video = document.createElement('video')
 
       call.on('stream', (userVideoStream) => {
@@ -59,7 +65,6 @@ export default class WebRTC {
   }
 
   getUserMedia() {
-    store.dispatch(setVideoConnected(true))
     // ask the browser to get user media
     navigator.mediaDevices
       ?.getUserMedia({
@@ -69,31 +74,12 @@ export default class WebRTC {
       .then((stream) => {
         this.myStream = stream
         this.addVideoStream(this.myVideo, this.myStream)
-
-        // prepare to be called
-        this.myPeer.on('call', (call) => {
-          call.answer(this.myStream)
-          // const video = document.createElement('video')
-
-          // call.on('stream', (userVideoStream) => {
-          //   this.addVideoStream(video, userVideoStream)
-          // })
-          // // triggered only when the connected peer is destroyed
-          // call.on('closed', () => {
-          //   video.remove()
-          //   this.onCalledVideos.delete(call.peer)
-          // })
-          // call.on('error', (err) => {
-          //   console.log(err)
-          // })
-          // this.onCalledVideos.set(call.peer, video)
-        })
         this.setUpButtons()
-        this.network.readyToConnect()
+        store.dispatch(setVideoConnected(true))
       })
       .catch((error) => {
-        // this.initialize()
         store.dispatch(setVideoConnected(false))
+        window.alert('No webcam or microphone found, or permission is blocked')
       })
   }
 

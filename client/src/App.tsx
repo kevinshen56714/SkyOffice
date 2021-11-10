@@ -23,7 +23,7 @@ function App() {
       {computerDialogOpen && <ComputerDialog />}
 
       {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
-      {!computerDialogOpen && !videoConnected && <VideoConnectionDialog />}
+      {!computerDialogOpen && !videoConnected && loggedIn && <VideoConnectionDialog />}
     </div>
   )
 }

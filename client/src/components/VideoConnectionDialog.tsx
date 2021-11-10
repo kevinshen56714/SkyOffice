@@ -7,6 +7,9 @@ import AlertTitle from '@mui/material/AlertTitle'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
 
+import { useAppSelector, useAppDispatch } from '../hooks'
+import { closeVideoConnectionWarning } from '../stores/UserStore'
+
 const Backdrop = styled.div`
   position: fixed;
   top: 0;
@@ -21,15 +24,24 @@ const Wrapper = styled.div`
   flex-direction: column;
 `
 
-export default function ComputerDialog() {
+export default function VideoConnectionDialog() {
+  const dispatch = useAppDispatch()
+  const videoConnectionWarning = useAppSelector((state) => state.user.videoConnectionWarning)
   return (
     <Backdrop>
       <Wrapper>
-        <Alert severity="warning">
-          <AlertTitle>Warning</AlertTitle>
-          No webcam connected
-          <br /> <strong>connect one for full experience!</strong>
-        </Alert>
+        {videoConnectionWarning && (
+          <Alert
+            severity="warning"
+            onClose={() => {
+              dispatch(closeVideoConnectionWarning())
+            }}
+          >
+            <AlertTitle>Warning</AlertTitle>
+            No webcam connected
+            <br /> <strong>connect one for full experience!</strong>
+          </Alert>
+        )}
         <Button
           variant="contained"
           color="secondary"
@@ -38,7 +50,7 @@ export default function ComputerDialog() {
             game.network.webRTC?.getUserMedia()
           }}
         >
-          Connect
+          Connect Webcam
         </Button>
       </Wrapper>
     </Backdrop>

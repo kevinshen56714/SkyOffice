@@ -6,8 +6,10 @@ export const userSlice = createSlice({
   initialState: {
     sessionId: '',
     connected: false,
-    videoConnected: true,
+    videoConnected: false,
+    videoConnectionWarning: true,
     loggedIn: false,
+    emptyNameField: false,
     playerNameMap: new Map<string, string>(),
   },
   reducers: {
@@ -29,6 +31,12 @@ export const userSlice = createSlice({
     removePlayerNameMap: (state, action: PayloadAction<string>) => {
       state.playerNameMap.delete(sanitizeId(action.payload))
     },
+    closeVideoConnectionWarning: (state) => {
+      state.videoConnectionWarning = false
+    },
+    setEmptyNameField: (state, action: PayloadAction<boolean>) => {
+      state.emptyNameField = action.payload
+    },
   },
 })
 
@@ -39,6 +47,8 @@ export const {
   setLoggedIn,
   setPlayerNameMap,
   removePlayerNameMap,
+  closeVideoConnectionWarning,
+  setEmptyNameField,
 } = userSlice.actions
 
 export default userSlice.reducer
