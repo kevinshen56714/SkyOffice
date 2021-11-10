@@ -106,6 +106,11 @@ export default class Network {
     phaserEvents.on(Event.MY_PLAYER_READY, callback, context)
   }
 
+  // method to register event listener and call back function when my video is connected
+  onMyPlayerVideoConnected(callback: (key: string) => void, context?: any) {
+    phaserEvents.on(Event.MY_PLAYER_VIDEO_CONNECTED, callback, context)
+  }
+
   // method to register event listener and call back function when a player updated
   onPlayerUpdated(
     callback: (field: string, value: number | string, key: string) => void,
@@ -128,6 +133,12 @@ export default class Network {
   readyToConnect() {
     this.room?.send(Message.READY_TO_CONNECT)
     phaserEvents.emit(Event.MY_PLAYER_READY)
+  }
+
+  // method to send ready-to-connect signal to Colyseus server
+  videoConnected() {
+    this.room?.send(Message.VIDEO_CONNECTED)
+    phaserEvents.emit(Event.MY_PLAYER_VIDEO_CONNECTED)
   }
 
   // method to send stream-disconnection signal to Colyseus server

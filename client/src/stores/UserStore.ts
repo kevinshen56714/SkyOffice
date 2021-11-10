@@ -9,7 +9,6 @@ export const userSlice = createSlice({
     videoConnected: false,
     videoConnectionWarning: true,
     loggedIn: false,
-    emptyNameField: false,
     playerNameMap: new Map<string, string>(),
   },
   reducers: {
@@ -34,9 +33,6 @@ export const userSlice = createSlice({
     closeVideoConnectionWarning: (state) => {
       state.videoConnectionWarning = false
     },
-    setEmptyNameField: (state, action: PayloadAction<boolean>) => {
-      state.emptyNameField = action.payload
-    },
   },
 })
 
@@ -48,7 +44,6 @@ export const {
   setPlayerNameMap,
   removePlayerNameMap,
   closeVideoConnectionWarning,
-  setEmptyNameField,
 } = userSlice.actions
 
 export default userSlice.reducer

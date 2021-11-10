@@ -15,7 +15,7 @@ import Ash from '../assets/Ash_login.png'
 import Lucy from '../assets/Lucy_login.png'
 import Nancy from '../assets/Nancy_login.png'
 import { useAppSelector, useAppDispatch } from '../hooks'
-import { setEmptyNameField, setLoggedIn } from '../stores/UserStore'
+import { setLoggedIn } from '../stores/UserStore'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
@@ -111,7 +111,7 @@ export default function LoginDialog() {
   const dispatch = useAppDispatch()
   const connected = useAppSelector((state) => state.user.connected)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
-  const emptyNameField = useAppSelector((state) => state.user.emptyNameField)
+  const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
 
   return (
     <Wrapper>
@@ -144,8 +144,8 @@ export default function LoginDialog() {
             label="Name"
             variant="outlined"
             color="secondary"
-            error={emptyNameField}
-            helperText={emptyNameField && 'Name is required'}
+            error={nameFieldEmpty}
+            helperText={nameFieldEmpty && 'Name is required'}
             onInput={(e) => {
               setName((e.target as HTMLInputElement).value)
               if (connected) {
@@ -175,7 +175,7 @@ export default function LoginDialog() {
 
           {videoConnected && (
             <Warning>
-              <Alert> Webcam connected!</Alert>
+              <Alert>Webcam connected!</Alert>
             </Warning>
           )}
         </Right>
@@ -187,7 +187,7 @@ export default function LoginDialog() {
           size="large"
           onClick={() => {
             if (name === '') {
-              dispatch(setEmptyNameField(true))
+              setNameFieldEmpty(true)
             } else {
               if (connected) {
                 console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)

@@ -10,6 +10,7 @@ export interface IPlayer extends Schema {
   y: number
   anim: string
   readyToConnect: boolean
+  videoConnected: boolean
 }
 
 export interface IOfficeState extends Schema {
