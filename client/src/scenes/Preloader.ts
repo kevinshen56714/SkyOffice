@@ -59,35 +59,11 @@ export default class Preloader extends Phaser.Scene {
   create() {
     // create loading texts
     const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2
-    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height / 2
-    this.add
-      .text(screenCenterX, screenCenterY - 100, 'SkyOffice')
-      .setOrigin(0.5)
-      .setFontSize(50)
-      .setFontStyle('bold')
-      .setColor('#000000')
+    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height
     const loadingText = this.add
-      .text(screenCenterX, screenCenterY - 30, 'Loading...')
+      .text(screenCenterX, screenCenterY - 100, 'Loading...')
       .setOrigin(0.5)
       .setFontSize(30)
-      .setColor('#000000')
-    this.add
-      .text(
-        screenCenterX,
-        screenCenterY + 40,
-        'Please patiently wait for 10-15 seconds because it takes some time to wake the server up.'
-      )
-      .setOrigin(0.5)
-      .setFontSize(18)
-      .setColor('#000000')
-    this.add
-      .text(
-        screenCenterX,
-        screenCenterY + 60,
-        "(Our server goes to sleep if the web doesn't receive any traffice in 1 hour)"
-      )
-      .setOrigin(0.5)
-      .setFontSize(18)
       .setColor('#000000')
 
     this.time.addEvent({

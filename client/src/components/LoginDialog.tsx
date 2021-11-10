@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
 import SwiperCore, { Navigation } from 'swiper'
@@ -28,11 +30,17 @@ const Wrapper = styled.div`
   background: #222639;
   border-radius: 16px;
   padding: 36px 60px;
-  color: #eee;
 `
 
 const Title = styled.h1`
   font-size: 24px;
+  color: #eee;
+  text-align: center;
+`
+
+const SubTitle = styled.h3`
+  width: 160px;
+  font-size: 16px;
   color: #eee;
   text-align: center;
 `
@@ -72,13 +80,21 @@ const Left = styled.div`
 `
 
 const Right = styled.div`
-  min-width: 300px;
+  width: 300px;
 `
 
 const Bottom = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`
+
+const Warning = styled.div`
+  margin-top: 30px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 `
 
 const avatars = [
@@ -91,14 +107,17 @@ const avatars = [
 export default function LoginDialog() {
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
+  const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
   const dispatch = useAppDispatch()
   const connected = useAppSelector((state) => state.user.connected)
+  const videoConnected = useAppSelector((state) => state.user.videoConnected)
 
   return (
     <Wrapper>
       <Title>Welcome to SkyOffice</Title>
       <Content>
         <Left>
+          <SubTitle>Select an avatar</SubTitle>
           <Swiper
             // install Swiper modules
             navigation
@@ -119,9 +138,13 @@ export default function LoginDialog() {
         </Left>
         <Right>
           <TextField
+            autoFocus
+            fullWidth
             label="Name"
             variant="outlined"
             color="secondary"
+            error={nameFieldEmpty}
+            helperText={nameFieldEmpty && 'Name is required'}
             onInput={(e) => {
               setName((e.target as HTMLInputElement).value)
               if (connected) {
@@ -130,6 +153,30 @@ export default function LoginDialog() {
               }
             }}
           />
+          {!videoConnected && (
+            <Warning>
+              <Alert severity="warning">
+                <AlertTitle>Warning</AlertTitle>
+                No webcam/mic connected - <strong>connect one for best experience!</strong>
+              </Alert>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => {
+                  const game = phaserGame.scene.keys.game as Game
+                  game.network.webRTC?.getUserMedia()
+                }}
+              >
+                Connect Webcam
+              </Button>
+            </Warning>
+          )}
+
+          {videoConnected && (
+            <Warning>
+              <Alert>Webcam connected!</Alert>
+            </Warning>
+          )}
         </Right>
       </Content>
       <Bottom>
@@ -138,13 +185,18 @@ export default function LoginDialog() {
           color="secondary"
           size="large"
           onClick={() => {
-            if (connected) {
-              console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
-              const game = phaserGame.scene.keys.game as Game
-              game.registerKeys()
-              game.myPlayer.setPlayerName(name)
-              game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
-              dispatch(setLoggedIn(true))
+            if (name === '') {
+              setNameFieldEmpty(true)
+            } else {
+              if (connected) {
+                console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
+                const game = phaserGame.scene.keys.game as Game
+                game.registerKeys()
+                game.myPlayer.setPlayerName(name)
+                game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+                game.network.readyToConnect()
+                dispatch(setLoggedIn(true))
+              }
             }
           }}
         >

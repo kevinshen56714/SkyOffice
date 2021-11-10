@@ -73,6 +73,12 @@ export class SkyOffice extends Room<OfficeState> {
       if (player) player.readyToConnect = true
     })
 
+    // when a player is ready to connect, call the PlayerReadyToConnectCommand
+    this.onMessage(Message.VIDEO_CONNECTED, (client) => {
+      const player = this.state.players.get(client.sessionId)
+      if (player) player.videoConnected = true
+    })
+
     // when a player disconnect a stream, broadcast the signal to the other player connected to the stream
     this.onMessage(Message.DISCONNECT_STREAM, (client, message: { clientId: string }) => {
       this.clients.forEach((cli) => {
