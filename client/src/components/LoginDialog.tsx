@@ -30,7 +30,6 @@ const Wrapper = styled.div`
   background: #222639;
   border-radius: 16px;
   padding: 36px 60px;
-  color: #eee;
 `
 
 const Title = styled.h1`
@@ -39,7 +38,7 @@ const Title = styled.h1`
   text-align: center;
 `
 
-const SubTitle = styled.h1`
+const SubTitle = styled.h3`
   width: 160px;
   font-size: 16px;
   color: #eee;
@@ -108,10 +107,10 @@ const avatars = [
 export default function LoginDialog() {
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
+  const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
   const dispatch = useAppDispatch()
   const connected = useAppSelector((state) => state.user.connected)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
-  const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
 
   return (
     <Wrapper>
@@ -161,7 +160,7 @@ export default function LoginDialog() {
                 No webcam/mic connected - <strong>connect one for best experience!</strong>
               </Alert>
               <Button
-                variant="contained"
+                variant="outlined"
                 color="secondary"
                 onClick={() => {
                   const game = phaserGame.scene.keys.game as Game
