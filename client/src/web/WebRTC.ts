@@ -61,7 +61,6 @@ export default class WebRTC {
       })
       this.onCalledVideos.set(call.peer, video)
     })
-    this.network.readyToConnect()
   }
 
   getUserMedia() {

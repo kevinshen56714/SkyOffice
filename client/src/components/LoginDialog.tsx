@@ -139,6 +139,7 @@ export default function LoginDialog() {
         </Left>
         <Right>
           <TextField
+            autoFocus
             fullWidth
             label="Name"
             variant="outlined"
@@ -194,6 +195,7 @@ export default function LoginDialog() {
                 game.registerKeys()
                 game.myPlayer.setPlayerName(name)
                 game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+                game.network.readyToConnect()
                 dispatch(setLoggedIn(true))
               }
             }
