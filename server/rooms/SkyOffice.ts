@@ -5,6 +5,7 @@ import { Message } from '../../types/Messages'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
 import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
 import ComputerUpdateArrayCommand from './commands/ComputerUpdateArrayCommand'
+import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
@@ -85,6 +86,13 @@ export class SkyOffice extends Room<OfficeState> {
         if (cli.sessionId === message.clientId) {
           cli.send(Message.DISCONNECT_STREAM, client.sessionId)
         }
+      })
+    })
+
+    this.onMessage(Message.ADD_CHAT_MESSAGE, (client, message: { content: string }) => {
+      this.dispatcher.dispatch(new ChatMessageUpdateCommand(), {
+        client,
+        content: message.content,
       })
     })
   }

@@ -5,8 +5,7 @@ import Fab from '@mui/material/Fab'
 import List from '@mui/material/List'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
-import TextField from '@mui/material/TextField'
-import InputAdornment from '@mui/material/InputAdornment'
+import InputBase from '@mui/material/InputBase'
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon'
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 import CloseIcon from '@mui/icons-material/Close'
@@ -17,8 +16,8 @@ const Backdrop = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
-  height: 450px;
-  width: 600px;
+  height: 420px;
+  width: 560px;
   max-height: 50%;
   max-width: 50%;
 `
@@ -37,9 +36,16 @@ const FabWrapper = styled.div`
 
 const ChatHeader = styled.div`
   height: 35px;
-  background: #2f2f2f;
-  border: #555453;
+  background: #000000a7;
+  /* background: linear-gradient(0deg, #000000a7, #2424249e); */
   border-radius: 10px 10px 0px 0px;
+
+  h3 {
+    color: #fff;
+    margin: 7px;
+    font-size: 17px;
+    text-align: center;
+  }
 
   .close {
     position: absolute;
@@ -53,17 +59,21 @@ const ChatBox = styled(Box)`
   width: 100%;
   overflow: auto;
   background: #000000a7;
+  background: #2c2c2c;
   border: 1px solid #00000029;
+  /* border: 1px solid #5e696b; */
 `
 
 const InputWrapper = styled.div`
   box-shadow: 10px 10px 10px #00000018;
   border: 1px solid #42eacb;
   border-radius: 0px 0px 10px 10px;
+  display: flex;
+  flex-direction: row;
+  background: linear-gradient(180deg, #000000c1, #242424c0);
 `
 
-const InputTextField = styled(TextField)`
-  background: linear-gradient(180deg, #000000c1, #242424c0);
+const InputTextField = styled(InputBase)`
   border-radius: 0px 0px 10px 10px;
   input {
     padding: 5px;
@@ -102,6 +112,7 @@ export default function Chat() {
           {showChat ? (
             <>
               <ChatHeader>
+                <h3>Chat</h3>
                 <IconButton
                   aria-label="close dialog"
                   className="close"
@@ -162,35 +173,24 @@ export default function Chat() {
                     theme="dark"
                     showSkinTones={false}
                     showPreview={false}
-                    style={{ position: 'absolute', bottom: '51px', right: '16px' }}
+                    style={{ position: 'absolute', bottom: '58px', right: '16px' }}
                     onSelect={(emoji) => {
                       setValue('hihi ' + emoji.native)
+                      setShowEmojiPicker(!showEmojiPicker)
                     }}
                     exclude={['recent', 'flags']}
                   />
                 )}
               </ChatBox>
               <InputWrapper>
-                <InputTextField
-                  autoFocus
-                  fullWidth
-                  placeholder="Aa"
-                  variant="standard"
-                  color="secondary"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="start">
-                        <IconButton aria-label="emoji" edge="end">
-                          <InsertEmoticonIcon
-                            onClick={() => {
-                              setShowEmojiPicker(!showEmojiPicker)
-                            }}
-                          />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <InputTextField autoFocus fullWidth placeholder="Aa" />
+                <IconButton aria-label="emoji">
+                  <InsertEmoticonIcon
+                    onClick={() => {
+                      setShowEmojiPicker(!showEmojiPicker)
+                    }}
+                  />
+                </IconButton>
               </InputWrapper>
             </>
           ) : (
