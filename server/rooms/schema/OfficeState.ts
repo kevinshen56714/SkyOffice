@@ -1,5 +1,5 @@
 import { Schema, ArraySchema, MapSchema, Context, type } from '@colyseus/schema'
-import { IPlayer, IOfficeState, IComputer } from '../../../types/IOfficeState'
+import { IPlayer, IOfficeState, IComputer, IChatMessage } from '../../../types/IOfficeState'
 
 export class Player extends Schema implements IPlayer {
   @type('string') name = ''
@@ -14,9 +14,10 @@ export class Computer extends Schema implements IComputer {
   @type(['string']) connectedUser = new ArraySchema<string>()
 }
 
-export class ChatMessage extends Schema implements IComputer {
+export class ChatMessage extends Schema implements IChatMessage {
+  @type('string') author = ''
   @type('number') createdAt = new Date().getTime()
-  @type('string') content: ''
+  @type('string') content = ''
 }
 
 export class OfficeState extends Schema implements IOfficeState {

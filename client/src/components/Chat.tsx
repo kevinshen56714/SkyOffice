@@ -1,9 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Box from '@mui/material/Box'
 import Fab from '@mui/material/Fab'
-import List from '@mui/material/List'
-import Divider from '@mui/material/Divider'
+import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon'
@@ -11,13 +10,18 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 import CloseIcon from '@mui/icons-material/Close'
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
+import { useAppSelector } from '../hooks'
+
+import phaserGame from '../PhaserGame'
+import Game from '../scenes/Game'
+import { MessageType } from '../stores/ChatStore'
 
 const Backdrop = styled.div`
   position: fixed;
   bottom: 0;
   left: 0;
-  height: 420px;
-  width: 560px;
+  height: 400px;
+  width: 500px;
   max-height: 50%;
   max-width: 50%;
 `
@@ -64,6 +68,25 @@ const ChatBox = styled(Box)`
   /* border: 1px solid #5e696b; */
 `
 
+const MessageWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0px 4px;
+
+  p {
+    margin: 3px;
+    text-shadow: 0.3px 0.3px black;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  :hover {
+    background: #3a3a3a;
+  }
+`
+
 const InputWrapper = styled.div`
   box-shadow: 10px 10px 10px #00000018;
   border: 1px solid #42eacb;
@@ -83,28 +106,84 @@ const InputTextField = styled(InputBase)`
 
 const colorArr = ['#7bf1a8', '#ff7e50', '#9acd32', '#daa520', '#ff69b4', '#c085f6']
 
-const o = new Intl.DateTimeFormat('en', {
+// determine name color by first character charCode
+const getColorByName = (author: string) => {
+  return colorArr[Math.floor(author.charCodeAt(0) % colorArr.length)]
+}
+
+const dateFormatter = new Intl.DateTimeFormat('en', {
   timeStyle: 'short',
   dateStyle: 'short',
 })
 
-function refreshMessages(): MessageExample[] {
-  const getRandomInt = (max: number) => Math.floor(Math.random() * Math.floor(max))
-
-  return Array.from(new Array(50)).map(() => messageExamples[getRandomInt(messageExamples.length)])
-}
-
 export default function Chat() {
-  const [value, setValue] = React.useState('')
-  const [showChat, setShowChat] = React.useState(true)
-  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  const [messages, setMessages] = React.useState(() => refreshMessages())
+  const chatMessages = useAppSelector((state) => state.chat.chatMessages)
+  const [inputValue, setInputValue] = useState('')
+  const [showChat, setShowChat] = useState(true)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  React.useEffect(() => {
-    ;(ref.current as HTMLDivElement).ownerDocument.body.scrollTop = 0
-    setMessages(refreshMessages())
-  }, [value, setMessages])
+  const handleChange = (event: React.FormEvent) => {
+    var input: any = event.target
+    setInputValue(input.value)
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setInputValue('')
+    } else if (event.key === 'Enter') {
+      handleSubmit()
+    }
+  }
+
+  const handleSubmit = () => {
+    var val = inputValue.trim()
+    if (val) {
+      setInputValue('')
+      const game = phaserGame.scene.keys.game as Game
+      game.network.addChatMessage(val)
+    }
+  }
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const Message = ({ chatMessage }) => {
+    const [tooltipOpen, setTooltipOpen] = useState(false)
+
+    return (
+      <MessageWrapper
+        onMouseEnter={() => {
+          setTooltipOpen(true)
+        }}
+        onMouseLeave={() => {
+          setTooltipOpen(false)
+        }}
+      >
+        <Tooltip
+          open={tooltipOpen}
+          title={dateFormatter.format(chatMessage.createdAt)}
+          placement="right"
+          arrow
+        >
+          <p
+            style={{
+              color: getColorByName(chatMessage.author),
+            }}
+          >
+            {chatMessage.author}{' '}
+            <span style={{ color: 'white', fontWeight: 'normal' }}>{chatMessage.content}</span>
+          </p>
+        </Tooltip>
+      </MessageWrapper>
+    )
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [chatMessages])
+
   return (
     <>
       <Backdrop>
@@ -122,52 +201,24 @@ export default function Chat() {
                   <CloseIcon />
                 </IconButton>
               </ChatHeader>
-              <ChatBox ref={ref}>
-                <List>
-                  {messages.map(({ primary, secondary, person }, index) => (
-                    <>
-                      <Divider
-                        style={{
-                          color: '#d1cfcf',
-                          margin: '7px',
-                          textShadow: '0.3px 0.3px black',
-                          fontSize: 14,
-                        }}
-                      >
-                        {o.format(Date.now())}
-                      </Divider>
-                      <p
-                        style={{
-                          // color: '#7bffe7',
-                          color: colorArr[Math.floor(Math.random() * colorArr.length)],
-                          margin: '7px',
-                          textShadow: '0.3px 0.3px black',
-                          fontSize: 15,
-                          fontWeight: 'bold',
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        Kevin{' '}
-                        <span style={{ color: 'white', fontWeight: 'normal' }}>{secondary}</span>{' '}
-                      </p>
-                      {/* <ListItem key={index + person}>
-                    <ListItemText primary={value} secondary={secondary} />
-                  </ListItem> */}
-                    </>
-                  ))}
+              <ChatBox>
+                {chatMessages.map(({ messageType, chatMessage }, index) => (
+                  <Message chatMessage={chatMessage} key={index} />
+                ))}
 
-                  <p
-                    style={{
-                      color: '#ffe346',
-                      fontWeight: 'bold',
-                      margin: '7px',
-                      lineHeight: 1.3,
-                      fontSize: 15,
-                    }}
-                  >
-                    Dax Joined the room!
-                  </p>
-                </List>
+                <p
+                  style={{
+                    color: '#ffe75d',
+                    fontWeight: 'bold',
+                    margin: '7px',
+                    lineHeight: 1.3,
+                    fontSize: 15,
+                    // fontStyle: 'italic',
+                  }}
+                >
+                  Dax Joined the room!
+                </p>
+                <div ref={messagesEndRef} />
                 {showEmojiPicker && (
                   <Picker
                     theme="dark"
@@ -175,7 +226,7 @@ export default function Chat() {
                     showPreview={false}
                     style={{ position: 'absolute', bottom: '58px', right: '16px' }}
                     onSelect={(emoji) => {
-                      setValue('hihi ' + emoji.native)
+                      setInputValue(inputValue + emoji.native)
                       setShowEmojiPicker(!showEmojiPicker)
                     }}
                     exclude={['recent', 'flags']}
@@ -183,13 +234,23 @@ export default function Chat() {
                 )}
               </ChatBox>
               <InputWrapper>
-                <InputTextField autoFocus fullWidth placeholder="Aa" />
-                <IconButton aria-label="emoji">
-                  <InsertEmoticonIcon
-                    onClick={() => {
-                      setShowEmojiPicker(!showEmojiPicker)
-                    }}
-                  />
+                <InputTextField
+                  autoFocus
+                  fullWidth
+                  placeholder="Aa"
+                  value={inputValue}
+                  onKeyDown={(e: React.KeyboardEvent) => {
+                    handleKeyDown(e)
+                  }}
+                  onChange={(e: React.KeyboardEvent) => handleChange(e)}
+                />
+                <IconButton
+                  aria-label="emoji"
+                  onClick={() => {
+                    setShowEmojiPicker(!showEmojiPicker)
+                  }}
+                >
+                  <InsertEmoticonIcon />
                 </IconButton>
               </InputWrapper>
             </>
@@ -211,50 +272,3 @@ export default function Chat() {
     </>
   )
 }
-interface MessageExample {
-  primary: string
-  secondary: string
-  person: string
-}
-
-const messageExamples: readonly MessageExample[] = [
-  {
-    primary: 'Brunch this week?',
-    secondary: "I'll be in the neighbourhood this week. Let's grab a bite to eat",
-    person: '/static/images/avatar/5.jpg',
-  },
-  {
-    primary: 'Birthday Gift',
-    secondary: `Do you have a suggestion for a good present for John on his work
-      anniversary. I am really confused & would love your thoughts on it.`,
-    person: '/static/images/avatar/1.jpg',
-  },
-  {
-    primary: 'Recipe to try',
-    secondary: 'I am try out this new BBQ recipe, I think this might be amazing',
-    person: '/static/images/avatar/2.jpg',
-  },
-  {
-    primary: 'Yes!',
-    secondary: 'I have the tickets to the ReactConf for this year.',
-    person: '/static/images/avatar/3.jpg',
-  },
-  {
-    primary: "Doctor's Appointment",
-    secondary: 'My appointment for the doctor was rescheduled for next Saturday.',
-    person: '/static/images/avatar/4.jpg',
-  },
-  {
-    primary: 'Discussion',
-    secondary: `Menus that are generated by the bottom app bar (such as a bottom
-      navigation drawer or overflow menu) open as bottom sheets at a higher elevation
-      than the bar.`,
-    person: '/static/images/avatar/5.jpg',
-  },
-  {
-    primary: 'Summer BBQ',
-    secondary: `Who wants to have a cookout this weekend? I just got some furniture
-      for my backyard and would love to fire up the grill.`,
-    person: '/static/images/avatar/1.jpg',
-  },
-]

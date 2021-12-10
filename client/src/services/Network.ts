@@ -5,6 +5,7 @@ import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
+import { MessageType, pushChatMessage } from '../stores/ChatStore'
 
 export default class Network {
   private client: Client
@@ -67,6 +68,13 @@ export default class Network {
       computer.connectedUser.onRemove = (item, index) => {
         phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key)
       }
+    }
+
+    // new instance added to the chatMessages ArraySchema
+    this.room.state.chatMessages.onAdd = (item, index) => {
+      store.dispatch(
+        pushChatMessage({ messageType: MessageType.REGULAR_MESSAGE, chatMessage: item })
+      )
     }
 
     // when a peer disconnect with myPeer
@@ -157,5 +165,9 @@ export default class Network {
 
   onStopScreenShare(id: string) {
     this.room?.send(Message.STOP_SCREEN_SHARE, { computerId: id })
+  }
+
+  addChatMessage(content: string) {
+    this.room?.send(Message.ADD_CHAT_MESSAGE, { content: content })
   }
 }
