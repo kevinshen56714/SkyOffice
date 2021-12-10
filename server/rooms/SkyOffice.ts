@@ -12,6 +12,7 @@ export class SkyOffice extends Room<OfficeState> {
 
   onCreate(options: any) {
     this.setState(new OfficeState())
+    this.autoDispose = false
 
     // HARD-CODED: Add 5 computers in a room
     for (let i = 0; i < 5; i++) {

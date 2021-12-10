@@ -120,6 +120,7 @@ export default function Chat() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const chatMessages = useAppSelector((state) => state.chat.chatMessages)
+  const game = phaserGame.scene.keys.game as Game
 
   const handleChange = (event: React.FormEvent) => {
     var input: any = event.target
@@ -138,7 +139,6 @@ export default function Chat() {
     var val = inputValue.trim()
     if (val) {
       setInputValue('')
-      const game = phaserGame.scene.keys.game as Game
       game.network.addChatMessage(val)
     }
   }
@@ -230,7 +230,8 @@ export default function Chat() {
               </ChatBox>
               <InputWrapper>
                 <InputTextField
-                  autoFocus
+                  onFocus={() => game.disableKeys()}
+                  onBlur={() => game.enableKeys()}
                   fullWidth
                   placeholder="Aa"
                   value={inputValue}

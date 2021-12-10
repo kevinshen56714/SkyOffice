@@ -40,6 +40,15 @@ export default class Game extends Phaser.Scene {
     this.keyR = this.input.keyboard.addKey('R')
   }
 
+  disableKeys() {
+    this.input.keyboard.enabled = false
+    this.input.keyboard.disableGlobalCapture()
+  }
+
+  enableKeys() {
+    this.input.keyboard.enabled = true
+  }
+
   init() {
     this.network = new Network()
   }
