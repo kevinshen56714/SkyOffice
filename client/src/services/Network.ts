@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus.js'
-import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
+import { IChatMessage, IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
@@ -37,15 +37,26 @@ export default class Network {
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
       if (key === this.mySessionId) return
 
-      phaserEvents.emit(Event.PLAYER_JOINED, player, key)
-
       // track changes on every child object inside the players MapSchema
       player.onChange = (changes) => {
         changes.forEach((change) => {
           const { field, value } = change
           phaserEvents.emit(Event.PLAYER_UPDATED, field, value, key)
-          if (field === 'name') {
+
+          // when a new player finished setting up player name
+          if (field === 'name' && value !== '') {
+            phaserEvents.emit(Event.PLAYER_JOINED, player, key)
             store.dispatch(setPlayerNameMap({ id: key, name: value }))
+            store.dispatch(
+              pushChatMessage({
+                messageType: MessageType.PLAYER_JOINED,
+                chatMessage: {
+                  createdAt: new Date().getTime(),
+                  author: value,
+                  content: 'joined the room!',
+                } as IChatMessage,
+              })
+            )
           }
         })
       }
@@ -56,6 +67,16 @@ export default class Network {
       phaserEvents.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
       this.webRTC?.deleteOnCalledVideoStream(key)
+      store.dispatch(
+        pushChatMessage({
+          messageType: MessageType.PLAYER_LEFT,
+          chatMessage: {
+            createdAt: new Date().getTime(),
+            author: player.name,
+            content: 'left the room...',
+          } as IChatMessage,
+        })
+      )
       store.dispatch(removePlayerNameMap(key))
     }
 

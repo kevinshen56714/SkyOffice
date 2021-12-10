@@ -125,8 +125,6 @@ export default function LoginDialog() {
             slidesPerView={1}
             onSlideChange={(swiper) => {
               setAvatarIndex(swiper.activeIndex)
-              const game = phaserGame.scene.keys.game as Game
-              game.myPlayer?.setPlayerTexture(avatars[avatarIndex].name)
             }}
           >
             {avatars.map((avatar) => (
@@ -147,10 +145,6 @@ export default function LoginDialog() {
             helperText={nameFieldEmpty && 'Name is required'}
             onInput={(e) => {
               setName((e.target as HTMLInputElement).value)
-              if (connected) {
-                const game = phaserGame.scene.keys.game as Game
-                game.myPlayer.setPlayerName(name)
-              }
             }}
           />
           {!videoConnected && (

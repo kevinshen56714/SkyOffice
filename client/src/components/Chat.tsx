@@ -41,7 +41,6 @@ const FabWrapper = styled.div`
 const ChatHeader = styled.div`
   height: 35px;
   background: #000000a7;
-  /* background: linear-gradient(0deg, #000000a7, #2424249e); */
   border-radius: 10px 10px 0px 0px;
 
   h3 {
@@ -65,7 +64,6 @@ const ChatBox = styled(Box)`
   background: #000000a7;
   background: #2c2c2c;
   border: 1px solid #00000029;
-  /* border: 1px solid #5e696b; */
 `
 
 const MessageWrapper = styled.div`
@@ -117,11 +115,11 @@ const dateFormatter = new Intl.DateTimeFormat('en', {
 })
 
 export default function Chat() {
-  const chatMessages = useAppSelector((state) => state.chat.chatMessages)
   const [inputValue, setInputValue] = useState('')
   const [showChat, setShowChat] = useState(true)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const chatMessages = useAppSelector((state) => state.chat.chatMessages)
 
   const handleChange = (event: React.FormEvent) => {
     var input: any = event.target
@@ -149,7 +147,7 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const Message = ({ chatMessage }) => {
+  const Message = ({ chatMessage, messageType }) => {
     const [tooltipOpen, setTooltipOpen] = useState(false)
 
     return (
@@ -167,14 +165,24 @@ export default function Chat() {
           placement="right"
           arrow
         >
-          <p
-            style={{
-              color: getColorByName(chatMessage.author),
-            }}
-          >
-            {chatMessage.author}{' '}
-            <span style={{ color: 'white', fontWeight: 'normal' }}>{chatMessage.content}</span>
-          </p>
+          {messageType === MessageType.REGULAR_MESSAGE ? (
+            <p
+              style={{
+                color: getColorByName(chatMessage.author),
+              }}
+            >
+              {chatMessage.author}{' '}
+              <span style={{ color: 'white', fontWeight: 'normal' }}>{chatMessage.content}</span>
+            </p>
+          ) : messageType === MessageType.PLAYER_JOINED ? (
+            <p style={{ color: '#ffe75d', fontStyle: 'italic' }}>
+              {`${chatMessage.author} ${chatMessage.content}`}
+            </p>
+          ) : (
+            <p style={{ color: '#fb2e2e', fontStyle: 'italic' }}>
+              {`${chatMessage.author} ${chatMessage.content}`}
+            </p>
+          )}
         </Tooltip>
       </MessageWrapper>
     )
@@ -203,21 +211,8 @@ export default function Chat() {
               </ChatHeader>
               <ChatBox>
                 {chatMessages.map(({ messageType, chatMessage }, index) => (
-                  <Message chatMessage={chatMessage} key={index} />
+                  <Message chatMessage={chatMessage} messageType={messageType} key={index} />
                 ))}
-
-                <p
-                  style={{
-                    color: '#ffe75d',
-                    fontWeight: 'bold',
-                    margin: '7px',
-                    lineHeight: 1.3,
-                    fontSize: 15,
-                    // fontStyle: 'italic',
-                  }}
-                >
-                  Dax Joined the room!
-                </p>
                 <div ref={messagesEndRef} />
                 {showEmojiPicker && (
                   <Picker
