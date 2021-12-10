@@ -5,11 +5,13 @@ import { sittingShiftData } from './Player'
 import Player from './Player'
 import Network from '../services/Network'
 import Item from '../items/Item'
+import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { openComputerDialog } from '../stores/ComputerStore'
+import { pushPlayerJoinedMessage } from '../stores/ChatStore'
 
 export default class MyPlayer extends Player {
-  private playNameContainerBody: Phaser.Physics.Arcade.Body
+  private playContainerBody: Phaser.Physics.Arcade.Body
   private itemOnSit?: Item
   constructor(
     scene: Phaser.Scene,
@@ -20,7 +22,19 @@ export default class MyPlayer extends Player {
     frame?: string | number
   ) {
     super(scene, x, y, texture, id, frame)
-    this.playNameContainerBody = this.playerNameContainer.body as Phaser.Physics.Arcade.Body
+    this.playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
+  }
+
+  setPlayerName(name: string) {
+    this.playerName.setText(name)
+    phaserEvents.emit(Event.MY_PLAYER_NAME_CHANGE, name)
+    store.dispatch(pushPlayerJoinedMessage(name))
+  }
+
+  setPlayerTexture(texture: string) {
+    this.playerTexture = texture
+    this.anims.play(`${this.playerTexture}_idle_down`, true)
+    phaserEvents.emit(Event.MY_PLAYER_TEXTURE_CHANGE, this.x, this.y, this.anims.currentAnim.key)
   }
 
   update(
@@ -60,8 +74,8 @@ export default class MyPlayer extends Player {
                   item.y + sittingShiftData[item.itemDirection][1]
                 ).setDepth(item.depth + sittingShiftData[item.itemDirection][2])
                 // also update playerNameContainer velocity and position
-                this.playNameContainerBody.setVelocity(0, 0)
-                this.playerNameContainer.setPosition(
+                this.playContainerBody.setVelocity(0, 0)
+                this.playerContainer.setPosition(
                   item.x + sittingShiftData[item.itemDirection][0],
                   item.y + sittingShiftData[item.itemDirection][1] - 30
                 )
@@ -101,8 +115,8 @@ export default class MyPlayer extends Player {
         this.setVelocity(vx, vy)
         this.body.velocity.setLength(speed)
         // also update playerNameContainer velocity
-        this.playNameContainerBody.setVelocity(vx, vy)
-        this.playNameContainerBody.velocity.setLength(speed)
+        this.playContainerBody.setVelocity(vx, vy)
+        this.playContainerBody.velocity.setLength(speed)
 
         // update animation according to velocity and send new location and anim to server
         if (vx !== 0 || vy !== 0) network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)

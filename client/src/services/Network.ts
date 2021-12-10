@@ -1,11 +1,15 @@
 import { Client, Room } from 'colyseus.js'
-import { IChatMessage, IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
+import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
-import { MessageType, pushChatMessage } from '../stores/ChatStore'
+import {
+  pushChatMessage,
+  pushPlayerJoinedMessage,
+  pushPlayerLeftMessage,
+} from '../stores/ChatStore'
 
 export default class Network {
   private client: Client
@@ -47,16 +51,7 @@ export default class Network {
           if (field === 'name' && value !== '') {
             phaserEvents.emit(Event.PLAYER_JOINED, player, key)
             store.dispatch(setPlayerNameMap({ id: key, name: value }))
-            store.dispatch(
-              pushChatMessage({
-                messageType: MessageType.PLAYER_JOINED,
-                chatMessage: {
-                  createdAt: new Date().getTime(),
-                  author: value,
-                  content: 'joined the room!',
-                } as IChatMessage,
-              })
-            )
+            store.dispatch(pushPlayerJoinedMessage(value))
           }
         })
       }
@@ -67,16 +62,7 @@ export default class Network {
       phaserEvents.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
       this.webRTC?.deleteOnCalledVideoStream(key)
-      store.dispatch(
-        pushChatMessage({
-          messageType: MessageType.PLAYER_LEFT,
-          chatMessage: {
-            createdAt: new Date().getTime(),
-            author: player.name,
-            content: 'left the room...',
-          } as IChatMessage,
-        })
-      )
+      store.dispatch(pushPlayerLeftMessage(player.name))
       store.dispatch(removePlayerNameMap(key))
     }
 
@@ -93,12 +79,15 @@ export default class Network {
 
     // new instance added to the chatMessages ArraySchema
     this.room.state.chatMessages.onAdd = (item, index) => {
-      store.dispatch(
-        pushChatMessage({ messageType: MessageType.REGULAR_MESSAGE, chatMessage: item })
-      )
+      store.dispatch(pushChatMessage(item))
     }
 
-    // when a peer disconnect with myPeer
+    // when a user sends a message
+    this.room.onMessage(Message.ADD_CHAT_MESSAGE, ({ clientId, content }) => {
+      phaserEvents.emit(Event.UPDATE_DIALOG_BUBBLE, clientId, content)
+    })
+
+    // when a peer disconnects with myPeer
     this.room.onMessage(Message.DISCONNECT_STREAM, (clientId: string) => {
       this.webRTC?.deleteOnCalledVideoStream(clientId)
     })
@@ -108,6 +97,11 @@ export default class Network {
       const computerState = store.getState().computer
       computerState.shareScreenManager?.onUserLeft(clientId)
     })
+  }
+
+  // method to register event listener and call back function when a item user added
+  onChatMessageAdded(callback: (playerId: string, content: string) => void, context?: any) {
+    phaserEvents.on(Event.UPDATE_DIALOG_BUBBLE, callback, context)
   }
 
   // method to register event listener and call back function when a item user added

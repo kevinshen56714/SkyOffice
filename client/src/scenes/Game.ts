@@ -109,7 +109,7 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.myPlayer, true)
 
-    this.physics.add.collider([this.myPlayer, this.myPlayer.playerNameContainer], groundLayer)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], groundLayer)
     this.physics.add.overlap(
       this.playerSelector,
       this.items,
@@ -134,6 +134,7 @@ export default class Game extends Phaser.Scene {
     this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
     this.network.onItemUserAdded(this.handleItemUserAdded, this)
     this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
+    this.network.onChatMessageAdded(this.handleChatMessageAdded, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -183,7 +184,7 @@ export default class Game extends Phaser.Scene {
         .setDepth(actualY)
     })
     if (this.myPlayer && collidable)
-      this.physics.add.collider([this.myPlayer, this.myPlayer.playerNameContainer], group)
+      this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], group)
   }
 
   // function to add new player to the otherPlayer group
@@ -231,6 +232,11 @@ export default class Game extends Phaser.Scene {
     const computer = this.computerMap.get(itemId)
     computer?.removeCurrentUser(playerId)
     computer?.updateStatus()
+  }
+
+  private handleChatMessageAdded(playerId: string, content: string) {
+    const otherPlayer = this.otherPlayerMap.get(playerId)
+    otherPlayer?.updateDialogBubble(content)
   }
 
   update(t: number, dt: number) {

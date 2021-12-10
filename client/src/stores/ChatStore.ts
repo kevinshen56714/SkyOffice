@@ -13,15 +13,35 @@ export const chatSlice = createSlice({
     chatMessages: new Array<{ messageType: MessageType; chatMessage: IChatMessage }>(),
   },
   reducers: {
-    pushChatMessage: (
-      state,
-      action: PayloadAction<{ messageType: MessageType; chatMessage: IChatMessage }>
-    ) => {
-      state.chatMessages.push(action.payload)
+    pushChatMessage: (state, action: PayloadAction<IChatMessage>) => {
+      state.chatMessages.push({
+        messageType: MessageType.REGULAR_MESSAGE,
+        chatMessage: action.payload,
+      })
+    },
+    pushPlayerJoinedMessage: (state, action: PayloadAction<string>) => {
+      state.chatMessages.push({
+        messageType: MessageType.PLAYER_JOINED,
+        chatMessage: {
+          createdAt: new Date().getTime(),
+          author: action.payload,
+          content: 'joined the lobby',
+        } as IChatMessage,
+      })
+    },
+    pushPlayerLeftMessage: (state, action: PayloadAction<string>) => {
+      state.chatMessages.push({
+        messageType: MessageType.PLAYER_LEFT,
+        chatMessage: {
+          createdAt: new Date().getTime(),
+          author: action.payload,
+          content: 'left the lobby',
+        } as IChatMessage,
+      })
     },
   },
 })
 
-export const { pushChatMessage } = chatSlice.actions
+export const { pushChatMessage, pushPlayerJoinedMessage, pushPlayerLeftMessage } = chatSlice.actions
 
 export default chatSlice.reducer

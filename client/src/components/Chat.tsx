@@ -140,6 +140,7 @@ export default function Chat() {
     if (val) {
       setInputValue('')
       game.network.addChatMessage(val)
+      game.myPlayer.updateDialogBubble(val)
     }
   }
 
@@ -174,12 +175,8 @@ export default function Chat() {
               {chatMessage.author}{' '}
               <span style={{ color: 'white', fontWeight: 'normal' }}>{chatMessage.content}</span>
             </p>
-          ) : messageType === MessageType.PLAYER_JOINED ? (
-            <p style={{ color: '#ffe75d', fontStyle: 'italic' }}>
-              {`${chatMessage.author} ${chatMessage.content}`}
-            </p>
           ) : (
-            <p style={{ color: '#fb2e2e', fontStyle: 'italic' }}>
+            <p style={{ color: 'grey', fontWeight: 'normal' }}>
               {`${chatMessage.author} ${chatMessage.content}`}
             </p>
           )}
