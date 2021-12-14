@@ -98,16 +98,10 @@ export class SkyOffice extends Room<OfficeState> {
         content: message.content,
       })
 
-      // preprocessing for dialog bubble text (maximum 25 characters)
-      const dialogBubbleText =
-        message.content.length < 25
-          ? message.content
-          : message.content.substring(0, 25).concat('...')
-
       // broadcast to all currently connected clients except the sender (to render in-game dialog on top of the character)
       this.broadcast(
         Message.ADD_CHAT_MESSAGE,
-        { clientId: client.sessionId, content: dialogBubbleText },
+        { clientId: client.sessionId, content: message.content },
         { except: client }
       )
     })

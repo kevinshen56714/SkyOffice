@@ -10,11 +10,12 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
 import CloseIcon from '@mui/icons-material/Close'
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
-import { useAppSelector } from '../hooks'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
-import { MessageType } from '../stores/ChatStore'
+
+import { useAppDispatch, useAppSelector } from '../hooks'
+import { MessageType, setFocused, setShowChat } from '../stores/ChatStore'
 
 const Backdrop = styled.div`
   position: fixed;
@@ -27,9 +28,9 @@ const Backdrop = styled.div`
 `
 
 const Wrapper = styled.div`
+  position: relative;
   height: 100%;
   padding: 16px;
-  position: relative;
   display: flex;
   flex-direction: column;
 `
@@ -39,6 +40,7 @@ const FabWrapper = styled.div`
 `
 
 const ChatHeader = styled.div`
+  position: relative;
   height: 35px;
   background: #000000a7;
   border-radius: 10px 10px 0px 0px;
@@ -52,8 +54,8 @@ const ChatHeader = styled.div`
 
   .close {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 0;
+    right: 0;
   }
 `
 
@@ -61,7 +63,6 @@ const ChatBox = styled(Box)`
   height: 100%;
   width: 100%;
   overflow: auto;
-  background: #000000a7;
   background: #2c2c2c;
   border: 1px solid #00000029;
 `
@@ -69,7 +70,7 @@ const ChatBox = styled(Box)`
 const MessageWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
-  padding: 0px 4px;
+  padding: 0px 2px;
 
   p {
     margin: 3px;
@@ -80,12 +81,22 @@ const MessageWrapper = styled.div`
     overflow-wrap: anywhere;
   }
 
+  span {
+    color: white;
+    font-weight: normal;
+  }
+
+  .notification {
+    color: grey;
+    font-weight: normal;
+  }
+
   :hover {
     background: #3a3a3a;
   }
 `
 
-const InputWrapper = styled.div`
+const InputWrapper = styled.form`
   box-shadow: 10px 10px 10px #00000018;
   border: 1px solid #42eacb;
   border-radius: 0px 0px 10px 10px;
@@ -98,11 +109,25 @@ const InputTextField = styled(InputBase)`
   border-radius: 0px 0px 10px 10px;
   input {
     padding: 5px;
-    font-size: 15;
   }
 `
 
-const colorArr = ['#7bf1a8', '#ff7e50', '#9acd32', '#daa520', '#ff69b4', '#c085f6']
+const EmojiPickerWrapper = styled.div`
+  position: absolute;
+  bottom: 54px;
+  right: 16px;
+`
+
+const colorArr = [
+  '#7bf1a8',
+  '#ff7e50',
+  '#9acd32',
+  '#daa520',
+  '#ff69b4',
+  '#c085f6',
+  '#1e90ff',
+  '#5f9da0',
+]
 
 // determine name color by first character charCode
 const getColorByName = (author: string) => {
@@ -114,31 +139,73 @@ const dateFormatter = new Intl.DateTimeFormat('en', {
   dateStyle: 'short',
 })
 
+const Message = ({ chatMessage, messageType }) => {
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+
+  return (
+    <MessageWrapper
+      onMouseEnter={() => {
+        setTooltipOpen(true)
+      }}
+      onMouseLeave={() => {
+        setTooltipOpen(false)
+      }}
+    >
+      <Tooltip
+        open={tooltipOpen}
+        title={dateFormatter.format(chatMessage.createdAt)}
+        placement="right"
+        arrow
+      >
+        {messageType === MessageType.REGULAR_MESSAGE ? (
+          <p
+            style={{
+              color: getColorByName(chatMessage.author),
+            }}
+          >
+            {chatMessage.author}: <span>{chatMessage.content}</span>
+          </p>
+        ) : (
+          <p className="notification">
+            {chatMessage.author} {chatMessage.content}
+          </p>
+        )}
+      </Tooltip>
+    </MessageWrapper>
+  )
+}
+
 export default function Chat() {
   const [inputValue, setInputValue] = useState('')
-  const [showChat, setShowChat] = useState(true)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const chatMessages = useAppSelector((state) => state.chat.chatMessages)
+  const focused = useAppSelector((state) => state.chat.focused)
+  const showChat = useAppSelector((state) => state.chat.showChat)
+  const dispatch = useAppDispatch()
   const game = phaserGame.scene.keys.game as Game
 
-  const handleChange = (event: React.FormEvent) => {
-    var input: any = event.target
-    setInputValue(input.value)
+  const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
+    setInputValue(event.currentTarget.value)
   }
 
-  const handleKeyDown = (event: React.KeyboardEvent) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Escape') {
-      setInputValue('')
-    } else if (event.key === 'Enter') {
-      handleSubmit()
+      // move focus back to the game
+      inputRef.current?.blur()
+      dispatch(setShowChat(false))
     }
   }
 
-  const handleSubmit = () => {
-    var val = inputValue.trim()
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    // move focus back to the game
+    inputRef.current?.blur()
+
+    const val = inputValue.trim()
+    setInputValue('')
     if (val) {
-      setInputValue('')
       game.network.addChatMessage(val)
       game.myPlayer.updateDialogBubble(val)
     }
@@ -148,120 +215,96 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const Message = ({ chatMessage, messageType }) => {
-    const [tooltipOpen, setTooltipOpen] = useState(false)
-
-    return (
-      <MessageWrapper
-        onMouseEnter={() => {
-          setTooltipOpen(true)
-        }}
-        onMouseLeave={() => {
-          setTooltipOpen(false)
-        }}
-      >
-        <Tooltip
-          open={tooltipOpen}
-          title={dateFormatter.format(chatMessage.createdAt)}
-          placement="right"
-          arrow
-        >
-          {messageType === MessageType.REGULAR_MESSAGE ? (
-            <p
-              style={{
-                color: getColorByName(chatMessage.author),
-              }}
-            >
-              {chatMessage.author}{' '}
-              <span style={{ color: 'white', fontWeight: 'normal' }}>{chatMessage.content}</span>
-            </p>
-          ) : (
-            <p style={{ color: 'grey', fontWeight: 'normal' }}>
-              {`${chatMessage.author} ${chatMessage.content}`}
-            </p>
-          )}
-        </Tooltip>
-      </MessageWrapper>
-    )
-  }
+  useEffect(() => {
+    if (focused) {
+      inputRef.current?.focus()
+    }
+  }, [focused])
 
   useEffect(() => {
     scrollToBottom()
-  }, [chatMessages])
+  }, [chatMessages, showChat])
 
   return (
-    <>
-      <Backdrop>
-        <Wrapper>
-          {showChat ? (
-            <>
-              <ChatHeader>
-                <h3>Chat</h3>
-                <IconButton
-                  aria-label="close dialog"
-                  className="close"
-                  onClick={() => setShowChat(!showChat)}
-                  size="small"
-                >
-                  <CloseIcon />
-                </IconButton>
-              </ChatHeader>
-              <ChatBox>
-                {chatMessages.map(({ messageType, chatMessage }, index) => (
-                  <Message chatMessage={chatMessage} messageType={messageType} key={index} />
-                ))}
-                <div ref={messagesEndRef} />
-                {showEmojiPicker && (
+    <Backdrop>
+      <Wrapper>
+        {showChat ? (
+          <>
+            <ChatHeader>
+              <h3>Chat</h3>
+              <IconButton
+                aria-label="close dialog"
+                className="close"
+                onClick={() => dispatch(setShowChat(false))}
+                size="small"
+              >
+                <CloseIcon />
+              </IconButton>
+            </ChatHeader>
+            <ChatBox>
+              {chatMessages.map(({ messageType, chatMessage }, index) => (
+                <Message chatMessage={chatMessage} messageType={messageType} key={index} />
+              ))}
+              <div ref={messagesEndRef} />
+              {showEmojiPicker && (
+                <EmojiPickerWrapper>
                   <Picker
                     theme="dark"
                     showSkinTones={false}
                     showPreview={false}
-                    style={{ position: 'absolute', bottom: '58px', right: '16px' }}
                     onSelect={(emoji) => {
                       setInputValue(inputValue + emoji.native)
                       setShowEmojiPicker(!showEmojiPicker)
+                      dispatch(setFocused(true))
                     }}
                     exclude={['recent', 'flags']}
                   />
-                )}
-              </ChatBox>
-              <InputWrapper>
-                <InputTextField
-                  onFocus={() => game.disableKeys()}
-                  onBlur={() => game.enableKeys()}
-                  fullWidth
-                  placeholder="Aa"
-                  value={inputValue}
-                  onKeyDown={(e: React.KeyboardEvent) => {
-                    handleKeyDown(e)
-                  }}
-                  onChange={(e: React.KeyboardEvent) => handleChange(e)}
-                />
-                <IconButton
-                  aria-label="emoji"
-                  onClick={() => {
-                    setShowEmojiPicker(!showEmojiPicker)
-                  }}
-                >
-                  <InsertEmoticonIcon />
-                </IconButton>
-              </InputWrapper>
-            </>
-          ) : (
-            <FabWrapper>
-              <Fab
-                color="secondary"
-                aria-label="showChat"
+                </EmojiPickerWrapper>
+              )}
+            </ChatBox>
+            <InputWrapper onSubmit={handleSubmit}>
+              <InputTextField
+                inputRef={inputRef}
+                autoFocus={focused}
+                fullWidth
+                placeholder="Press Enter to chat"
+                value={inputValue}
+                onKeyDown={handleKeyDown}
+                onChange={handleChange}
+                onFocus={() => {
+                  game.disableKeys()
+                  if (!focused) dispatch(setFocused(true))
+                }}
+                onBlur={() => {
+                  game.enableKeys()
+                  dispatch(setFocused(false))
+                }}
+              />
+              <IconButton
+                aria-label="emoji"
                 onClick={() => {
-                  setShowChat(!showChat)
+                  setShowEmojiPicker(!showEmojiPicker)
                 }}
               >
-                <ChatBubbleOutlineIcon />
-              </Fab>
-            </FabWrapper>
-          )}
-        </Wrapper>
-      </Backdrop>
-    </>
+                <InsertEmoticonIcon />
+              </IconButton>
+            </InputWrapper>
+          </>
+        ) : (
+          <FabWrapper>
+            <Fab
+              color="secondary"
+              aria-label="showChat"
+              onClick={() => {
+                dispatch(setShowChat(true))
+                dispatch(setFocused(true))
+              }}
+            >
+              <ChatBubbleOutlineIcon />
+            </Fab>
+          </FabWrapper>
+        )}
+      </Wrapper>
+    </Backdrop>
   )
 }

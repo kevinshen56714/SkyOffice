@@ -64,18 +64,22 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   updateDialogBubble(content: string) {
     this.clearDialogBubble()
 
+    // preprocessing for dialog bubble text (maximum 25 characters)
+    const dialogBubbleText = content.length < 25 ? content : content.substring(0, 25).concat('...')
+
     const innerText = this.scene.add
-      .text(0, -17, content)
+      .text(0, -17, dialogBubbleText)
       .setFontFamily('Arial')
       .setFontSize(12)
       .setColor('#000000')
       .setOrigin(0.5)
 
     // set dialogBox slightly larger than the text in it
-    const dialogBoxWidth = innerText.getBounds().width + 10
-    const dialogBoxHeight = innerText.getBounds().height + 3
-    const dialogBoxX = innerText.x - innerText.getBounds().width / 2 - 5
-    const dialogBoxY = innerText.y - innerText.getBounds().height / 2 - 2
+    const innerTextBounds = innerText.getBounds()
+    const dialogBoxWidth = innerTextBounds.width + 10
+    const dialogBoxHeight = innerTextBounds.height + 3
+    const dialogBoxX = innerText.x - innerTextBounds.width / 2 - 5
+    const dialogBoxY = innerText.y - innerTextBounds.height / 2 - 2
 
     this.playerDialogBubble.add(
       this.scene.add
