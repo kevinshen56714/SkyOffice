@@ -65,7 +65,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.clearDialogBubble()
 
     // preprocessing for dialog bubble text (maximum 25 characters)
-    const dialogBubbleText = content.length < 25 ? content : content.substring(0, 25).concat('...')
+    const dialogBubbleText = content.length <= 25 ? content : content.substring(0, 25).concat('...')
 
     const innerText = this.scene.add
       .text(0, -17, dialogBubbleText)
