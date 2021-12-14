@@ -22,7 +22,7 @@ import Game from '../scenes/Game'
 
 SwiperCore.use([Navigation])
 
-const Wrapper = styled.div`
+const Wrapper = styled.form`
   position: fixed;
   top: 50%;
   left: 50%;
@@ -111,9 +111,26 @@ export default function LoginDialog() {
   const dispatch = useAppDispatch()
   const connected = useAppSelector((state) => state.user.connected)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
+  const game = phaserGame.scene.keys.game as Game
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (name === '') {
+      setNameFieldEmpty(true)
+    } else {
+      if (connected) {
+        console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
+        game.registerKeys()
+        game.myPlayer.setPlayerName(name)
+        game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+        game.network.readyToConnect()
+        dispatch(setLoggedIn(true))
+      }
+    }
+  }
 
   return (
-    <Wrapper>
+    <Wrapper onSubmit={handleSubmit}>
       <Title>Welcome to SkyOffice</Title>
       <Content>
         <Left>
@@ -125,8 +142,6 @@ export default function LoginDialog() {
             slidesPerView={1}
             onSlideChange={(swiper) => {
               setAvatarIndex(swiper.activeIndex)
-              const game = phaserGame.scene.keys.game as Game
-              game.myPlayer?.setPlayerTexture(avatars[avatarIndex].name)
             }}
           >
             {avatars.map((avatar) => (
@@ -147,10 +162,6 @@ export default function LoginDialog() {
             helperText={nameFieldEmpty && 'Name is required'}
             onInput={(e) => {
               setName((e.target as HTMLInputElement).value)
-              if (connected) {
-                const game = phaserGame.scene.keys.game as Game
-                game.myPlayer.setPlayerName(name)
-              }
             }}
           />
           {!videoConnected && (
@@ -163,7 +174,6 @@ export default function LoginDialog() {
                 variant="outlined"
                 color="secondary"
                 onClick={() => {
-                  const game = phaserGame.scene.keys.game as Game
                   game.network.webRTC?.getUserMedia()
                 }}
               >
@@ -180,26 +190,7 @@ export default function LoginDialog() {
         </Right>
       </Content>
       <Bottom>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          onClick={() => {
-            if (name === '') {
-              setNameFieldEmpty(true)
-            } else {
-              if (connected) {
-                console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
-                const game = phaserGame.scene.keys.game as Game
-                game.registerKeys()
-                game.myPlayer.setPlayerName(name)
-                game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
-                game.network.readyToConnect()
-                dispatch(setLoggedIn(true))
-              }
-            }
-          }}
-        >
+        <Button variant="contained" color="secondary" size="large" type="submit">
           Join
         </Button>
       </Bottom>

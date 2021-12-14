@@ -19,26 +19,34 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
   onOverlapDialog() {
     switch (this.texture.key) {
       case 'chairs':
-        this.setDialogBox('Press E to sit', 80)
+        this.setDialogBox('Press E to sit')
         break
 
       case 'computers':
         if (this.currentUsers.length === 0) {
-          this.setDialogBox('Press R to use computer', 140)
+          this.setDialogBox('Press R to use computer')
         } else {
-          this.setDialogBox('Press R join', 70)
+          this.setDialogBox('Press R join')
         }
         break
     }
   }
 
   // add texts into dialog box container
-  setDialogBox(text: string, width: number) {
-    const dialogBoxWidth = width
-    const dialogBoxHeight = 20
+  setDialogBox(text: string) {
+    const innerText = this.scene.add
+      .text(0, 0, text)
+      .setFontFamily('Arial')
+      .setFontSize(12)
+      .setColor('#000000')
+
+    // set dialogBox slightly larger than the text in it
+    const innerTextBounds = innerText.getBounds()
+    const dialogBoxWidth = innerTextBounds.width + 4
+    const dialogBoxHeight = innerTextBounds.height + 2
     const dialogBoxX = this.x - dialogBoxWidth * 0.5
     const dialogBoxY = this.y + this.height * 0.5
-    // this.texture.key === 'chairs' ? this.y + this.height * 0.5 : this.y - this.height * 0.75
+
     this.dialogBox.add(
       this.scene.add
         .graphics()
@@ -47,13 +55,7 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
         .lineStyle(2, 0x000000, 1)
         .strokeRoundedRect(dialogBoxX, dialogBoxY, dialogBoxWidth, dialogBoxHeight, 3)
     )
-    this.dialogBox.add(
-      this.scene.add
-        .text(dialogBoxX + 2, dialogBoxY + 2, text)
-        .setFontFamily('Arial')
-        .setFontSize(12)
-        .setColor('#000000')
-    )
+    this.dialogBox.add(innerText.setPosition(dialogBoxX + 2, dialogBoxY))
   }
 
   // remove everything in the dialog box container
@@ -62,9 +64,17 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
   }
 
   // add text into status box container
-  setStatusBox(text: string, width: number) {
-    const statusBoxWidth = width
-    const statusBoxHeight = 15
+  setStatusBox(text: string) {
+    const innerText = this.scene.add
+      .text(0, 0, text)
+      .setFontFamily('Arial')
+      .setFontSize(12)
+      .setColor('#000000')
+
+    // set dialogBox slightly larger than the text in it
+    const innerTextBounds = innerText.getBounds()
+    const statusBoxWidth = innerTextBounds.width + 4
+    const statusBoxHeight = innerTextBounds.height + 2
     const statusBoxX = this.x - statusBoxWidth * 0.5
     const statusBoxY = this.y - this.height * 0.25
     this.statusBox.add(
@@ -75,13 +85,7 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
         .lineStyle(2, 0x000000, 1)
         .strokeRoundedRect(statusBoxX, statusBoxY, statusBoxWidth, statusBoxHeight, 3)
     )
-    this.statusBox.add(
-      this.scene.add
-        .text(statusBoxX + 3, statusBoxY, text)
-        .setFontFamily('Arial')
-        .setFontSize(12)
-        .setColor('#000000')
-    )
+    this.statusBox.add(innerText.setPosition(statusBoxX + 2, statusBoxY))
   }
 
   // remove everything in the status box container
@@ -115,9 +119,9 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
     const numberOfUsers = this.currentUsers.length
     this.clearStatusBox()
     if (numberOfUsers === 1) {
-      this.setStatusBox(`${numberOfUsers} user`, 40)
+      this.setStatusBox(`${numberOfUsers} user`)
     } else if (numberOfUsers > 1) {
-      this.setStatusBox(`${numberOfUsers} users`, 45)
+      this.setStatusBox(`${numberOfUsers} users`)
     }
   }
 }

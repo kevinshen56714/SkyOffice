@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'
 import Alert from '@mui/material/Alert'
@@ -6,9 +6,6 @@ import AlertTitle from '@mui/material/AlertTitle'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
-
-import { useAppSelector, useAppDispatch } from '../hooks'
-import { closeVideoConnectionWarning } from '../stores/UserStore'
 
 const Backdrop = styled.div`
   position: fixed;
@@ -25,16 +22,15 @@ const Wrapper = styled.div`
 `
 
 export default function VideoConnectionDialog() {
-  const dispatch = useAppDispatch()
-  const videoConnectionWarning = useAppSelector((state) => state.user.videoConnectionWarning)
+  const [connectionWarning, setConnectionWarning] = useState(true)
   return (
     <Backdrop>
       <Wrapper>
-        {videoConnectionWarning && (
+        {connectionWarning && (
           <Alert
             severity="warning"
             onClose={() => {
-              dispatch(closeVideoConnectionWarning())
+              setConnectionWarning(!connectionWarning)
             }}
           >
             <AlertTitle>Warning</AlertTitle>

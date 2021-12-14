@@ -19,6 +19,11 @@ SkyOffice works on all PC browsers (mobile browsers are currently not supported)
 
 ## Features
 
+### Text Messages (*NEW*)
+
+![image](https://user-images.githubusercontent.com/11501902/145925423-3b5b9026-d3b9-429d-920b-98b0bcd6300a.png)
+
+
 ### Proximity Chat (distance-based interactive system)
 
 ![image](https://user-images.githubusercontent.com/11501902/139960852-cf0e0883-8fbe-459d-bb11-3707d0ae1360.png)
@@ -36,6 +41,8 @@ SkyOffice works on all PC browsers (mobile browsers are currently not supported)
 - `arrow keys` to move (video chat will start if you are close to someone else)
 - `E` to sit down
 - `R` to use computer (for screen sharing)
+- `Enter` to open chat
+- `ESC` to close chat
 
 ## Prerequisites
 

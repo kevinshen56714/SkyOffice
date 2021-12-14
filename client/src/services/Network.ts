@@ -5,6 +5,11 @@ import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
+import {
+  pushChatMessage,
+  pushPlayerJoinedMessage,
+  pushPlayerLeftMessage,
+} from '../stores/ChatStore'
 
 export default class Network {
   private client: Client
@@ -36,15 +41,17 @@ export default class Network {
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
       if (key === this.mySessionId) return
 
-      phaserEvents.emit(Event.PLAYER_JOINED, player, key)
-
       // track changes on every child object inside the players MapSchema
       player.onChange = (changes) => {
         changes.forEach((change) => {
           const { field, value } = change
           phaserEvents.emit(Event.PLAYER_UPDATED, field, value, key)
-          if (field === 'name') {
+
+          // when a new player finished setting up player name
+          if (field === 'name' && value !== '') {
+            phaserEvents.emit(Event.PLAYER_JOINED, player, key)
             store.dispatch(setPlayerNameMap({ id: key, name: value }))
+            store.dispatch(pushPlayerJoinedMessage(value))
           }
         })
       }
@@ -55,6 +62,7 @@ export default class Network {
       phaserEvents.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
       this.webRTC?.deleteOnCalledVideoStream(key)
+      store.dispatch(pushPlayerLeftMessage(player.name))
       store.dispatch(removePlayerNameMap(key))
     }
 
@@ -69,7 +77,17 @@ export default class Network {
       }
     }
 
-    // when a peer disconnect with myPeer
+    // new instance added to the chatMessages ArraySchema
+    this.room.state.chatMessages.onAdd = (item, index) => {
+      store.dispatch(pushChatMessage(item))
+    }
+
+    // when a user sends a message
+    this.room.onMessage(Message.ADD_CHAT_MESSAGE, ({ clientId, content }) => {
+      phaserEvents.emit(Event.UPDATE_DIALOG_BUBBLE, clientId, content)
+    })
+
+    // when a peer disconnects with myPeer
     this.room.onMessage(Message.DISCONNECT_STREAM, (clientId: string) => {
       this.webRTC?.deleteOnCalledVideoStream(clientId)
     })
@@ -79,6 +97,11 @@ export default class Network {
       const computerState = store.getState().computer
       computerState.shareScreenManager?.onUserLeft(clientId)
     })
+  }
+
+  // method to register event listener and call back function when a item user added
+  onChatMessageAdded(callback: (playerId: string, content: string) => void, context?: any) {
+    phaserEvents.on(Event.UPDATE_DIALOG_BUBBLE, callback, context)
   }
 
   // method to register event listener and call back function when a item user added
@@ -157,5 +180,9 @@ export default class Network {
 
   onStopScreenShare(id: string) {
     this.room?.send(Message.STOP_SCREEN_SHARE, { computerId: id })
+  }
+
+  addChatMessage(content: string) {
+    this.room?.send(Message.ADD_CHAT_MESSAGE, { content: content })
   }
 }

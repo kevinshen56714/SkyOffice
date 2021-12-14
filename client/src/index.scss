@@ -22,6 +22,12 @@ body {
   }
 }
 
+#root {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
 .video-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 160px);
@@ -47,4 +53,32 @@ body {
   position: absolute;
   top: 5px;
   right: 10px;
+}
+
+* {
+  &:hover {
+    &::-webkit-scrollbar-thumb {
+      background: #eee;
+    }
+  }
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(#333, 0.2);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: rgba(#333, 0.2);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    transition: background 0.1s;
+    background: rgba(#eee, 0.8);
+    border-radius: 3px;
+  }
 }

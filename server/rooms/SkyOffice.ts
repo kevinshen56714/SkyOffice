@@ -5,12 +5,14 @@ import { Message } from '../../types/Messages'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
 import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
 import ComputerUpdateArrayCommand from './commands/ComputerUpdateArrayCommand'
+import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
 
   onCreate(options: any) {
     this.setState(new OfficeState())
+    this.autoDispose = false
 
     // HARD-CODED: Add 5 computers in a room
     for (let i = 0; i < 5; i++) {
@@ -86,6 +88,22 @@ export class SkyOffice extends Room<OfficeState> {
           cli.send(Message.DISCONNECT_STREAM, client.sessionId)
         }
       })
+    })
+
+    // when a player send a chat message, update the message array and broadcast to all connected clients except the sender
+    this.onMessage(Message.ADD_CHAT_MESSAGE, (client, message: { content: string }) => {
+      // update the message array (so that players join later can also see the message)
+      this.dispatcher.dispatch(new ChatMessageUpdateCommand(), {
+        client,
+        content: message.content,
+      })
+
+      // broadcast to all currently connected clients except the sender (to render in-game dialog on top of the character)
+      this.broadcast(
+        Message.ADD_CHAT_MESSAGE,
+        { clientId: client.sessionId, content: message.content },
+        { except: client }
+      )
     })
   }
 
