@@ -32,7 +32,7 @@ export default class Network {
   }
 
   async join() {
-    this.room = await this.client.joinOrCreate('skyoffice')
+    this.room = await this.client.joinOrCreate('public')
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)

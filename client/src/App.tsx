@@ -1,4 +1,5 @@
 import React from 'react'
+import styled from 'styled-components'
 
 import { useAppSelector } from './hooks'
 
@@ -6,7 +7,22 @@ import LoginDialog from './components/LoginDialog'
 import ComputerDialog from './components/ComputerDialog'
 import VideoConnectionDialog from './components/VideoConnectionDialog'
 import Chat from './components/Chat'
-// import Debug from './components/Debug'
+import RoomDrawer from './components/RoomDrawer'
+
+const Backdrop = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+`
+const Wrapper = styled.div`
+  display: flex;
+  height: 100%;
+`
+const ContentWrapper = styled.div`
+  position: relative;
+  height: 100%;
+  width: 100%;
+`
 
 function App() {
   const loggedIn = useAppSelector((state) => state.user.loggedIn)
@@ -14,18 +30,27 @@ function App() {
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
 
   return (
-    <div className="App">
-      {/* <Debug /> */}
+    <Backdrop>
+      <Wrapper>
+        <RoomDrawer />
+        <ContentWrapper>
+          {/* Render the LoginDialog if not logged in, else render Chat. */}
+          {loggedIn ? (
+            <>
+              <Chat />
 
-      {/* Render the LoginDialog if not logged in, else render Chat. */}
-      {loggedIn ? <Chat /> : <LoginDialog />}
+              {/* Render the ComputerDialog if user is using a computer. */}
+              {computerDialogOpen && <ComputerDialog />}
 
-      {/* Render the ComputerDialog if user is using a computer. */}
-      {computerDialogOpen && <ComputerDialog />}
-
-      {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
-      {!computerDialogOpen && !videoConnected && loggedIn && <VideoConnectionDialog />}
-    </div>
+              {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
+              {!computerDialogOpen && !videoConnected && <VideoConnectionDialog />}
+            </>
+          ) : (
+            <LoginDialog />
+          )}
+        </ContentWrapper>
+      </Wrapper>
+    </Backdrop>
   )
 }
 

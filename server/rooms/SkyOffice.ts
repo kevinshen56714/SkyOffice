@@ -10,9 +10,14 @@ import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
 
+  constructor(autoDispose: boolean) {
+    super()
+    this.autoDispose = autoDispose
+  }
+
   onCreate(options: any) {
     this.setState(new OfficeState())
-    this.autoDispose = false
+    this.autoDispose = this.autoDispose
 
     // HARD-CODED: Add 5 computers in a room
     for (let i = 0; i < 5; i++) {

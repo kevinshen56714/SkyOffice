@@ -18,7 +18,7 @@ import { useAppDispatch, useAppSelector } from '../hooks'
 import { MessageType, setFocused, setShowChat } from '../stores/ChatStore'
 
 const Backdrop = styled.div`
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   height: 400px;
