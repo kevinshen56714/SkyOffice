@@ -19,11 +19,12 @@ import { setLoggedIn } from '../stores/UserStore'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
+import Preloader from '../scenes/Preloader'
 
 SwiperCore.use([Navigation])
 
 const Wrapper = styled.form`
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -113,19 +114,22 @@ export default function LoginDialog() {
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
   const game = phaserGame.scene.keys.game as Game
 
+  const handleConnect = () => {
+    const preloader = phaserGame.scene.keys.preloader as Preloader
+    preloader.startRoom()
+  }
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (name === '') {
       setNameFieldEmpty(true)
-    } else {
-      if (connected) {
-        console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
-        game.registerKeys()
-        game.myPlayer.setPlayerName(name)
-        game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
-        game.network.readyToConnect()
-        dispatch(setLoggedIn(true))
-      }
+    } else if (connected) {
+      console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
+      game.registerKeys()
+      game.myPlayer.setPlayerName(name)
+      game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+      game.network.readyToConnect()
+      dispatch(setLoggedIn(true))
     }
   }
 
@@ -192,6 +196,9 @@ export default function LoginDialog() {
       <Bottom>
         <Button variant="contained" color="secondary" size="large" type="submit">
           Join
+        </Button>
+        <Button variant="outlined" color="secondary" onClick={handleConnect}>
+          Connect to Public
         </Button>
       </Bottom>
     </Wrapper>

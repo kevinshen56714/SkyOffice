@@ -1,7 +1,9 @@
 import Phaser from 'phaser'
+import Network from '../services/Network'
 
 export default class Preloader extends Phaser.Scene {
   private counter = 0
+  network!: Network
 
   constructor() {
     super('preloader')
@@ -56,6 +58,10 @@ export default class Preloader extends Phaser.Scene {
     })
   }
 
+  init() {
+    this.network = new Network()
+  }
+
   create() {
     // create loading texts
     const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2
@@ -86,7 +92,11 @@ export default class Preloader extends Phaser.Scene {
       },
       loop: true,
     })
+  }
 
-    this.scene.run('game')
+  startRoom() {
+    this.scene.launch('game', {
+      network: this.network,
+    })
   }
 }

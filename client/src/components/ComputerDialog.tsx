@@ -10,7 +10,7 @@ import { closeComputerDialog } from '../stores/ComputerStore'
 import Video from './Video'
 
 const Backdrop = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;

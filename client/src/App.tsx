@@ -7,19 +7,9 @@ import LoginDialog from './components/LoginDialog'
 import ComputerDialog from './components/ComputerDialog'
 import VideoConnectionDialog from './components/VideoConnectionDialog'
 import Chat from './components/Chat'
-import RoomDrawer from './components/RoomDrawer'
 
 const Backdrop = styled.div`
   position: absolute;
-  height: 100%;
-  width: 100%;
-`
-const Wrapper = styled.div`
-  display: flex;
-  height: 100%;
-`
-const ContentWrapper = styled.div`
-  position: relative;
   height: 100%;
   width: 100%;
 `
@@ -31,25 +21,20 @@ function App() {
 
   return (
     <Backdrop>
-      <Wrapper>
-        <RoomDrawer />
-        <ContentWrapper>
-          {/* Render the LoginDialog if not logged in, else render Chat. */}
-          {loggedIn ? (
-            <>
-              <Chat />
+      {/* Render the LoginDialog if not logged in, else render Chat. */}
+      {loggedIn ? (
+        <>
+          <Chat />
 
-              {/* Render the ComputerDialog if user is using a computer. */}
-              {computerDialogOpen && <ComputerDialog />}
+          {/* Render the ComputerDialog if user is using a computer. */}
+          {computerDialogOpen && <ComputerDialog />}
 
-              {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
-              {!computerDialogOpen && !videoConnected && <VideoConnectionDialog />}
-            </>
-          ) : (
-            <LoginDialog />
-          )}
-        </ContentWrapper>
-      </Wrapper>
+          {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
+          {!computerDialogOpen && !videoConnected && <VideoConnectionDialog />}
+        </>
+      ) : (
+        <LoginDialog />
+      )}
     </Backdrop>
   )
 }

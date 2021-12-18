@@ -57,14 +57,12 @@ export default class Game extends Phaser.Scene {
     this.input.keyboard.enabled = true
   }
 
-  init() {
-    this.network = new Network()
-  }
-
-  async create() {
+  async create(data: { network: Network }) {
     // initialize network instance (connect to server)
-    if (!this.network) {
+    if (!data.network) {
       throw new Error('server instance missing')
+    } else {
+      this.network = data.network
     }
     await this.network.join()
     store.dispatch(setConnected(true))
