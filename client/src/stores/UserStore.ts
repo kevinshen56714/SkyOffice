@@ -8,6 +8,7 @@ export const userSlice = createSlice({
     connected: false,
     videoConnected: false,
     loggedIn: false,
+    roomSelected: false,
     playerNameMap: new Map<string, string>(),
   },
   reducers: {
@@ -29,6 +30,9 @@ export const userSlice = createSlice({
     removePlayerNameMap: (state, action: PayloadAction<string>) => {
       state.playerNameMap.delete(sanitizeId(action.payload))
     },
+    setRoomSelected: (state, action: PayloadAction<boolean>) => {
+      state.roomSelected = action.payload
+    },
   },
 })
 
@@ -37,6 +41,7 @@ export const {
   setConnected,
   setVideoConnected,
   setLoggedIn,
+  setRoomSelected,
   setPlayerNameMap,
   removePlayerNameMap,
 } = userSlice.actions

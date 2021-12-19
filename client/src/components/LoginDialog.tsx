@@ -19,7 +19,6 @@ import { setLoggedIn } from '../stores/UserStore'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
-import Preloader from '../scenes/Preloader'
 
 SwiperCore.use([Navigation])
 
@@ -105,6 +104,12 @@ const avatars = [
   { name: 'nancy', img: Nancy },
 ]
 
+// shuffle the avatars array
+for (let i = avatars.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1))
+  ;[avatars[i], avatars[j]] = [avatars[j], avatars[i]]
+}
+
 export default function LoginDialog() {
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
@@ -113,11 +118,6 @@ export default function LoginDialog() {
   const connected = useAppSelector((state) => state.user.connected)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
   const game = phaserGame.scene.keys.game as Game
-
-  const handleConnect = () => {
-    const preloader = phaserGame.scene.keys.preloader as Preloader
-    preloader.startRoom()
-  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -196,9 +196,6 @@ export default function LoginDialog() {
       <Bottom>
         <Button variant="contained" color="secondary" size="large" type="submit">
           Join
-        </Button>
-        <Button variant="outlined" color="secondary" onClick={handleConnect}>
-          Connect to Public
         </Button>
       </Bottom>
     </Wrapper>

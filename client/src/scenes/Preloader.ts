@@ -14,7 +14,7 @@ export default class Preloader extends Phaser.Scene {
   private backdropImage!: Phaser.GameObjects.Image
   private backgroundMode!: BackgroundMode
 
-  constructor() {
+  constructor(data: { backgroundMode: BackgroundMode }) {
     super('preloader')
     const currentHour = new Date().getHours()
     this.backgroundMode =
@@ -116,6 +116,7 @@ export default class Preloader extends Phaser.Scene {
     const scale2 = Math.max(this.sceneWidth / image.width, this.sceneHeight / image.height)
     image.setScale(scale2).setScrollFactor(0)
 
+    const frames = this.textures.get('cloud').getFrameNames()
     this.cloud = this.physics.add.group()
     for (let i = 0; i < 24; i++) {
       const x = Phaser.Math.RND.between(-this.sceneWidth * 0.5, this.sceneWidth * 1.5)
@@ -123,7 +124,7 @@ export default class Preloader extends Phaser.Scene {
       const velocity = Phaser.Math.RND.between(15, 30)
 
       this.cloud
-        .get(x, y, 'cloud', `cloud${(i % 6) + 1}.png`)
+        .get(x, y, 'cloud', frames[i % 6])
         .setScale(3)
         .setVelocity(velocity, 0)
     }

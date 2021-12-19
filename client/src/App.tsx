@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 import { useAppSelector } from './hooks'
 
+import RoomSelectionDialog from './components/RoomSelectionDialog'
 import LoginDialog from './components/LoginDialog'
 import ComputerDialog from './components/ComputerDialog'
 import VideoConnectionDialog from './components/VideoConnectionDialog'
@@ -18,6 +19,7 @@ function App() {
   const loggedIn = useAppSelector((state) => state.user.loggedIn)
   const computerDialogOpen = useAppSelector((state) => state.computer.computerDialogOpen)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
+  const roomSelected = useAppSelector((state) => state.user.roomSelected)
 
   return (
     <Backdrop>
@@ -32,8 +34,10 @@ function App() {
           {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
           {!computerDialogOpen && !videoConnected && <VideoConnectionDialog />}
         </>
-      ) : (
+      ) : roomSelected ? (
         <LoginDialog />
+      ) : (
+        <RoomSelectionDialog />
       )}
     </Backdrop>
   )
