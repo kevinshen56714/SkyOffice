@@ -67,9 +67,6 @@ export default class Game extends Phaser.Scene {
     await this.network.join()
     store.dispatch(setConnected(true))
 
-    // if in the future we have a bootstrap scene to manage all the scene transferring, we can put this line there
-    this.scene.stop('preloader')
-
     createCharacterAnims(this.anims)
 
     this.map = this.make.tilemap({ key: 'tilemap' })

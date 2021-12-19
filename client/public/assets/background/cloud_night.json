@@ -1,0 +1,60 @@
+{"frames": [
+
+{
+	"filename": "cloud1.png",
+	"frame": {"x":0,"y":0,"w":232,"h":72},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":232,"h":72},
+	"sourceSize": {"w":232,"h":72}
+},
+{
+	"filename": "cloud2.png",
+	"frame": {"x":232,"y":0,"w":232,"h":72},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":232,"h":72},
+	"sourceSize": {"w":232,"h":72}
+},
+{
+	"filename": "cloud3.png",
+	"frame": {"x":464,"y":0,"w":232,"h":72},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":232,"h":72},
+	"sourceSize": {"w":232,"h":72}
+},
+{
+	"filename": "cloud4.png",
+	"frame": {"x":696,"y":0,"w":232,"h":72},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":232,"h":72},
+	"sourceSize": {"w":232,"h":72}
+},
+{
+	"filename": "cloud5.png",
+	"frame": {"x":928,"y":0,"w":232,"h":72},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":232,"h":72},
+	"sourceSize": {"w":232,"h":72}
+},
+{
+	"filename": "cloud6.png",
+	"frame": {"x":1160,"y":0,"w":232,"h":72},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":232,"h":72},
+	"sourceSize": {"w":232,"h":72}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "cloud_night.png",
+	"format": "RGBA8888",
+	"size": {"w":1392,"h":72},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:65fbd61bbf5ef03173c42b28fbe01636:ca3de023e7dba5f961ce555b6fbbb0d0:74d6973c2f10e646dd1685ca40520d55$"
+}
+}

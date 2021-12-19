@@ -1,12 +1,24 @@
 import Phaser from 'phaser'
 import Network from '../services/Network'
 
+enum BackgroundMode {
+  DAY,
+  NIGHT,
+}
+
 export default class Preloader extends Phaser.Scene {
-  private counter = 0
   network!: Network
+  private sceneHeight = window.innerHeight
+  private sceneWidth = window.innerWidth
+  private cloud!: Phaser.Physics.Arcade.Group
+  private backdropImage!: Phaser.GameObjects.Image
+  private backgroundMode!: BackgroundMode
 
   constructor() {
     super('preloader')
+    const currentHour = new Date().getHours()
+    this.backgroundMode =
+      currentHour > 6 && currentHour <= 18 ? BackgroundMode.DAY : BackgroundMode.NIGHT
   }
 
   preload() {
@@ -56,6 +68,25 @@ export default class Preloader extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 48,
     })
+
+    if (this.backgroundMode === BackgroundMode.DAY) {
+      // current local time is in the morning
+      this.load.atlas(
+        'cloud',
+        'assets/background/cloud_day.png',
+        'assets/background/cloud_day.json'
+      )
+      this.load.image('backdrop', 'assets/background/backdrop_day.png')
+    } else {
+      // current local time is in the evening
+      this.load.atlas(
+        'cloud',
+        'assets/background/cloud_night.png',
+        'assets/background/cloud_night.json'
+      )
+      this.load.image('backdrop', 'assets/background/backdrop_night.png')
+    }
+    this.load.image('sun_moon', 'assets/background/sun_moon.png')
   }
 
   init() {
@@ -63,38 +94,49 @@ export default class Preloader extends Phaser.Scene {
   }
 
   create() {
-    // create loading texts
-    const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2
-    const screenCenterY = this.cameras.main.worldView.y + this.cameras.main.height
-    const loadingText = this.add
-      .text(screenCenterX, screenCenterY - 100, 'Loading...')
-      .setOrigin(0.5)
-      .setFontSize(30)
-      .setColor('#000000')
+    this.backdropImage = this.add.image(
+      this.cameras.main.width / 2,
+      this.cameras.main.height / 2,
+      'backdrop'
+    )
+    const scale = Math.max(
+      this.sceneWidth / this.backdropImage.width,
+      this.sceneHeight / this.backdropImage.height
+    )
+    this.backdropImage.setScale(scale).setScrollFactor(0)
+    if (this.backgroundMode === BackgroundMode.NIGHT) {
+      this.cameras.main.setBackgroundColor('#2c4464')
+    }
 
-    this.time.addEvent({
-      delay: 750,
-      callback: () => {
-        switch (this.counter % 3) {
-          case 0:
-            loadingText.setText('loading.')
-            break
+    const image = this.add.image(
+      this.cameras.main.width / 2,
+      this.cameras.main.height / 2,
+      'sun_moon'
+    )
+    const scale2 = Math.max(this.sceneWidth / image.width, this.sceneHeight / image.height)
+    image.setScale(scale2).setScrollFactor(0)
 
-          case 1:
-            loadingText.setText('loading..')
-            break
+    this.cloud = this.physics.add.group()
+    for (let i = 0; i < 24; i++) {
+      const x = Phaser.Math.RND.between(-this.sceneWidth * 0.5, this.sceneWidth * 1.5)
+      const y = Phaser.Math.RND.between(this.sceneHeight * 0.2, this.sceneHeight * 0.8)
+      const velocity = Phaser.Math.RND.between(15, 30)
 
-          case 2:
-            loadingText.setText('loading...')
-            break
-        }
-        this.counter += 1
-      },
-      loop: true,
-    })
+      this.cloud
+        .get(x, y, 'cloud', `cloud${(i % 6) + 1}.png`)
+        .setScale(3)
+        .setVelocity(velocity, 0)
+    }
+  }
+
+  update(t: number, dt: number) {
+    this.physics.world.wrap(this.cloud, 500)
   }
 
   startRoom() {
+    if (this.backgroundMode === BackgroundMode.DAY) {
+      this.backdropImage.destroy()
+    }
     this.scene.launch('game', {
       network: this.network,
     })
