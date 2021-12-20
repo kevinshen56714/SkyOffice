@@ -1,6 +1,7 @@
 import { Client, Room } from 'colyseus.js'
 import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
+import { IRoomData } from '../../../types/IRoomData'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
@@ -31,8 +32,25 @@ export default class Network {
     phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
   }
 
+  getAvailableRooms() {
+    return this.client.getAvailableRooms()
+  }
+
+  async createCustom(roomData: IRoomData) {
+    const { name, description, password, autoDispose } = roomData
+    this.room = await this.client.create('custom', { name, description, password, autoDispose })
+  }
+
+  async joinOrCreatePublic() {
+    this.room = await this.client.joinOrCreate('skyoffice')
+  }
+
+  async joinCustomById(roomId: string) {
+    this.room = await this.client.joinById(roomId)
+  }
+
   async join() {
-    this.room = await this.client.joinOrCreate('public')
+    this.room = await this.client.joinOrCreate('skyoffice')
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)
