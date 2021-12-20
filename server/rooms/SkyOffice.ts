@@ -2,6 +2,7 @@ import { Room, Client } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
 import { Player, OfficeState, Computer } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
+import { IRoomData } from '../../types/IRoomData'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
 import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
 import ComputerUpdateArrayCommand from './commands/ComputerUpdateArrayCommand'
@@ -10,14 +11,11 @@ import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
 
-  constructor(autoDispose: boolean) {
-    super()
+  onCreate(options: IRoomData) {
+    const { name, description, password, autoDispose } = options
+    this.setMetadata({ name, description, password })
     this.autoDispose = autoDispose
-  }
-
-  onCreate(options: any) {
     this.setState(new OfficeState())
-    this.autoDispose = this.autoDispose
 
     // HARD-CODED: Add 5 computers in a room
     for (let i = 0; i < 5; i++) {

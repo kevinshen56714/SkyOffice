@@ -170,7 +170,7 @@ export default function LoginDialog() {
           />
           {!videoConnected && (
             <Warning>
-              <Alert severity="warning">
+              <Alert variant="outlined" severity="warning">
                 <AlertTitle>Warning</AlertTitle>
                 No webcam/mic connected - <strong>connect one for best experience!</strong>
               </Alert>
@@ -188,7 +188,7 @@ export default function LoginDialog() {
 
           {videoConnected && (
             <Warning>
-              <Alert>Webcam connected!</Alert>
+              <Alert variant="outlined">Webcam connected!</Alert>
             </Warning>
           )}
         </Right>

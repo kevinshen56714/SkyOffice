@@ -11,9 +11,11 @@ import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import Tooltip from '@mui/material/Tooltip'
+import LinearProgress from '@mui/material/LinearProgress'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import LockIcon from '@mui/icons-material/Lock'
+import RefreshIcon from '@mui/icons-material/Refresh'
 
 import { useAppDispatch } from '../hooks'
 import { setRoomSelected } from '../stores/UserStore'
@@ -31,14 +33,43 @@ const Wrapper = styled.div`
   padding: 36px 60px;
 `
 
-const BackButton = styled.div`
+const CustomRoomWrapper = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+`
+
+const BackButtonWrapper = styled.div`
   position: absolute;
+  top: 0;
+  left: 0;
+`
+
+const RefreshButtonWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
 `
 
 const Title = styled.h1`
   font-size: 24px;
   color: #eee;
   text-align: center;
+`
+
+const MessageText = styled.p`
+  margin: 10px;
+  font-size: 18px;
+  color: #eee;
+  text-align: center;
+`
+
+const ProgressBar = styled(LinearProgress)`
+  width: 360px;
+  margin: 60px 30px;
 `
 
 const Content = styled.div`
@@ -55,30 +86,55 @@ const Content = styled.div`
   }
 `
 
-const CustomRoomTable = () => {
-  function createData(name: string, calories: string, fat: number, carbs: number, protein: number) {
-    return { name, calories, fat, carbs, protein }
+const TableRowWrapper = styled(TableRow)`
+  &:last-child td,
+  &:last-child th {
+    border: 0;
   }
+`
 
-  const rows = [
-    createData('Frozen yoghurt', 'Frozen yoghurt', 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 'Frozen yoghurt', 9.0, 37, 4.3),
-    createData(
-      'Eclair',
-      'Frozen yoghurtFrozen yoghurtFrozen yoghurtFrozen yoghurtFrozen yoghurtFrozen yoghurtFrozen yoghurtFrozen yoghurt',
-      16.0,
-      24,
-      6.0
-    ),
-    createData('Cupcake', 'Frozen yoghurt', 3.7, 67, 4.3),
-    createData('Gingerbread', 'Frozen yoghurt', 16.0, 49, 3.9),
-  ]
-  return (
+interface RoomDisplayProps {
+  roomId: string
+  name: string
+  description: string
+  password: string
+  clients: number
+}
+
+const fetchRoomArray = ({ onFinish }) => {
+  const updatedRoomArray = new Array<RoomDisplayProps>()
+  const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
+  bootstrap.network
+    .getAvailableRooms()
+    .then((rooms) => {
+      rooms.forEach((room) => {
+        const roomData = room.metadata as RoomDisplayProps
+        updatedRoomArray.push({
+          roomId: room.roomId,
+          name: roomData.name,
+          description: roomData.description,
+          password: roomData.password,
+          clients: room.clients,
+        })
+      })
+      onFinish()
+    })
+    .catch((e) => {
+      console.error(e)
+    })
+
+  return updatedRoomArray
+}
+
+const CustomRoomTable = (props: { roomArray: RoomDisplayProps[] }) => {
+  return props.roomArray.length === 0 ? (
+    <MessageText>There are no custom rooms now, create one or join the public lobby.</MessageText>
+  ) : (
     <TableContainer sx={{ maxHeight: 500 }} component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+      <Table sx={{ minWidth: 650 }}>
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
+            <TableCell>ID</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
             <TableCell align="center">
@@ -88,24 +144,25 @@ const CustomRoomTable = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+          {props.roomArray.map((room) => (
+            <TableRowWrapper key={room.roomId}>
               <TableCell>
-                <Tooltip title="Password required">
-                  <LockIcon />
-                </Tooltip>
+                {room.password && (
+                  <Tooltip title="Password required">
+                    <LockIcon />
+                  </Tooltip>
+                )}
+                {room.roomId}
               </TableCell>
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="left">{row.calories}</TableCell>
-              <TableCell align="center">{row.fat}</TableCell>
-              <TableCell align="right">
-                <Button variant="contained" color="secondary" size="small">
+              <TableCell>{room.name}</TableCell>
+              <TableCell>{room.description}</TableCell>
+              <TableCell align="center">{room.clients}</TableCell>
+              <TableCell>
+                <Button variant="outlined" color="secondary">
                   Join
                 </Button>
               </TableCell>
-            </TableRow>
+            </TableRowWrapper>
           ))}
         </TableBody>
       </Table>
@@ -115,6 +172,8 @@ const CustomRoomTable = () => {
 
 export default function RoomSelectionDialog() {
   const [showCustomRoom, setShowCustomRoom] = useState(false)
+  const [roomArray, setRoomArray] = useState<RoomDisplayProps[]>([])
+  const [isFetching, setIsFetching] = useState(false)
   const dispatch = useAppDispatch()
 
   const handleConnect = () => {
@@ -123,18 +182,42 @@ export default function RoomSelectionDialog() {
     bootstrap.launchGame()
   }
 
+  const handleFetch = () => {
+    setIsFetching(true)
+    const updatedRoomArray = fetchRoomArray({
+      onFinish: () => {
+        setIsFetching(false)
+      },
+    })
+    setRoomArray(updatedRoomArray)
+  }
+
   return (
     <Wrapper>
       {showCustomRoom ? (
-        <>
-          <BackButton>
+        <CustomRoomWrapper>
+          <BackButtonWrapper>
             <IconButton onClick={() => setShowCustomRoom(false)}>
               <ArrowBackIcon />
             </IconButton>
-          </BackButton>
+          </BackButtonWrapper>
+          {!isFetching && (
+            <RefreshButtonWrapper>
+              <IconButton onClick={handleFetch}>
+                <RefreshIcon />
+              </IconButton>
+            </RefreshButtonWrapper>
+          )}
           <Title>Custom Rooms</Title>
-          <CustomRoomTable />
-        </>
+          {isFetching ? (
+            <ProgressBar color="secondary" />
+          ) : (
+            <CustomRoomTable roomArray={roomArray} />
+          )}
+          <Button variant="contained" color="secondary" size="large">
+            Create new room
+          </Button>
+        </CustomRoomWrapper>
       ) : (
         <>
           <Title>Welcome to SkyOffice</Title>
@@ -143,7 +226,14 @@ export default function RoomSelectionDialog() {
             <Button variant="contained" color="secondary" onClick={handleConnect}>
               Connect to public lobby
             </Button>
-            <Button variant="outlined" color="secondary" onClick={() => setShowCustomRoom(true)}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => {
+                setShowCustomRoom(true)
+                handleFetch()
+              }}
+            >
               Create/find custom rooms
             </Button>
           </Content>

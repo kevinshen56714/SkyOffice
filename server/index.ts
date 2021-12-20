@@ -21,8 +21,13 @@ const gameServer = new Server({
 })
 
 // register your room handlers
-gameServer.define('public', SkyOffice, { autoDispose: false })
-gameServer.define('private', SkyOffice, { autoDispose: true })
+gameServer.define('skyoffice', SkyOffice, {
+  name: 'Public Lobby',
+  description: 'For making friends and familiarizing yourself with the controls',
+  password: null,
+  autoDispose: false,
+})
+gameServer.define('custom', SkyOffice)
 
 /**
  * Register @colyseus/social routes
