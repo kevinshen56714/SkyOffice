@@ -1,6 +1,7 @@
 import Phaser from 'phaser'
 import Game from './scenes/Game'
-import Preloader from './scenes/Preloader'
+import Background from './scenes/Background'
+import Bootstrap from './scenes/Bootstrap'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -20,7 +21,7 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   autoFocus: true,
-  scene: [Preloader, Game],
+  scene: [Bootstrap, Background, Game],
 }
 
 const phaserGame = new Phaser.Game(config)

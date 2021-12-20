@@ -7,3 +7,13 @@ export function sanitizeId(id: string) {
 
   return sanitized.replace(/[^0-9a-z]/gi, 'G')
 }
+
+export enum BackgroundMode {
+  DAY,
+  NIGHT,
+}
+
+export function getInitialBackgroundMode() {
+  const currentHour = new Date().getHours()
+  return currentHour > 6 && currentHour <= 18 ? BackgroundMode.DAY : BackgroundMode.NIGHT
+}

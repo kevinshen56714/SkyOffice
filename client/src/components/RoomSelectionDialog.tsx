@@ -19,7 +19,7 @@ import { useAppDispatch } from '../hooks'
 import { setRoomSelected } from '../stores/UserStore'
 
 import phaserGame from '../PhaserGame'
-import Preloader from '../scenes/Preloader'
+import Bootstrap from '../scenes/Bootstrap'
 
 const Wrapper = styled.div`
   position: fixed;
@@ -118,9 +118,9 @@ export default function RoomSelectionDialog() {
   const dispatch = useAppDispatch()
 
   const handleConnect = () => {
-    const preloader = phaserGame.scene.keys.preloader as Preloader
+    const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
     dispatch(setRoomSelected(true))
-    preloader.startRoom()
+    bootstrap.launchGame()
   }
 
   return (

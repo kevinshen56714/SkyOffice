@@ -8,6 +8,7 @@ import LoginDialog from './components/LoginDialog'
 import ComputerDialog from './components/ComputerDialog'
 import VideoConnectionDialog from './components/VideoConnectionDialog'
 import Chat from './components/Chat'
+import HelperButtonGroup from './components/HelperButtonGroup'
 
 const Backdrop = styled.div`
   position: absolute;
@@ -39,6 +40,7 @@ function App() {
       ) : (
         <RoomSelectionDialog />
       )}
+      <HelperButtonGroup />
     </Backdrop>
   )
 }
