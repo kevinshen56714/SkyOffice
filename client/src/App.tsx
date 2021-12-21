@@ -26,15 +26,16 @@ function App() {
     <Backdrop>
       {/* Render the LoginDialog if not logged in, else render Chat. */}
       {loggedIn ? (
-        <>
-          <Chat />
-
-          {/* Render the ComputerDialog if user is using a computer. */}
-          {computerDialogOpen && <ComputerDialog />}
-
-          {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
-          {!computerDialogOpen && !videoConnected && <VideoConnectionDialog />}
-        </>
+        /* Render the ComputerDialog if user is using a computer. */
+        computerDialogOpen ? (
+          <ComputerDialog />
+        ) : (
+          <>
+            <Chat />
+            {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
+            {!videoConnected && <VideoConnectionDialog />}
+          </>
+        )
       ) : roomSelected ? (
         <LoginDialog />
       ) : (

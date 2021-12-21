@@ -28,6 +28,7 @@ const Wrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  box-shadow: 0px 0px 5px #0000006f;
 
   .close {
     position: absolute;

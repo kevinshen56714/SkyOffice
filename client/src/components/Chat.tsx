@@ -257,20 +257,11 @@ export default function Chat() {
                 onKeyDown={handleKeyDown}
                 onChange={handleChange}
                 onFocus={() => {
-                  game.disableKeys()
                   if (!focused) dispatch(setFocused(true))
                 }}
-                onBlur={() => {
-                  game.enableKeys()
-                  dispatch(setFocused(false))
-                }}
+                onBlur={() => dispatch(setFocused(false))}
               />
-              <IconButton
-                aria-label="emoji"
-                onClick={() => {
-                  setShowEmojiPicker(!showEmojiPicker)
-                }}
-              >
+              <IconButton aria-label="emoji" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                 <InsertEmoticonIcon />
               </IconButton>
             </InputWrapper>

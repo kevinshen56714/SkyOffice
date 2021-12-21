@@ -33,6 +33,7 @@ const Wrapper = styled.form`
   background: #222639;
   border-radius: 16px;
   padding: 36px 60px;
+  box-shadow: 0px 0px 5px #0000006f;
 `
 
 const Title = styled.p`
