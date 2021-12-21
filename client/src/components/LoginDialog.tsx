@@ -36,7 +36,7 @@ const Wrapper = styled.form`
 `
 
 const Title = styled.p`
-  margin: 0;
+  margin: 5px;
   font-size: 20px;
   color: #c2c2c2;
   text-align: center;
@@ -132,6 +132,11 @@ for (let i = avatars.length - 1; i > 0; i--) {
   ;[avatars[i], avatars[j]] = [avatars[j], avatars[i]]
 }
 
+const getAvatarString = (name: string) => {
+  const part = name.split(' ')
+  return part.length < 2 ? part[0][0] : part[0][0] + part[1][0]
+}
+
 export default function LoginDialog() {
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
@@ -155,11 +160,6 @@ export default function LoginDialog() {
       game.network.readyToConnect()
       dispatch(setLoggedIn(true))
     }
-  }
-
-  const getAvatarString = (name: string) => {
-    const part = name.split(' ')
-    return `${part[0] && part[0][0]}${part[1] && part[1][0]}`
   }
 
   return (

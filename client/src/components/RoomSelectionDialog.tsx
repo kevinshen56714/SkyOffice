@@ -98,6 +98,14 @@ const TableRowWrapper = styled(TableRow)`
   }
 `
 
+const CustomRoomTableContainer = styled(TableContainer)`
+  max-height: 500px;
+
+  table {
+    min-width: 650px;
+  }
+`
+
 const CreateRoomFormWrapper = styled.form`
   display: flex;
   flex-direction: column;
@@ -151,8 +159,8 @@ const CustomRoomTable = (props: { roomArray: RoomDisplayProps[] }) => {
   return props.roomArray.length === 0 ? (
     <MessageText>There are no custom rooms now, create one or join the public lobby.</MessageText>
   ) : (
-    <TableContainer sx={{ maxHeight: 500 }} component={Paper}>
-      <Table sx={{ minWidth: 650 }}>
+    <CustomRoomTableContainer component={Paper}>
+      <Table>
         <TableHead>
           <TableRow>
             <TableCell>ID</TableCell>
@@ -191,7 +199,7 @@ const CustomRoomTable = (props: { roomArray: RoomDisplayProps[] }) => {
           ))}
         </TableBody>
       </Table>
-    </TableContainer>
+    </CustomRoomTableContainer>
   )
 }
 
