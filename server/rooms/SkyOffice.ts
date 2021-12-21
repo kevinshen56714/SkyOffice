@@ -10,10 +10,14 @@ import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
+  private name: string
+  private description: string
 
   onCreate(options: IRoomData) {
     const { name, description, password, autoDispose } = options
     this.setMetadata({ name, description, password })
+    this.name = name
+    this.description = description
     this.autoDispose = autoDispose
     this.setState(new OfficeState())
 
@@ -112,6 +116,7 @@ export class SkyOffice extends Room<OfficeState> {
 
   onJoin(client: Client, options: any) {
     this.state.players.set(client.sessionId, new Player())
+    client.send(Message.SEND_ROOM_DATA, { name: this.name, description: this.description })
   }
 
   onLeave(client: Client, consented: boolean) {

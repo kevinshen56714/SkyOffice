@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import logo from '../assets/logo.png'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'
@@ -11,14 +11,19 @@ import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import Tooltip from '@mui/material/Tooltip'
+import TextField from '@mui/material/TextField'
+import InputAdornment from '@mui/material/InputAdornment'
 import LinearProgress from '@mui/material/LinearProgress'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import LockIcon from '@mui/icons-material/Lock'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 import { useAppDispatch } from '../hooks'
 import { setRoomSelected } from '../stores/UserStore'
+import { IRoomData } from '../../../types/IRoomData'
 
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
@@ -93,6 +98,13 @@ const TableRowWrapper = styled(TableRow)`
   }
 `
 
+const CreateRoomFormWrapper = styled.form`
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  gap: 20px;
+`
+
 interface RoomDisplayProps {
   roomId: string
   name: string
@@ -127,6 +139,15 @@ const fetchRoomArray = ({ onFinish }) => {
 }
 
 const CustomRoomTable = (props: { roomArray: RoomDisplayProps[] }) => {
+  const dispatch = useAppDispatch()
+  const handleJoinClick = (roomId: string) => {
+    const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
+    dispatch(setRoomSelected(true))
+    bootstrap.network
+      .joinCustomById(roomId)
+      .then(() => bootstrap.launchGame())
+      .catch((error) => console.log(error))
+  }
   return props.roomArray.length === 0 ? (
     <MessageText>There are no custom rooms now, create one or join the public lobby.</MessageText>
   ) : (
@@ -158,7 +179,11 @@ const CustomRoomTable = (props: { roomArray: RoomDisplayProps[] }) => {
               <TableCell>{room.description}</TableCell>
               <TableCell align="center">{room.clients}</TableCell>
               <TableCell>
-                <Button variant="outlined" color="secondary">
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => handleJoinClick(room.roomId)}
+                >
                   Join
                 </Button>
               </TableCell>
@@ -170,8 +195,93 @@ const CustomRoomTable = (props: { roomArray: RoomDisplayProps[] }) => {
   )
 }
 
+const CreateRoomForm = () => {
+  const [values, setValues] = useState<IRoomData>({
+    name: '',
+    description: '',
+    password: null,
+    autoDispose: true,
+  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [nameFieldEmpty, setNameFieldEmpty] = useState(false)
+  const [descriptionFieldEmpty, setDescriptionFieldEmpty] = useState(false)
+  const dispatch = useAppDispatch()
+
+  const handleChange = (prop: keyof IRoomData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValues({ ...values, [prop]: event.target.value })
+  }
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const isValidName = values.name !== ''
+    const isValidDescription = values.description !== ''
+
+    // create custom room if name and description are not empty, else show error
+    if (isValidName && isValidDescription) {
+      const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
+      dispatch(setRoomSelected(true))
+      bootstrap.network
+        .createCustom(values)
+        .then(() => bootstrap.launchGame())
+        .catch((error) => console.log(error))
+    } else {
+      if (isValidName === nameFieldEmpty) setNameFieldEmpty(!nameFieldEmpty)
+      if (isValidDescription === descriptionFieldEmpty)
+        setDescriptionFieldEmpty(!descriptionFieldEmpty)
+    }
+  }
+
+  return (
+    <CreateRoomFormWrapper onSubmit={handleSubmit}>
+      <TextField
+        label="Name"
+        variant="outlined"
+        color="secondary"
+        autoFocus
+        error={nameFieldEmpty}
+        helperText={nameFieldEmpty && 'Name is required'}
+        onChange={handleChange('name')}
+      />
+
+      <TextField
+        label="Description"
+        variant="outlined"
+        color="secondary"
+        error={descriptionFieldEmpty}
+        helperText={descriptionFieldEmpty && 'Description is required'}
+        multiline
+        rows={4}
+        onChange={handleChange('description')}
+      />
+
+      <TextField
+        type={showPassword ? 'text' : 'password'}
+        label="Password (optional)"
+        onChange={handleChange('password')}
+        color="secondary"
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={() => setShowPassword(!showPassword)}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+      <Button variant="contained" color="secondary" type="submit">
+        Create
+      </Button>
+    </CreateRoomFormWrapper>
+  )
+}
+
 export default function RoomSelectionDialog() {
   const [showCustomRoom, setShowCustomRoom] = useState(false)
+  const [showCreateRoomForm, setShowCreateRoomForm] = useState(false)
   const [roomArray, setRoomArray] = useState<RoomDisplayProps[]>([])
   const [isFetching, setIsFetching] = useState(false)
   const dispatch = useAppDispatch()
@@ -179,7 +289,10 @@ export default function RoomSelectionDialog() {
   const handleConnect = () => {
     const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
     dispatch(setRoomSelected(true))
-    bootstrap.launchGame()
+    bootstrap.network
+      .joinOrCreatePublic()
+      .then(() => bootstrap.launchGame())
+      .catch((error) => console.log(error))
   }
 
   const handleFetch = () => {
@@ -192,10 +305,25 @@ export default function RoomSelectionDialog() {
     setRoomArray(updatedRoomArray)
   }
 
+  useEffect(() => {
+    if (showCustomRoom && !showCreateRoomForm) handleFetch()
+  }, [showCustomRoom, showCreateRoomForm])
+
   return (
     <Wrapper>
-      {showCustomRoom ? (
+      {showCreateRoomForm ? (
         <CustomRoomWrapper>
+          <Title>Create Custom Room</Title>
+          <BackButtonWrapper>
+            <IconButton onClick={() => setShowCreateRoomForm(false)}>
+              <ArrowBackIcon />
+            </IconButton>
+          </BackButtonWrapper>
+          <CreateRoomForm />
+        </CustomRoomWrapper>
+      ) : showCustomRoom ? (
+        <CustomRoomWrapper>
+          <Title>Custom Rooms</Title>
           <BackButtonWrapper>
             <IconButton onClick={() => setShowCustomRoom(false)}>
               <ArrowBackIcon />
@@ -208,13 +336,12 @@ export default function RoomSelectionDialog() {
               </IconButton>
             </RefreshButtonWrapper>
           )}
-          <Title>Custom Rooms</Title>
           {isFetching ? (
             <ProgressBar color="secondary" />
           ) : (
             <CustomRoomTable roomArray={roomArray} />
           )}
-          <Button variant="contained" color="secondary" size="large">
+          <Button variant="contained" color="secondary" onClick={() => setShowCreateRoomForm(true)}>
             Create new room
           </Button>
         </CustomRoomWrapper>
@@ -226,14 +353,7 @@ export default function RoomSelectionDialog() {
             <Button variant="contained" color="secondary" onClick={handleConnect}>
               Connect to public lobby
             </Button>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={() => {
-                setShowCustomRoom(true)
-                handleFetch()
-              }}
-            >
+            <Button variant="outlined" color="secondary" onClick={() => setShowCustomRoom(true)}>
               Create/find custom rooms
             </Button>
           </Content>

@@ -9,6 +9,8 @@ export const userSlice = createSlice({
     videoConnected: false,
     loggedIn: false,
     roomSelected: false,
+    roomName: '',
+    roomDescription: '',
     playerNameMap: new Map<string, string>(),
   },
   reducers: {
@@ -33,6 +35,10 @@ export const userSlice = createSlice({
     setRoomSelected: (state, action: PayloadAction<boolean>) => {
       state.roomSelected = action.payload
     },
+    setRoomData: (state, action: PayloadAction<{ name: string; description: string }>) => {
+      state.roomName = action.payload.name
+      state.roomDescription = action.payload.description
+    },
   },
 })
 
@@ -42,6 +48,7 @@ export const {
   setVideoConnected,
   setLoggedIn,
   setRoomSelected,
+  setRoomData,
   setPlayerNameMap,
   removePlayerNameMap,
 } = userSlice.actions

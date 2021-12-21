@@ -5,7 +5,13 @@ import { IRoomData } from '../../../types/IRoomData'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
-import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
+import {
+  setConnected,
+  setSessionId,
+  setPlayerNameMap,
+  removePlayerNameMap,
+  setRoomData,
+} from '../stores/UserStore'
 import {
   pushChatMessage,
   pushPlayerJoinedMessage,
@@ -33,24 +39,29 @@ export default class Network {
   }
 
   getAvailableRooms() {
-    return this.client.getAvailableRooms()
+    return this.client.getAvailableRooms('custom')
   }
 
   async createCustom(roomData: IRoomData) {
     const { name, description, password, autoDispose } = roomData
     this.room = await this.client.create('custom', { name, description, password, autoDispose })
+    this.connect()
   }
 
   async joinOrCreatePublic() {
     this.room = await this.client.joinOrCreate('skyoffice')
+    this.connect()
   }
 
   async joinCustomById(roomId: string) {
     this.room = await this.client.joinById(roomId)
+    this.connect()
   }
 
-  async join() {
-    this.room = await this.client.joinOrCreate('skyoffice')
+  connect() {
+    if (!this.room) return
+
+    store.dispatch(setConnected(true))
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)
@@ -99,6 +110,11 @@ export default class Network {
     this.room.state.chatMessages.onAdd = (item, index) => {
       store.dispatch(pushChatMessage(item))
     }
+
+    // when the server sends room data
+    this.room.onMessage(Message.SEND_ROOM_DATA, (content) => {
+      store.dispatch(setRoomData(content))
+    })
 
     // when a user sends a message
     this.room.onMessage(Message.ADD_CHAT_MESSAGE, ({ clientId, content }) => {

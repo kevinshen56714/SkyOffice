@@ -14,7 +14,6 @@ import OtherPlayer from '../characters/OtherPlayer'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 
 import store from '../stores'
-import { setConnected } from '../stores/UserStore'
 import { setFocused, setShowChat } from '../stores/ChatStore'
 
 export default class Game extends Phaser.Scene {
@@ -58,14 +57,11 @@ export default class Game extends Phaser.Scene {
   }
 
   async create(data: { network: Network }) {
-    // initialize network instance (connect to server)
     if (!data.network) {
       throw new Error('server instance missing')
     } else {
       this.network = data.network
     }
-    await this.network.join()
-    store.dispatch(setConnected(true))
 
     createCharacterAnims(this.anims)
 

@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
 import SwiperCore, { Navigation } from 'swiper'
@@ -16,6 +18,7 @@ import Lucy from '../assets/Lucy_login.png'
 import Nancy from '../assets/Nancy_login.png'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { setLoggedIn } from '../stores/UserStore'
+import { getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
@@ -32,10 +35,29 @@ const Wrapper = styled.form`
   padding: 36px 60px;
 `
 
-const Title = styled.h1`
-  font-size: 24px;
-  color: #eee;
+const Title = styled.p`
+  margin: 0;
+  font-size: 20px;
+  color: #c2c2c2;
   text-align: center;
+`
+
+const RoomNameWrapper = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+
+  h3 {
+    font-size: 24px;
+    color: #eee;
+  }
+`
+
+const RoomDescription = styled.div`
+  font-size: 16px;
+  color: #c2c2c2;
+  display: flex;
+  justify-content: center;
 `
 
 const SubTitle = styled.h3`
@@ -117,6 +139,8 @@ export default function LoginDialog() {
   const dispatch = useAppDispatch()
   const connected = useAppSelector((state) => state.user.connected)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
+  const roomName = useAppSelector((state) => state.user.roomName)
+  const roomDescription = useAppSelector((state) => state.user.roomDescription)
   const game = phaserGame.scene.keys.game as Game
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -133,9 +157,23 @@ export default function LoginDialog() {
     }
   }
 
+  const getAvatarString = (name: string) => {
+    const part = name.split(' ')
+    return `${part[0] && part[0][0]}${part[1] && part[1][0]}`
+  }
+
   return (
     <Wrapper onSubmit={handleSubmit}>
-      <Title>Welcome to SkyOffice</Title>
+      <Title>Joining</Title>
+      <RoomNameWrapper>
+        <Avatar style={{ background: getColorByString(roomName) }}>
+          {getAvatarString(roomName)}
+        </Avatar>
+        <h3>{roomName}</h3>
+      </RoomNameWrapper>
+      <RoomDescription>
+        <ArrowRightIcon /> {roomDescription}
+      </RoomDescription>
       <Content>
         <Left>
           <SubTitle>Select an avatar</SubTitle>
