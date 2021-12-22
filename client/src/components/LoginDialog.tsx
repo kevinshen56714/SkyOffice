@@ -145,8 +145,8 @@ export default function LoginDialog() {
   const dispatch = useAppDispatch()
   const roomJoined = useAppSelector((state) => state.user.roomJoined)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
-  const roomName = useAppSelector((state) => state.user.roomName)
-  const roomDescription = useAppSelector((state) => state.user.roomDescription)
+  const roomName = useAppSelector((state) => state.room.roomName)
+  const roomDescription = useAppSelector((state) => state.room.roomDescription)
   const game = phaserGame.scene.keys.game as Game
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {

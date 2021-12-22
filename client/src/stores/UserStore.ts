@@ -5,8 +5,6 @@ export const userSlice = createSlice({
   name: 'user',
   initialState: {
     roomJoined: false,
-    roomName: '',
-    roomDescription: '',
     sessionId: '',
     videoConnected: false,
     loggedIn: false,
@@ -15,10 +13,6 @@ export const userSlice = createSlice({
   reducers: {
     setRoomJoined: (state, action: PayloadAction<boolean>) => {
       state.roomJoined = action.payload
-    },
-    setRoomData: (state, action: PayloadAction<{ name: string; description: string }>) => {
-      state.roomName = action.payload.name
-      state.roomDescription = action.payload.description
     },
     setSessionId: (state, action: PayloadAction<string>) => {
       state.sessionId = action.payload
@@ -40,7 +34,6 @@ export const userSlice = createSlice({
 
 export const {
   setRoomJoined,
-  setRoomData,
   setSessionId,
   setVideoConnected,
   setLoggedIn,

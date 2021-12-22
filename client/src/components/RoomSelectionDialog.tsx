@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import logo from '../assets/logo.png'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'
@@ -21,11 +21,11 @@ import Alert from '@mui/material/Alert'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import LockIcon from '@mui/icons-material/Lock'
-import RefreshIcon from '@mui/icons-material/Refresh'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 import { IRoomData } from '../../../types/IRoomData'
+import { useAppSelector } from '../hooks'
 
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
@@ -54,12 +54,6 @@ const BackButtonWrapper = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-`
-
-const RefreshButtonWrapper = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
 `
 
 const Title = styled.h1`
@@ -132,45 +126,13 @@ const PasswordDialog = styled(Dialog)`
   }
 `
 
-interface RoomDisplayProps {
-  roomId: string
-  name: string
-  description: string
-  hasPassword: boolean
-  clients: number
-}
-
-const fetchRoomArray = (props: { onFinish: () => void }) => {
-  const updatedRoomArray = new Array<RoomDisplayProps>()
-  const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
-  bootstrap.network
-    .getAvailableRooms()
-    .then((rooms) => {
-      rooms.forEach((room) => {
-        const roomData = room.metadata as RoomDisplayProps
-        updatedRoomArray.push({
-          roomId: room.roomId,
-          name: roomData.name,
-          description: roomData.description,
-          hasPassword: roomData.hasPassword,
-          clients: room.clients,
-        })
-      })
-      props.onFinish()
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-
-  return updatedRoomArray
-}
-
-const CustomRoomTable = (props: { roomArray: RoomDisplayProps[]; onReset: () => void }) => {
+const CustomRoomTable = () => {
   const [password, setPassword] = useState('')
   const [selectedRoom, setSelectedRoom] = useState('')
   const [showPasswordDialog, setShowPasswordDialog] = useState(false)
   const [showPasswordError, setShowPasswordError] = useState(false)
   const [passwordFieldEmpty, setPasswordFieldEmpty] = useState(false)
+  const availableRooms = useAppSelector((state) => state.room.availableRooms)
 
   const handleJoinClick = (roomId: string, password: string | null) => {
     const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
@@ -196,10 +158,9 @@ const CustomRoomTable = (props: { roomArray: RoomDisplayProps[]; onReset: () => 
     setPassword('')
     setPasswordFieldEmpty(false)
     setShowPasswordError(false)
-    props.onReset()
   }
 
-  return props.roomArray.length === 0 ? (
+  return availableRooms.length === 0 ? (
     <MessageText>There are no custom rooms now, create one or join the public lobby.</MessageText>
   ) : (
     <>
@@ -207,7 +168,7 @@ const CustomRoomTable = (props: { roomArray: RoomDisplayProps[]; onReset: () => 
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell style={{ width: '10px' }}></TableCell>
+              <TableCell></TableCell>
               <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Description</TableCell>
@@ -218,37 +179,41 @@ const CustomRoomTable = (props: { roomArray: RoomDisplayProps[]; onReset: () => 
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.roomArray.map((room) => (
-              <TableRowWrapper key={room.roomId}>
-                <TableCell>
-                  {room.hasPassword && (
-                    <Tooltip title="Password required">
-                      <LockIcon className="lock-icon" />
-                    </Tooltip>
-                  )}
-                </TableCell>
-                <TableCell>{room.roomId}</TableCell>
-                <TableCell>{room.name}</TableCell>
-                <TableCell>{room.description}</TableCell>
-                <TableCell align="center">{room.clients}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={() => {
-                      if (room.hasPassword) {
-                        setShowPasswordDialog(true)
-                        setSelectedRoom(room.roomId)
-                      } else {
-                        handleJoinClick(room.roomId, null)
-                      }
-                    }}
-                  >
-                    Join
-                  </Button>
-                </TableCell>
-              </TableRowWrapper>
-            ))}
+            {availableRooms.map((room) => {
+              const { roomId, metadata, clients } = room
+              const { name, description, hasPassword } = metadata
+              return (
+                <TableRowWrapper key={roomId}>
+                  <TableCell>
+                    {hasPassword && (
+                      <Tooltip title="Password required">
+                        <LockIcon className="lock-icon" />
+                      </Tooltip>
+                    )}
+                  </TableCell>
+                  <TableCell>{roomId}</TableCell>
+                  <TableCell>{name}</TableCell>
+                  <TableCell>{description}</TableCell>
+                  <TableCell align="center">{clients}</TableCell>
+                  <TableCell align="center">
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        if (hasPassword) {
+                          setShowPasswordDialog(true)
+                          setSelectedRoom(roomId)
+                        } else {
+                          handleJoinClick(roomId, null)
+                        }
+                      }}
+                    >
+                      Join
+                    </Button>
+                  </TableCell>
+                </TableRowWrapper>
+              )
+            })}
           </TableBody>
         </Table>
       </CustomRoomTableContainer>
@@ -375,7 +340,6 @@ const CreateRoomForm = () => {
 export default function RoomSelectionDialog() {
   const [showCustomRoom, setShowCustomRoom] = useState(false)
   const [showCreateRoomForm, setShowCreateRoomForm] = useState(false)
-  const [roomArray, setRoomArray] = useState<RoomDisplayProps[]>([])
   const [isFetching, setIsFetching] = useState(false)
 
   const handleConnect = () => {
@@ -385,20 +349,6 @@ export default function RoomSelectionDialog() {
       .then(() => bootstrap.launchGame())
       .catch((error) => console.log(error))
   }
-
-  const handleFetch = () => {
-    setIsFetching(true)
-    const updatedRoomArray = fetchRoomArray({
-      onFinish: () => {
-        setIsFetching(false)
-      },
-    })
-    setRoomArray(updatedRoomArray)
-  }
-
-  useEffect(() => {
-    if (showCustomRoom && !showCreateRoomForm) handleFetch()
-  }, [showCustomRoom, showCreateRoomForm])
 
   return (
     <Wrapper>
@@ -420,18 +370,7 @@ export default function RoomSelectionDialog() {
               <ArrowBackIcon />
             </IconButton>
           </BackButtonWrapper>
-          {!isFetching && (
-            <RefreshButtonWrapper>
-              <IconButton onClick={handleFetch}>
-                <RefreshIcon />
-              </IconButton>
-            </RefreshButtonWrapper>
-          )}
-          {isFetching ? (
-            <ProgressBar color="secondary" />
-          ) : (
-            <CustomRoomTable roomArray={roomArray} onReset={handleFetch} />
-          )}
+          {isFetching ? <ProgressBar color="secondary" /> : <CustomRoomTable />}
           <Button variant="contained" color="secondary" onClick={() => setShowCreateRoomForm(true)}>
             Create new room
           </Button>

@@ -5,12 +5,13 @@ import { IRoomData } from '../../../types/IRoomData'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
+import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
 import {
-  setRoomData,
-  setSessionId,
-  setPlayerNameMap,
-  removePlayerNameMap,
-} from '../stores/UserStore'
+  setJoinedRoomData,
+  setAvailableRooms,
+  addAvailableRooms,
+  removeAvailableRooms,
+} from '../stores/RoomStore'
 import {
   pushChatMessage,
   pushPlayerJoinedMessage,
@@ -20,6 +21,7 @@ import {
 export default class Network {
   private client: Client
   private room?: Room<IOfficeState>
+  private lobby!: Room
   webRTC?: WebRTC
 
   mySessionId!: string
@@ -31,14 +33,27 @@ export default class Network {
         ? `wss://sky-office.herokuapp.com`
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
+    this.joinLobbyRoom()
 
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
     phaserEvents.on(Event.MY_PLAYER_TEXTURE_CHANGE, this.updatePlayer, this)
     phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
   }
 
-  getAvailableRooms() {
-    return this.client.getAvailableRooms('custom')
+  async joinLobbyRoom() {
+    this.lobby = await this.client.joinOrCreate('lobby')
+
+    this.lobby.onMessage('rooms', (rooms) => {
+      store.dispatch(setAvailableRooms(rooms))
+    })
+
+    this.lobby.onMessage('+', ([roomId, room]) => {
+      store.dispatch(addAvailableRooms({ roomId, room }))
+    })
+
+    this.lobby.onMessage('-', (roomId) => {
+      store.dispatch(removeAvailableRooms(roomId))
+    })
   }
 
   async createCustom(roomData: IRoomData) {
@@ -60,6 +75,7 @@ export default class Network {
   initialize() {
     if (!this.room) return
 
+    this.lobby.leave()
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)
@@ -111,7 +127,7 @@ export default class Network {
 
     // when the server sends room data
     this.room.onMessage(Message.SEND_ROOM_DATA, (content) => {
-      store.dispatch(setRoomData(content))
+      store.dispatch(setJoinedRoomData(content))
     })
 
     // when a user sends a message

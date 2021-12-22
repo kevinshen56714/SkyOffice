@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { Room, Client, ServerError } from 'colyseus'
+import { Room, Client, updateLobby, ServerError } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
 import { Player, OfficeState, Computer } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
@@ -17,6 +17,10 @@ export class SkyOffice extends Room<OfficeState> {
 
   async onCreate(options: IRoomData) {
     const { name, description, password, autoDispose } = options
+    this.name = name
+    this.description = description
+    this.autoDispose = autoDispose
+
     let hasPassword = false
     if (password) {
       const salt = await bcrypt.genSalt(10)
@@ -24,9 +28,7 @@ export class SkyOffice extends Room<OfficeState> {
       hasPassword = true
     }
     this.setMetadata({ name, description, hasPassword })
-    this.name = name
-    this.description = description
-    this.autoDispose = autoDispose
+
     this.setState(new OfficeState())
 
     // HARD-CODED: Add 5 computers in a room
@@ -134,7 +136,11 @@ export class SkyOffice extends Room<OfficeState> {
 
   onJoin(client: Client, options: any) {
     this.state.players.set(client.sessionId, new Player())
-    client.send(Message.SEND_ROOM_DATA, { name: this.name, description: this.description })
+    client.send(Message.SEND_ROOM_DATA, {
+      id: this.roomId,
+      name: this.name,
+      description: this.description,
+    })
   }
 
   onLeave(client: Client, consented: boolean) {
@@ -151,5 +157,6 @@ export class SkyOffice extends Room<OfficeState> {
 
   onDispose() {
     console.log('room', this.roomId, 'disposing...')
+    this.dispatcher.stop()
   }
 }
