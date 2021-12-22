@@ -1,12 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RoomAvailable } from 'colyseus.js'
+import { RoomType } from '../../../types/Rooms'
 
-export interface RoomDisplayProps {
-  roomId: string
-  name: string
-  description: string
-  hasPassword: boolean
-  clients: number
+/**
+ * Colyseus' real time room list always includes the public lobby so we have to remove it manually.
+ * room: RoomAvailable is typed as any here in order to call the name attribute (untyped property)
+ */
+const isCustomRoom = (room: any) => {
+  return room.name === RoomType.CUSTOM
 }
 
 export const roomSlice = createSlice({
@@ -27,9 +28,10 @@ export const roomSlice = createSlice({
       state.roomDescription = action.payload.description
     },
     setAvailableRooms: (state, action: PayloadAction<RoomAvailable[]>) => {
-      state.availableRooms = action.payload
+      state.availableRooms = action.payload.filter((room) => isCustomRoom(room))
     },
     addAvailableRooms: (state, action: PayloadAction<{ roomId: string; room: RoomAvailable }>) => {
+      if (!isCustomRoom(action.payload.room)) return
       const roomIndex = state.availableRooms.findIndex(
         (room) => room.roomId === action.payload.roomId
       )

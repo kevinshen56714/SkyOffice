@@ -1,7 +1,7 @@
 import { Client, Room } from 'colyseus.js'
 import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
-import { IRoomData } from '../../../types/IRoomData'
+import { IRoomData, RoomType } from '../../../types/Rooms'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
@@ -40,8 +40,12 @@ export default class Network {
     phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
   }
 
+  /**
+   * method to join Colyseus' built-in LobbyRoom, which automatically notifies
+   * connected clients whenever rooms with "realtime listing" have updates
+   */
   async joinLobbyRoom() {
-    this.lobby = await this.client.joinOrCreate('lobby')
+    this.lobby = await this.client.joinOrCreate(RoomType.LOBBY)
 
     this.lobby.onMessage('rooms', (rooms) => {
       store.dispatch(setAvailableRooms(rooms))
@@ -56,22 +60,31 @@ export default class Network {
     })
   }
 
-  async createCustom(roomData: IRoomData) {
-    const { name, description, password, autoDispose } = roomData
-    this.room = await this.client.create('custom', { name, description, password, autoDispose })
-    this.initialize()
-  }
-
+  // method to join the public lobby
   async joinOrCreatePublic() {
-    this.room = await this.client.joinOrCreate('skyoffice')
+    this.room = await this.client.joinOrCreate(RoomType.PUBLIC)
     this.initialize()
   }
 
+  // method to join a custom room
   async joinCustomById(roomId: string, password: string | null) {
     this.room = await this.client.joinById(roomId, { password })
     this.initialize()
   }
 
+  // method to create a custom room
+  async createCustom(roomData: IRoomData) {
+    const { name, description, password, autoDispose } = roomData
+    this.room = await this.client.create(RoomType.CUSTOM, {
+      name,
+      description,
+      password,
+      autoDispose,
+    })
+    this.initialize()
+  }
+
+  // set up all network listeners before the game starts
   initialize() {
     if (!this.room) return
 

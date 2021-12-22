@@ -24,7 +24,7 @@ import LockIcon from '@mui/icons-material/Lock'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
-import { IRoomData } from '../../../types/IRoomData'
+import { IRoomData } from '../../../types/Rooms'
 import { useAppSelector } from '../hooks'
 
 import phaserGame from '../PhaserGame'
