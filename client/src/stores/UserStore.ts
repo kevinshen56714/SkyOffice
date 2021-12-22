@@ -4,21 +4,24 @@ import { sanitizeId } from '../util'
 export const userSlice = createSlice({
   name: 'user',
   initialState: {
-    sessionId: '',
-    connected: false,
-    videoConnected: false,
-    loggedIn: false,
-    roomSelected: false,
+    roomJoined: false,
     roomName: '',
     roomDescription: '',
+    sessionId: '',
+    videoConnected: false,
+    loggedIn: false,
     playerNameMap: new Map<string, string>(),
   },
   reducers: {
+    setRoomJoined: (state, action: PayloadAction<boolean>) => {
+      state.roomJoined = action.payload
+    },
+    setRoomData: (state, action: PayloadAction<{ name: string; description: string }>) => {
+      state.roomName = action.payload.name
+      state.roomDescription = action.payload.description
+    },
     setSessionId: (state, action: PayloadAction<string>) => {
       state.sessionId = action.payload
-    },
-    setConnected: (state, action: PayloadAction<boolean>) => {
-      state.connected = action.payload
     },
     setVideoConnected: (state, action: PayloadAction<boolean>) => {
       state.videoConnected = action.payload
@@ -32,23 +35,15 @@ export const userSlice = createSlice({
     removePlayerNameMap: (state, action: PayloadAction<string>) => {
       state.playerNameMap.delete(sanitizeId(action.payload))
     },
-    setRoomSelected: (state, action: PayloadAction<boolean>) => {
-      state.roomSelected = action.payload
-    },
-    setRoomData: (state, action: PayloadAction<{ name: string; description: string }>) => {
-      state.roomName = action.payload.name
-      state.roomDescription = action.payload.description
-    },
   },
 })
 
 export const {
+  setRoomJoined,
+  setRoomData,
   setSessionId,
-  setConnected,
   setVideoConnected,
   setLoggedIn,
-  setRoomSelected,
-  setRoomData,
   setPlayerNameMap,
   removePlayerNameMap,
 } = userSlice.actions

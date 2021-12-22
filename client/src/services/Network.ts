@@ -6,11 +6,10 @@ import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import {
-  setConnected,
+  setRoomData,
   setSessionId,
   setPlayerNameMap,
   removePlayerNameMap,
-  setRoomData,
 } from '../stores/UserStore'
 import {
   pushChatMessage,
@@ -45,23 +44,22 @@ export default class Network {
   async createCustom(roomData: IRoomData) {
     const { name, description, password, autoDispose } = roomData
     this.room = await this.client.create('custom', { name, description, password, autoDispose })
-    this.connect()
+    this.initialize()
   }
 
   async joinOrCreatePublic() {
     this.room = await this.client.joinOrCreate('skyoffice')
-    this.connect()
+    this.initialize()
   }
 
-  async joinCustomById(roomId: string) {
-    this.room = await this.client.joinById(roomId)
-    this.connect()
+  async joinCustomById(roomId: string, password: string | null) {
+    this.room = await this.client.joinById(roomId, { password })
+    this.initialize()
   }
 
-  connect() {
+  initialize() {
     if (!this.room) return
 
-    store.dispatch(setConnected(true))
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)

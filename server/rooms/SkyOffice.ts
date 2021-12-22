@@ -1,4 +1,5 @@
-import { Room, Client } from 'colyseus'
+import bcrypt from 'bcrypt'
+import { Room, Client, ServerError } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
 import { Player, OfficeState, Computer } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
@@ -12,10 +13,17 @@ export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
   private name: string
   private description: string
+  private password: string | null = null
 
-  onCreate(options: IRoomData) {
+  async onCreate(options: IRoomData) {
     const { name, description, password, autoDispose } = options
-    this.setMetadata({ name, description, password })
+    let hasPassword = false
+    if (password) {
+      const salt = await bcrypt.genSalt(10)
+      this.password = await bcrypt.hash(password, salt)
+      hasPassword = true
+    }
+    this.setMetadata({ name, description, hasPassword })
     this.name = name
     this.description = description
     this.autoDispose = autoDispose
@@ -112,6 +120,16 @@ export class SkyOffice extends Room<OfficeState> {
         { except: client }
       )
     })
+  }
+
+  async onAuth(client: Client, options: { password: string | null }) {
+    if (this.password) {
+      const validPassword = await bcrypt.compare(options.password, this.password)
+      if (!validPassword) {
+        throw new ServerError(400, 'Password is incorrect!')
+      }
+    }
+    return true
   }
 
   onJoin(client: Client, options: any) {

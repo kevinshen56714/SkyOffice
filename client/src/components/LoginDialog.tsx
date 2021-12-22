@@ -143,7 +143,7 @@ export default function LoginDialog() {
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
   const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
   const dispatch = useAppDispatch()
-  const connected = useAppSelector((state) => state.user.connected)
+  const roomJoined = useAppSelector((state) => state.user.roomJoined)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
   const roomName = useAppSelector((state) => state.user.roomName)
   const roomDescription = useAppSelector((state) => state.user.roomDescription)
@@ -153,7 +153,7 @@ export default function LoginDialog() {
     event.preventDefault()
     if (name === '') {
       setNameFieldEmpty(true)
-    } else if (connected) {
+    } else if (roomJoined) {
       console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
       game.registerKeys()
       game.myPlayer.setPlayerName(name)

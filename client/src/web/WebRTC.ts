@@ -29,12 +29,6 @@ export default class WebRTC {
 
     // config peerJS
     this.initialize()
-
-    // if permission has been granted before
-    const permissionName = 'microphone' as PermissionName
-    navigator.permissions.query({ name: permissionName }).then((result) => {
-      if (result.state === 'granted') this.getUserMedia()
-    })
   }
 
   // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
@@ -60,6 +54,14 @@ export default class WebRTC {
         console.log(err)
       })
       this.onCalledVideos.set(call.peer, video)
+    })
+  }
+
+  // check if permission has been granted before
+  checkPreviousPermission() {
+    const permissionName = 'microphone' as PermissionName
+    navigator.permissions.query({ name: permissionName }).then((result) => {
+      if (result.state === 'granted') this.getUserMedia()
     })
   }
 
