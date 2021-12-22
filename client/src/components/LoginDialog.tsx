@@ -43,9 +43,9 @@ const Title = styled.p`
   text-align: center;
 `
 
-const RoomNameWrapper = styled.div`
+const RoomName = styled.div`
   max-width: 500px;
-  max-height: 160px;
+  max-height: 120px;
   overflow-wrap: anywhere;
   overflow-y: auto;
   display: flex;
@@ -60,7 +60,7 @@ const RoomNameWrapper = styled.div`
 
 const RoomDescription = styled.div`
   max-width: 500px;
-  max-height: 160px;
+  max-height: 150px;
   overflow-wrap: anywhere;
   overflow-y: auto;
   font-size: 16px;
@@ -169,12 +169,12 @@ export default function LoginDialog() {
   return (
     <Wrapper onSubmit={handleSubmit}>
       <Title>Joining</Title>
-      <RoomNameWrapper>
+      <RoomName>
         <Avatar style={{ background: getColorByString(roomName) }}>
           {getAvatarString(roomName)}
         </Avatar>
         <h3>{roomName}</h3>
-      </RoomNameWrapper>
+      </RoomName>
       <RoomDescription>
         <ArrowRightIcon /> {roomDescription}
       </RoomDescription>

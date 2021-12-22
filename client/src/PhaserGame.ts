@@ -6,7 +6,7 @@ import Bootstrap from './scenes/Bootstrap'
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'phaser-container',
-  backgroundColor: '#C6EEFC',
+  backgroundColor: '#93cbee',
   pixelArt: true, // Prevent pixel art from becoming blurred when scaled.
   scale: {
     mode: Phaser.Scale.ScaleModes.RESIZE,
