@@ -18,7 +18,7 @@ import Lucy from '../assets/Lucy_login.png'
 import Nancy from '../assets/Nancy_login.png'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { setLoggedIn } from '../stores/UserStore'
-import { getColorByString } from '../util'
+import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
@@ -44,6 +44,10 @@ const Title = styled.p`
 `
 
 const RoomNameWrapper = styled.div`
+  max-width: 500px;
+  max-height: 160px;
+  overflow-wrap: anywhere;
+  overflow-y: auto;
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -55,6 +59,10 @@ const RoomNameWrapper = styled.div`
 `
 
 const RoomDescription = styled.div`
+  max-width: 500px;
+  max-height: 160px;
+  overflow-wrap: anywhere;
+  overflow-y: auto;
   font-size: 16px;
   color: #c2c2c2;
   display: flex;
@@ -133,18 +141,13 @@ for (let i = avatars.length - 1; i > 0; i--) {
   ;[avatars[i], avatars[j]] = [avatars[j], avatars[i]]
 }
 
-const getAvatarString = (name: string) => {
-  const part = name.split(' ')
-  return part.length < 2 ? part[0][0] : part[0][0] + part[1][0]
-}
-
 export default function LoginDialog() {
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
   const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
   const dispatch = useAppDispatch()
-  const roomJoined = useAppSelector((state) => state.user.roomJoined)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
+  const roomJoined = useAppSelector((state) => state.room.roomJoined)
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
   const game = phaserGame.scene.keys.game as Game

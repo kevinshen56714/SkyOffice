@@ -18,6 +18,9 @@ import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import Alert from '@mui/material/Alert'
+import Snackbar from '@mui/material/Snackbar'
+import Avatar from '@mui/material/Avatar'
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import LockIcon from '@mui/icons-material/Lock'
@@ -26,15 +29,23 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 import { IRoomData } from '../../../types/Rooms'
 import { useAppSelector } from '../hooks'
+import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
 
-const Wrapper = styled.div`
-  position: fixed;
+const Backdrop = styled.div`
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  align-items: center;
+`
+
+const Wrapper = styled.div`
   background: #222639;
   border-radius: 16px;
   padding: 36px 60px;
@@ -48,6 +59,10 @@ const CustomRoomWrapper = styled.div`
   gap: 20px;
   align-items: center;
   justify-content: center;
+
+  .tip {
+    font-size: 18px;
+  }
 `
 
 const BackButtonWrapper = styled.div`
@@ -69,11 +84,6 @@ const MessageText = styled.p`
   text-align: center;
 `
 
-const ProgressBar = styled(LinearProgress)`
-  width: 360px;
-  margin: 60px 30px;
-`
-
 const Content = styled.div`
   display: flex;
   flex-direction: column;
@@ -88,6 +98,14 @@ const Content = styled.div`
   }
 `
 
+const CustomRoomTableContainer = styled(TableContainer)`
+  max-height: 500px;
+
+  table {
+    min-width: 650px;
+  }
+`
+
 const TableRowWrapper = styled(TableRow)`
   &:last-child td,
   &:last-child th {
@@ -97,13 +115,15 @@ const TableRowWrapper = styled(TableRow)`
   .lock-icon {
     font-size: 18px;
   }
-`
 
-const CustomRoomTableContainer = styled(TableContainer)`
-  max-height: 500px;
+  .name {
+    min-width: 100px;
+    overflow-wrap: anywhere;
+  }
 
-  table {
-    min-width: 650px;
+  .description {
+    min-width: 200px;
+    overflow-wrap: anywhere;
   }
 `
 
@@ -126,15 +146,31 @@ const PasswordDialog = styled(Dialog)`
   }
 `
 
+const ProgressBarWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  h3 {
+    color: #33ac96;
+  }
+`
+
+const ProgressBar = styled(LinearProgress)`
+  width: 360px;
+`
+
 const CustomRoomTable = () => {
   const [password, setPassword] = useState('')
   const [selectedRoom, setSelectedRoom] = useState('')
   const [showPasswordDialog, setShowPasswordDialog] = useState(false)
   const [showPasswordError, setShowPasswordError] = useState(false)
   const [passwordFieldEmpty, setPasswordFieldEmpty] = useState(false)
+  const lobbyJoined = useAppSelector((state) => state.room.lobbyJoined)
   const availableRooms = useAppSelector((state) => state.room.availableRooms)
 
   const handleJoinClick = (roomId: string, password: string | null) => {
+    if (!lobbyJoined) return
     const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
     bootstrap.network
       .joinCustomById(roomId, password)
@@ -169,9 +205,9 @@ const CustomRoomTable = () => {
           <TableHead>
             <TableRow>
               <TableCell></TableCell>
-              <TableCell>ID</TableCell>
               <TableCell>Name</TableCell>
               <TableCell>Description</TableCell>
+              <TableCell>ID</TableCell>
               <TableCell align="center">
                 <PeopleAltIcon />
               </TableCell>
@@ -185,31 +221,41 @@ const CustomRoomTable = () => {
               return (
                 <TableRowWrapper key={roomId}>
                   <TableCell>
-                    {hasPassword && (
-                      <Tooltip title="Password required">
-                        <LockIcon className="lock-icon" />
-                      </Tooltip>
-                    )}
+                    <Avatar
+                      sx={{ height: '24px', width: '24px', fontSize: 15 }}
+                      style={{ background: getColorByString(name) }}
+                    >
+                      {getAvatarString(name)}
+                    </Avatar>
+                  </TableCell>
+                  <TableCell>
+                    <div className="name">{name}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="description">{description}</div>
                   </TableCell>
                   <TableCell>{roomId}</TableCell>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>{description}</TableCell>
                   <TableCell align="center">{clients}</TableCell>
                   <TableCell align="center">
-                    <Button
-                      variant="outlined"
-                      color="secondary"
-                      onClick={() => {
-                        if (hasPassword) {
-                          setShowPasswordDialog(true)
-                          setSelectedRoom(roomId)
-                        } else {
-                          handleJoinClick(roomId, null)
-                        }
-                      }}
-                    >
-                      Join
-                    </Button>
+                    <Tooltip title={hasPassword ? 'Password required' : ''}>
+                      <Button
+                        variant="outlined"
+                        color="secondary"
+                        onClick={() => {
+                          if (hasPassword) {
+                            setShowPasswordDialog(true)
+                            setSelectedRoom(roomId)
+                          } else {
+                            handleJoinClick(roomId, null)
+                          }
+                        }}
+                      >
+                        <div style={{ display: 'flex', gap: 3 }}>
+                          {hasPassword && <LockIcon className="lock-icon" />}
+                          Join
+                        </div>
+                      </Button>
+                    </Tooltip>
                   </TableCell>
                 </TableRowWrapper>
               )
@@ -265,6 +311,7 @@ const CreateRoomForm = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [nameFieldEmpty, setNameFieldEmpty] = useState(false)
   const [descriptionFieldEmpty, setDescriptionFieldEmpty] = useState(false)
+  const lobbyJoined = useAppSelector((state) => state.room.lobbyJoined)
 
   const handleChange = (prop: keyof IRoomData) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
@@ -279,7 +326,7 @@ const CreateRoomForm = () => {
       setDescriptionFieldEmpty(!descriptionFieldEmpty)
 
     // create custom room if name and description are not empty, else show error
-    if (isValidName && isValidDescription) {
+    if (isValidName && isValidDescription && lobbyJoined) {
       const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
       bootstrap.network
         .createCustom(values)
@@ -340,55 +387,104 @@ const CreateRoomForm = () => {
 export default function RoomSelectionDialog() {
   const [showCustomRoom, setShowCustomRoom] = useState(false)
   const [showCreateRoomForm, setShowCreateRoomForm] = useState(false)
-  const [isFetching, setIsFetching] = useState(false)
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const lobbyJoined = useAppSelector((state) => state.room.lobbyJoined)
 
   const handleConnect = () => {
-    const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
-    bootstrap.network
-      .joinOrCreatePublic()
-      .then(() => bootstrap.launchGame())
-      .catch((error) => console.log(error))
+    if (lobbyJoined) {
+      const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
+      bootstrap.network
+        .joinOrCreatePublic()
+        .then(() => bootstrap.launchGame())
+        .catch((error) => console.log(error))
+    } else {
+      setShowSnackbar(true)
+    }
   }
 
   return (
-    <Wrapper>
-      {showCreateRoomForm ? (
-        <CustomRoomWrapper>
-          <Title>Create Custom Room</Title>
-          <BackButtonWrapper>
-            <IconButton onClick={() => setShowCreateRoomForm(false)}>
-              <ArrowBackIcon />
-            </IconButton>
-          </BackButtonWrapper>
-          <CreateRoomForm />
-        </CustomRoomWrapper>
-      ) : showCustomRoom ? (
-        <CustomRoomWrapper>
-          <Title>Custom Rooms</Title>
-          <BackButtonWrapper>
-            <IconButton onClick={() => setShowCustomRoom(false)}>
-              <ArrowBackIcon />
-            </IconButton>
-          </BackButtonWrapper>
-          {isFetching ? <ProgressBar color="secondary" /> : <CustomRoomTable />}
-          <Button variant="contained" color="secondary" onClick={() => setShowCreateRoomForm(true)}>
-            Create new room
-          </Button>
-        </CustomRoomWrapper>
-      ) : (
-        <>
-          <Title>Welcome to SkyOffice</Title>
-          <Content>
-            <img src={logo} alt="logo" />
-            <Button variant="contained" color="secondary" onClick={handleConnect}>
-              Connect to public lobby
-            </Button>
-            <Button variant="outlined" color="secondary" onClick={() => setShowCustomRoom(true)}>
-              Create/find custom rooms
-            </Button>
-          </Content>
-        </>
-      )}
-    </Wrapper>
+    <>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={showSnackbar}
+        autoHideDuration={3000}
+        onClose={() => {
+          setShowSnackbar(false)
+        }}
+      >
+        <Alert
+          severity="error"
+          variant="outlined"
+          style={{ background: '#fdeded', color: '#7d4747' }}
+        >
+          Trying to connect to server, please try again!
+        </Alert>
+      </Snackbar>
+      <Backdrop>
+        <Wrapper>
+          {showCreateRoomForm ? (
+            <CustomRoomWrapper>
+              <Title>Create Custom Room</Title>
+              <BackButtonWrapper>
+                <IconButton onClick={() => setShowCreateRoomForm(false)}>
+                  <ArrowBackIcon />
+                </IconButton>
+              </BackButtonWrapper>
+              <CreateRoomForm />
+            </CustomRoomWrapper>
+          ) : showCustomRoom ? (
+            <CustomRoomWrapper>
+              <Title>
+                Custom Rooms
+                <Tooltip
+                  title="We update the results in realtime, no refresh needed!"
+                  placement="top"
+                >
+                  <IconButton>
+                    <HelpOutlineIcon className="tip" />
+                  </IconButton>
+                </Tooltip>
+              </Title>
+              <BackButtonWrapper>
+                <IconButton onClick={() => setShowCustomRoom(false)}>
+                  <ArrowBackIcon />
+                </IconButton>
+              </BackButtonWrapper>
+              <CustomRoomTable />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={() => setShowCreateRoomForm(true)}
+              >
+                Create new room
+              </Button>
+            </CustomRoomWrapper>
+          ) : (
+            <>
+              <Title>Welcome to SkyOffice</Title>
+              <Content>
+                <img src={logo} alt="logo" />
+                <Button variant="contained" color="secondary" onClick={handleConnect}>
+                  Connect to public lobby
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => (lobbyJoined ? setShowCustomRoom(true) : setShowSnackbar(true))}
+                >
+                  Create/find custom rooms
+                </Button>
+              </Content>
+            </>
+          )}
+        </Wrapper>
+        {!lobbyJoined && (
+          <ProgressBarWrapper>
+            <h3> Connecting to server...</h3>
+            <ProgressBar color="secondary" />
+          </ProgressBarWrapper>
+        )}
+      </Backdrop>
+    </>
   )
 }

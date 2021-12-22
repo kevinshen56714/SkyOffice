@@ -13,12 +13,20 @@ const isCustomRoom = (room: any) => {
 export const roomSlice = createSlice({
   name: 'room',
   initialState: {
+    lobbyJoined: false,
+    roomJoined: false,
     roomId: '',
     roomName: '',
     roomDescription: '',
     availableRooms: new Array<RoomAvailable>(),
   },
   reducers: {
+    setLobbyJoined: (state, action: PayloadAction<boolean>) => {
+      state.lobbyJoined = action.payload
+    },
+    setRoomJoined: (state, action: PayloadAction<boolean>) => {
+      state.roomJoined = action.payload
+    },
     setJoinedRoomData: (
       state,
       action: PayloadAction<{ id: string; name: string; description: string }>
@@ -47,7 +55,13 @@ export const roomSlice = createSlice({
   },
 })
 
-export const { setJoinedRoomData, setAvailableRooms, addAvailableRooms, removeAvailableRooms } =
-  roomSlice.actions
+export const {
+  setLobbyJoined,
+  setRoomJoined,
+  setJoinedRoomData,
+  setAvailableRooms,
+  addAvailableRooms,
+  removeAvailableRooms,
+} = roomSlice.actions
 
 export default roomSlice.reducer

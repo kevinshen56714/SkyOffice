@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 import Network from '../services/Network'
 import { BackgroundMode, getInitialBackgroundMode } from '../util'
 import store from '../stores'
-import { setRoomJoined } from '../stores/UserStore'
+import { setRoomJoined } from '../stores/RoomStore'
 
 export default class Bootstrap extends Phaser.Scene {
   network!: Network

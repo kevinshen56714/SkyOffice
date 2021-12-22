@@ -20,7 +20,7 @@ function App() {
   const loggedIn = useAppSelector((state) => state.user.loggedIn)
   const computerDialogOpen = useAppSelector((state) => state.computer.computerDialogOpen)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
-  const roomJoined = useAppSelector((state) => state.user.roomJoined)
+  const roomJoined = useAppSelector((state) => state.room.roomJoined)
 
   return (
     <Backdrop>

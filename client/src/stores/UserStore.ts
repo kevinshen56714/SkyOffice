@@ -4,16 +4,12 @@ import { sanitizeId } from '../util'
 export const userSlice = createSlice({
   name: 'user',
   initialState: {
-    roomJoined: false,
     sessionId: '',
     videoConnected: false,
     loggedIn: false,
     playerNameMap: new Map<string, string>(),
   },
   reducers: {
-    setRoomJoined: (state, action: PayloadAction<boolean>) => {
-      state.roomJoined = action.payload
-    },
     setSessionId: (state, action: PayloadAction<string>) => {
       state.sessionId = action.payload
     },
@@ -33,7 +29,6 @@ export const userSlice = createSlice({
 })
 
 export const {
-  setRoomJoined,
   setSessionId,
   setVideoConnected,
   setLoggedIn,

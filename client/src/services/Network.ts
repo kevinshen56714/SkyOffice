@@ -7,6 +7,7 @@ import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
 import {
+  setLobbyJoined,
   setJoinedRoomData,
   setAvailableRooms,
   addAvailableRooms,
@@ -33,7 +34,9 @@ export default class Network {
         ? `wss://sky-office.herokuapp.com`
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
-    this.joinLobbyRoom()
+    this.joinLobbyRoom().then(() => {
+      store.dispatch(setLobbyJoined(true))
+    })
 
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
     phaserEvents.on(Event.MY_PLAYER_TEXTURE_CHANGE, this.updatePlayer, this)
