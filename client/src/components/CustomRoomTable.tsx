@@ -44,8 +44,10 @@ const TableRowWrapper = styled(TableRow)`
     border: 0;
   }
 
-  .lock-icon {
-    font-size: 18px;
+  .avatar {
+    height: 30px;
+    width: 30px;
+    font-size: 15px;
   }
 
   .name {
@@ -56,6 +58,16 @@ const TableRowWrapper = styled(TableRow)`
   .description {
     min-width: 200px;
     overflow-wrap: anywhere;
+  }
+
+  .join-wrapper {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .lock-icon {
+    font-size: 18px;
   }
 `
 
@@ -132,10 +144,7 @@ export const CustomRoomTable = () => {
               return (
                 <TableRowWrapper key={roomId}>
                   <TableCell>
-                    <Avatar
-                      sx={{ height: '24px', width: '24px', fontSize: 15 }}
-                      style={{ background: getColorByString(name) }}
-                    >
+                    <Avatar className="avatar" style={{ background: getColorByString(name) }}>
                       {getAvatarString(name)}
                     </Avatar>
                   </TableCell>
@@ -161,7 +170,7 @@ export const CustomRoomTable = () => {
                           }
                         }}
                       >
-                        <div style={{ display: 'flex', gap: 3 }}>
+                        <div className="join-wrapper">
                           {hasPassword && <LockIcon className="lock-icon" />}
                           Join
                         </div>

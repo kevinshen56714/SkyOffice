@@ -45,7 +45,7 @@ export const CreateRoomForm = () => {
     if (isValidDescription === descriptionFieldEmpty)
       setDescriptionFieldEmpty(!descriptionFieldEmpty)
 
-    // create custom room if name and description are not empty, else show error
+    // create custom room if name and description are not empty
     if (isValidName && isValidDescription && lobbyJoined) {
       const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
       bootstrap.network

@@ -119,6 +119,7 @@ export default function RoomSelectionDialog() {
         <Alert
           severity="error"
           variant="outlined"
+          // overwrites the dark theme on render
           style={{ background: '#fdeded', color: '#7d4747' }}
         >
           Trying to connect to server, please try again!
