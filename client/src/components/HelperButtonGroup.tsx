@@ -12,20 +12,21 @@ import DarkModeIcon from '@mui/icons-material/DarkMode'
 import CloseIcon from '@mui/icons-material/Close'
 import LightbulbIcon from '@mui/icons-material/Lightbulb'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
+import GitHubIcon from '@mui/icons-material/GitHub'
 
 import { useAppSelector } from '../hooks'
 import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
+import e from 'cors'
 
 const Backdrop = styled.div`
   position: fixed;
   display: flex;
   gap: 10px;
-  bottom: 16px;
-  right: 16px;
-  align-items: flex-end;
+  top: 16px;
+  left: 10px;
 
   .wrapper-group {
     display: flex;
@@ -35,7 +36,6 @@ const Backdrop = styled.div`
 `
 
 const Wrapper = styled.div`
-  width: 550px;
   position: relative;
   font-size: 16px;
   color: #eee;
@@ -116,8 +116,50 @@ export default function HelperButtonGroup() {
     bootstrap.changeBackgroundMode(newMode)
   }
 
+  const handleGitHubClick = () => {
+    ;(window as any).open('https://github.com/kevinshen56714/SkyOffice', '_blank').focus()
+  }
+
   return (
     <Backdrop>
+      <ButtonGroup>
+        <Tooltip title="Switch Background Theme" placement="right">
+          <Fab size="small" onClick={handleBackgroundChange}>
+            {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
+          </Fab>
+        </Tooltip>
+        <Tooltip title="Our GitHub Link" placement="right">
+          <Fab size="small" onClick={handleGitHubClick}>
+            <GitHubIcon />
+          </Fab>
+        </Tooltip>
+        {roomJoined && (
+          <>
+            <Tooltip title="Control Guide" placement="right">
+              <Fab
+                size="small"
+                onClick={() => {
+                  setShowControlGuide(!showControlGuide)
+                  setShowRoomInfo(false)
+                }}
+              >
+                <HelpOutlineIcon />
+              </Fab>
+            </Tooltip>
+            <Tooltip title="Room Info" placement="right">
+              <Fab
+                size="small"
+                onClick={() => {
+                  setShowRoomInfo(!showRoomInfo)
+                  setShowControlGuide(false)
+                }}
+              >
+                <ShareIcon />
+              </Fab>
+            </Tooltip>
+          </>
+        )}
+      </ButtonGroup>
       <div className="wrapper-group">
         {showRoomInfo && (
           <Wrapper>
@@ -172,25 +214,6 @@ export default function HelperButtonGroup() {
           </Wrapper>
         )}
       </div>
-      <ButtonGroup>
-        {roomJoined && (
-          <Tooltip title="Room Info" placement="left">
-            <Fab size="small" onClick={() => setShowRoomInfo(!showRoomInfo)}>
-              <ShareIcon />
-            </Fab>
-          </Tooltip>
-        )}
-        <Tooltip title="Control Guide" placement="left">
-          <Fab size="small" onClick={() => setShowControlGuide(!showControlGuide)}>
-            <HelpOutlineIcon />
-          </Fab>
-        </Tooltip>
-        <Tooltip title="Switch Background Theme" placement="left">
-          <Fab size="small" onClick={handleBackgroundChange}>
-            {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
-          </Fab>
-        </Tooltip>
-      </ButtonGroup>
     </Backdrop>
   )
 }
