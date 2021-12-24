@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import Fab from '@mui/material/Fab'
 import IconButton from '@mui/material/IconButton'
 import Avatar from '@mui/material/Avatar'
+import Tooltip from '@mui/material/Tooltip'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
 import ShareIcon from '@mui/icons-material/Share'
 import LightModeIcon from '@mui/icons-material/LightMode'
@@ -173,16 +174,22 @@ export default function HelperButtonGroup() {
       </div>
       <ButtonGroup>
         {roomJoined && (
-          <Fab size="small" onClick={() => setShowRoomInfo(!showRoomInfo)}>
-            <ShareIcon />
-          </Fab>
+          <Tooltip title="Room Info" placement="left">
+            <Fab size="small" onClick={() => setShowRoomInfo(!showRoomInfo)}>
+              <ShareIcon />
+            </Fab>
+          </Tooltip>
         )}
-        <Fab size="small" onClick={() => setShowControlGuide(!showControlGuide)}>
-          <HelpOutlineIcon />
-        </Fab>
-        <Fab size="small" onClick={handleBackgroundChange}>
-          {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
-        </Fab>
+        <Tooltip title="Control Guide" placement="left">
+          <Fab size="small" onClick={() => setShowControlGuide(!showControlGuide)}>
+            <HelpOutlineIcon />
+          </Fab>
+        </Tooltip>
+        <Tooltip title="Switch Background Theme" placement="left">
+          <Fab size="small" onClick={handleBackgroundChange}>
+            {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
+          </Fab>
+        </Tooltip>
       </ButtonGroup>
     </Backdrop>
   )
