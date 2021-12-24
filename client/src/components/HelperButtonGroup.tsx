@@ -19,7 +19,6 @@ import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
-import e from 'cors'
 
 const Backdrop = styled.div`
   position: fixed;
