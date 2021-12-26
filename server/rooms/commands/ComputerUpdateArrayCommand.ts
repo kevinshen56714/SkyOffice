@@ -7,14 +7,25 @@ type Payload = {
   computerId: string
 }
 
-export default class ComputerUpdateArrayCommand extends Command<IOfficeState, Payload> {
+export class ComputerAddUserCommand extends Command<IOfficeState, Payload> {
   execute(data: Payload) {
     const { client, computerId } = data
-    const clientId = client.sessionId
-
     const computer = this.room.state.computers.get(computerId)
+    const clientId = client.sessionId
 
     if (!computer || computer.connectedUser.includes(clientId)) return
     computer.connectedUser.push(clientId)
+  }
+}
+
+export class ComputerRemoveUserCommand extends Command<IOfficeState, Payload> {
+  execute(data: Payload) {
+    const { client, computerId } = data
+    const computer = this.state.computers.get(computerId)
+    const index = computer.connectedUser.indexOf(client.sessionId)
+
+    if (index > -1) {
+      computer.connectedUser.splice(index, 1)
+    }
   }
 }

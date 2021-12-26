@@ -28,6 +28,7 @@ export default class Game extends Phaser.Scene {
   private otherPlayers!: Phaser.Physics.Arcade.Group
   private otherPlayerMap = new Map<string, OtherPlayer>()
   computerMap = new Map<string, Item>()
+  private whiteboardMap = new Map<string, Item>()
 
   constructor() {
     super('game')
@@ -78,7 +79,7 @@ export default class Game extends Phaser.Scene {
     })
 
     const computerLayer = this.map.getObjectLayer('Computer')
-    var counter = 0
+    let counter = 0
     computerLayer.objects.forEach((Obj) => {
       const item = this.addObjectFromTiled(this.items, Obj, 'computers', 'computer') as Item
       item.setDepth(item.y + item.height * 0.27)
@@ -89,8 +90,13 @@ export default class Game extends Phaser.Scene {
     })
 
     const whiteboardLayer = this.map.getObjectLayer('Whiteboard')
+    counter = 0
     whiteboardLayer.objects.forEach((Obj) => {
-      this.addObjectFromTiled(this.items, Obj, 'whiteboards', 'whiteboard') as Item
+      const item = this.addObjectFromTiled(this.items, Obj, 'whiteboards', 'whiteboard') as Item
+      const id = String(counter)
+      item.id = id
+      this.whiteboardMap.set(id, item)
+      ++counter
     })
 
     // import other objects from Tiled map to Phaser

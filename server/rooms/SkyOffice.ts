@@ -1,10 +1,17 @@
 import { Room, Client } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
-import { Player, OfficeState, Computer } from './schema/OfficeState'
+import { Player, OfficeState, Computer, Whiteboard } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
 import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
-import ComputerUpdateArrayCommand from './commands/ComputerUpdateArrayCommand'
+import {
+  ComputerAddUserCommand,
+  ComputerRemoveUserCommand,
+} from './commands/ComputerUpdateArrayCommand'
+import {
+  WhiteboardAddUserCommand,
+  WhiteboardRemoveUserCommand,
+} from './commands/WhiteboardUpdateArrayCommand'
 
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
@@ -17,9 +24,14 @@ export class SkyOffice extends Room<OfficeState> {
       this.state.computers.set(String(i), new Computer())
     }
 
+    // HARD-CODED: Add 3 whiteboards in a room
+    for (let i = 0; i < 3; i++) {
+      this.state.whiteboards.set(String(i), new Whiteboard())
+    }
+
     // when a player connect to a computer, add to the computer connectedUser array
     this.onMessage(Message.CONNECT_TO_COMPUTER, (client, message: { computerId: string }) => {
-      this.dispatcher.dispatch(new ComputerUpdateArrayCommand(), {
+      this.dispatcher.dispatch(new ComputerAddUserCommand(), {
         client,
         computerId: message.computerId,
       })
@@ -27,11 +39,10 @@ export class SkyOffice extends Room<OfficeState> {
 
     // when a player disconnect from a computer, remove from the computer connectedUser array
     this.onMessage(Message.DISCONNECT_FROM_COMPUTER, (client, message: { computerId: string }) => {
-      const computer = this.state.computers.get(message.computerId)
-      const index = computer.connectedUser.indexOf(client.sessionId)
-      if (index > -1) {
-        computer.connectedUser.splice(index, 1)
-      }
+      this.dispatcher.dispatch(new ComputerRemoveUserCommand(), {
+        client,
+        computerId: message.computerId,
+      })
     })
 
     // when a player stop sharing screen
@@ -45,6 +56,25 @@ export class SkyOffice extends Room<OfficeState> {
         })
       })
     })
+
+    // when a player connect to a whiteboard, add to the whiteboard connectedUser array
+    this.onMessage(Message.CONNECT_TO_WHITEBOARD, (client, message: { whiteboardId: string }) => {
+      this.dispatcher.dispatch(new WhiteboardAddUserCommand(), {
+        client,
+        whiteboardId: message.whiteboardId,
+      })
+    })
+
+    // when a player disconnect from a whiteboard, remove from the whiteboard connectedUser array
+    this.onMessage(
+      Message.DISCONNECT_FROM_WHITEBOARD,
+      (client, message: { whiteboardId: string }) => {
+        this.dispatcher.dispatch(new WhiteboardRemoveUserCommand(), {
+          client,
+          whiteboardId: message.whiteboardId,
+        })
+      }
+    )
 
     // when receiving updatePlayer message, call the PlayerUpdateCommand
     this.onMessage(

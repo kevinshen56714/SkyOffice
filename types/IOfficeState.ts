@@ -4,6 +4,10 @@ export interface IComputer extends Schema {
   connectedUser: ArraySchema<string>
 }
 
+export interface IWhiteboard extends Schema {
+  connectedUser: ArraySchema<string>
+}
+
 export interface IPlayer extends Schema {
   name: string
   x: number
@@ -15,4 +19,5 @@ export interface IPlayer extends Schema {
 export interface IOfficeState extends Schema {
   players: MapSchema<IPlayer>
   computers: MapSchema<IComputer>
+  whiteboards: MapSchema<IWhiteboard>
 }
