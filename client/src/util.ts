@@ -8,16 +8,6 @@ export function sanitizeId(id: string) {
   return sanitized.replace(/[^0-9a-z]/gi, 'G')
 }
 
-export enum BackgroundMode {
-  DAY,
-  NIGHT,
-}
-
-export function getInitialBackgroundMode() {
-  const currentHour = new Date().getHours()
-  return currentHour > 6 && currentHour <= 18 ? BackgroundMode.DAY : BackgroundMode.NIGHT
-}
-
 const colorArr = [
   '#7bf1a8',
   '#ff7e50',
@@ -37,4 +27,8 @@ export function getColorByString(string: string) {
 export function getAvatarString(name: string) {
   const part = name.split(' ')
   return part.length < 2 ? part[0][0] : part[0][0] + part[1][0]
+}
+
+export function handleGitHubClick() {
+  ;(window as any).open('https://github.com/kevinshen56714/SkyOffice', '_blank').focus()
 }

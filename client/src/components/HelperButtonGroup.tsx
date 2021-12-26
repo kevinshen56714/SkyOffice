@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { BackgroundMode, getInitialBackgroundMode } from '../util'
 import styled from 'styled-components'
 import Fab from '@mui/material/Fab'
 import IconButton from '@mui/material/IconButton'
@@ -14,11 +13,10 @@ import LightbulbIcon from '@mui/icons-material/Lightbulb'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import GitHubIcon from '@mui/icons-material/GitHub'
 
-import { useAppSelector } from '../hooks'
-import { getAvatarString, getColorByString } from '../util'
-
-import phaserGame from '../PhaserGame'
-import Bootstrap from '../scenes/Bootstrap'
+import { BackgroundMode } from '../../../types/BackgroundMode'
+import { switchBackgroundMode } from '../stores/UserStore'
+import { useAppSelector, useAppDispatch } from '../hooks'
+import { getAvatarString, getColorByString, handleGitHubClick } from '../util'
 
 const Backdrop = styled.div`
   position: fixed;
@@ -98,32 +96,20 @@ const RoomDescription = styled.div`
 `
 
 export default function HelperButtonGroup() {
-  const [backgroundMode, setBackgroundMode] = useState(getInitialBackgroundMode())
   const [showControlGuide, setShowControlGuide] = useState(false)
   const [showRoomInfo, setShowRoomInfo] = useState(false)
+  const backgroundMode = useAppSelector((state) => state.user.backgroundMode)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
   const roomId = useAppSelector((state) => state.room.roomId)
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
-
-  const handleBackgroundChange = () => {
-    const newMode =
-      backgroundMode === BackgroundMode.DAY ? BackgroundMode.NIGHT : BackgroundMode.DAY
-
-    setBackgroundMode(newMode)
-    const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
-    bootstrap.changeBackgroundMode(newMode)
-  }
-
-  const handleGitHubClick = () => {
-    ;(window as any).open('https://github.com/kevinshen56714/SkyOffice', '_blank').focus()
-  }
+  const dispatch = useAppDispatch()
 
   return (
     <Backdrop>
       <ButtonGroup>
         <Tooltip title="Switch Background Theme" placement="right">
-          <Fab size="small" onClick={handleBackgroundChange}>
+          <Fab size="small" onClick={() => dispatch(switchBackgroundMode())}>
             {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
           </Fab>
         </Tooltip>

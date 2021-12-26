@@ -1,16 +1,14 @@
 import Phaser from 'phaser'
 import Network from '../services/Network'
-import { BackgroundMode, getInitialBackgroundMode } from '../util'
+import { BackgroundMode } from '../../../types/BackgroundMode'
 import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
 
 export default class Bootstrap extends Phaser.Scene {
   network!: Network
-  private backgroundMode!: BackgroundMode
 
   constructor() {
     super('bootstrap')
-    this.backgroundMode = getInitialBackgroundMode()
   }
 
   preload() {
@@ -72,13 +70,11 @@ export default class Bootstrap extends Phaser.Scene {
   }
 
   create() {
-    this.launchBackground()
+    this.launchBackground(store.getState().user.backgroundMode)
   }
 
-  private launchBackground() {
-    this.scene.launch('background', {
-      backgroundMode: this.backgroundMode,
-    })
+  private launchBackground(backgroundMode: BackgroundMode) {
+    this.scene.launch('background', { backgroundMode })
   }
 
   launchGame() {
@@ -92,10 +88,7 @@ export default class Bootstrap extends Phaser.Scene {
   }
 
   changeBackgroundMode(backgroundMode: BackgroundMode) {
-    if (backgroundMode !== this.backgroundMode) {
-      this.backgroundMode = backgroundMode
-      this.scene.stop('background')
-      this.launchBackground()
-    }
+    this.scene.stop('background')
+    this.launchBackground(backgroundMode)
   }
 }

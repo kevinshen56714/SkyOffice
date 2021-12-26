@@ -41,7 +41,7 @@ function App() {
       ) : (
         <RoomSelectionDialog />
       )}
-      <HelperButtonGroup />
+      {!computerDialogOpen && <HelperButtonGroup />}
     </Backdrop>
   )
 }
