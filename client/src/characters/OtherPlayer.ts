@@ -10,7 +10,7 @@ export default class OtherPlayer extends Player {
   private lastUpdateTimestamp?: number
   private connectionBufferTime = 0
   private connected = false
-  private playNameContainerBody: Phaser.Physics.Arcade.Body
+  private playContainerBody: Phaser.Physics.Arcade.Body
   private myPlayer?: MyPlayer
 
   constructor(
@@ -26,21 +26,26 @@ export default class OtherPlayer extends Player {
     this.targetPosition = [x, y]
 
     this.playerName.setText(name)
-    this.playNameContainerBody = this.playerNameContainer.body as Phaser.Physics.Arcade.Body
+    this.playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
   }
 
   makeCall(myPlayer: MyPlayer, webRTC: WebRTC) {
     this.myPlayer = myPlayer
     const myPlayerId = myPlayer.playerId
     if (
-      myPlayerId > this.playerId &&
       !this.connected &&
       this.connectionBufferTime >= 750 &&
       myPlayer.readyToConnect &&
       this.readyToConnect
     ) {
-      this.connected = webRTC.connectToNewUser(this.playerId)
-      this.connectionBufferTime = 0
+      if (
+        (myPlayer.videoConnected && !this.videoConnected) ||
+        (myPlayer.videoConnected && this.videoConnected && myPlayerId > this.playerId)
+      ) {
+        webRTC.connectToNewUser(this.playerId)
+        this.connected = true
+        this.connectionBufferTime = 0
+      }
     }
   }
 
@@ -75,11 +80,17 @@ export default class OtherPlayer extends Player {
           this.readyToConnect = value
         }
         break
+
+      case 'videoConnected':
+        if (typeof value === 'boolean') {
+          this.videoConnected = value
+        }
+        break
     }
   }
 
   destroy(fromScene?: boolean) {
-    this.playerNameContainer.destroy()
+    this.playerContainer.destroy()
 
     super.destroy(fromScene)
   }
@@ -94,8 +105,8 @@ export default class OtherPlayer extends Player {
       this.lastUpdateTimestamp = t
       this.x = this.targetPosition[0]
       this.y = this.targetPosition[1]
-      this.playerNameContainer.x = this.targetPosition[0]
-      this.playerNameContainer.y = this.targetPosition[1] - 30
+      this.playerContainer.x = this.targetPosition[0]
+      this.playerContainer.y = this.targetPosition[1] - 30
       return
     }
 
@@ -120,12 +131,12 @@ export default class OtherPlayer extends Player {
     // if the player is close enough to the target position, directly snap the player to that position
     if (Math.abs(dx) < delta) {
       this.x = this.targetPosition[0]
-      this.playerNameContainer.x = this.targetPosition[0]
+      this.playerContainer.x = this.targetPosition[0]
       dx = 0
     }
     if (Math.abs(dy) < delta) {
       this.y = this.targetPosition[1]
-      this.playerNameContainer.y = this.targetPosition[1] - 30
+      this.playerContainer.y = this.targetPosition[1] - 30
       dy = 0
     }
 
@@ -141,8 +152,8 @@ export default class OtherPlayer extends Player {
     this.setVelocity(vx, vy)
     this.body.velocity.setLength(speed)
     // also update playerNameContainer velocity
-    this.playNameContainerBody.setVelocity(vx, vy)
-    this.playNameContainerBody.velocity.setLength(speed)
+    this.playContainerBody.setVelocity(vx, vy)
+    this.playContainerBody.velocity.setLength(speed)
 
     // while currently connected with myPlayer
     // if myPlayer and the otherPlayer stop overlapping, delete video stream

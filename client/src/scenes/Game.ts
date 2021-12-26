@@ -14,7 +14,7 @@ import OtherPlayer from '../characters/OtherPlayer'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 
 import store from '../stores'
-import { setConnected } from '../stores/UserStore'
+import { setFocused, setShowChat } from '../stores/ChatStore'
 
 export default class Game extends Phaser.Scene {
   network!: Network
@@ -39,22 +39,30 @@ export default class Game extends Phaser.Scene {
     // maybe we can have a dedicated method for adding keys if more keys are needed in the future
     this.keyE = this.input.keyboard.addKey('E')
     this.keyR = this.input.keyboard.addKey('R')
+    this.input.keyboard.disableGlobalCapture()
+    this.input.keyboard.on('keydown-ENTER', (event) => {
+      store.dispatch(setShowChat(true))
+      store.dispatch(setFocused(true))
+    })
+    this.input.keyboard.on('keydown-ESC', (event) => {
+      store.dispatch(setShowChat(false))
+    })
   }
 
-  init() {
-    this.network = new Network()
+  disableKeys() {
+    this.input.keyboard.enabled = false
   }
 
-  async create() {
-    // initialize network instance (connect to server)
-    if (!this.network) {
+  enableKeys() {
+    this.input.keyboard.enabled = true
+  }
+
+  create(data: { network: Network }) {
+    if (!data.network) {
       throw new Error('server instance missing')
+    } else {
+      this.network = data.network
     }
-    await this.network.join()
-    store.dispatch(setConnected(true))
-
-    // if in the future we have a bootstrap scene to manage all the scene transferring, we can put this line there
-    this.scene.stop('preloader')
 
     createCharacterAnims(this.anims)
 
@@ -111,7 +119,7 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.myPlayer, true)
 
-    this.physics.add.collider([this.myPlayer, this.myPlayer.playerNameContainer], groundLayer)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], groundLayer)
     this.physics.add.overlap(
       this.playerSelector,
       this.items,
@@ -132,9 +140,11 @@ export default class Game extends Phaser.Scene {
     this.network.onPlayerJoined(this.handlePlayerJoined, this)
     this.network.onPlayerLeft(this.handlePlayerLeft, this)
     this.network.onMyPlayerReady(this.handleMyPlayerReady, this)
+    this.network.onMyPlayerVideoConnected(this.handleMyVideoConnected, this)
     this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
     this.network.onItemUserAdded(this.handleItemUserAdded, this)
     this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
+    this.network.onChatMessageAdded(this.handleChatMessageAdded, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -184,7 +194,7 @@ export default class Game extends Phaser.Scene {
         .setDepth(actualY)
     })
     if (this.myPlayer && collidable)
-      this.physics.add.collider([this.myPlayer, this.myPlayer.playerNameContainer], group)
+      this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], group)
   }
 
   // function to add new player to the otherPlayer group
@@ -208,6 +218,10 @@ export default class Game extends Phaser.Scene {
     this.myPlayer.readyToConnect = true
   }
 
+  private handleMyVideoConnected() {
+    this.myPlayer.videoConnected = true
+  }
+
   // function to update target position upon receiving player updates
   private handlePlayerUpdated(field: string, value: number | string, id: string) {
     const otherPlayer = this.otherPlayerMap.get(id)
@@ -228,6 +242,11 @@ export default class Game extends Phaser.Scene {
     const computer = this.computerMap.get(itemId)
     computer?.removeCurrentUser(playerId)
     computer?.updateStatus()
+  }
+
+  private handleChatMessageAdded(playerId: string, content: string) {
+    const otherPlayer = this.otherPlayerMap.get(playerId)
+    otherPlayer?.updateDialogBubble(content)
   }
 
   update(t: number, dt: number) {

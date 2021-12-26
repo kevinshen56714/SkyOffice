@@ -13,8 +13,8 @@ const Backdrop = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   padding: 16px 180px 16px 16px;
 `
@@ -28,6 +28,7 @@ const Wrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  box-shadow: 0px 0px 5px #0000006f;
 
   .close {
     position: absolute;

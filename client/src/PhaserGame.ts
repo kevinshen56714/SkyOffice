@@ -1,20 +1,17 @@
 import Phaser from 'phaser'
 import Game from './scenes/Game'
-import Preloader from './scenes/Preloader'
+import Background from './scenes/Background'
+import Bootstrap from './scenes/Bootstrap'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'phaser-container',
-  backgroundColor: '#CFF5FC',
+  backgroundColor: '#93cbee',
   pixelArt: true, // Prevent pixel art from becoming blurred when scaled.
   scale: {
     mode: Phaser.Scale.ScaleModes.RESIZE,
     width: window.innerWidth,
     height: window.innerHeight,
-    // min: {
-    //   width: 800,
-    //   height: 600,
-    // },
   },
   physics: {
     default: 'arcade',
@@ -24,7 +21,7 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   autoFocus: true,
-  scene: [Preloader, Game],
+  scene: [Bootstrap, Background, Game],
 }
 
 const phaserGame = new Phaser.Game(config)

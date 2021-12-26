@@ -1,14 +1,28 @@
 import { Client, Room } from 'colyseus.js'
 import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
+import { IRoomData, RoomType } from '../../../types/Rooms'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
+import {
+  setLobbyJoined,
+  setJoinedRoomData,
+  setAvailableRooms,
+  addAvailableRooms,
+  removeAvailableRooms,
+} from '../stores/RoomStore'
+import {
+  pushChatMessage,
+  pushPlayerJoinedMessage,
+  pushPlayerLeftMessage,
+} from '../stores/ChatStore'
 
 export default class Network {
   private client: Client
   private room?: Room<IOfficeState>
+  private lobby!: Room
   webRTC?: WebRTC
 
   mySessionId!: string
@@ -20,14 +34,64 @@ export default class Network {
         ? `wss://sky-office.herokuapp.com`
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
+    this.joinLobbyRoom().then(() => {
+      store.dispatch(setLobbyJoined(true))
+    })
 
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
     phaserEvents.on(Event.MY_PLAYER_TEXTURE_CHANGE, this.updatePlayer, this)
     phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
   }
 
-  async join() {
-    this.room = await this.client.joinOrCreate('skyoffice')
+  /**
+   * method to join Colyseus' built-in LobbyRoom, which automatically notifies
+   * connected clients whenever rooms with "realtime listing" have updates
+   */
+  async joinLobbyRoom() {
+    this.lobby = await this.client.joinOrCreate(RoomType.LOBBY)
+
+    this.lobby.onMessage('rooms', (rooms) => {
+      store.dispatch(setAvailableRooms(rooms))
+    })
+
+    this.lobby.onMessage('+', ([roomId, room]) => {
+      store.dispatch(addAvailableRooms({ roomId, room }))
+    })
+
+    this.lobby.onMessage('-', (roomId) => {
+      store.dispatch(removeAvailableRooms(roomId))
+    })
+  }
+
+  // method to join the public lobby
+  async joinOrCreatePublic() {
+    this.room = await this.client.joinOrCreate(RoomType.PUBLIC)
+    this.initialize()
+  }
+
+  // method to join a custom room
+  async joinCustomById(roomId: string, password: string | null) {
+    this.room = await this.client.joinById(roomId, { password })
+    this.initialize()
+  }
+
+  // method to create a custom room
+  async createCustom(roomData: IRoomData) {
+    const { name, description, password, autoDispose } = roomData
+    this.room = await this.client.create(RoomType.CUSTOM, {
+      name,
+      description,
+      password,
+      autoDispose,
+    })
+    this.initialize()
+  }
+
+  // set up all network listeners before the game starts
+  initialize() {
+    if (!this.room) return
+
+    this.lobby.leave()
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)
@@ -36,15 +100,17 @@ export default class Network {
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
       if (key === this.mySessionId) return
 
-      phaserEvents.emit(Event.PLAYER_JOINED, player, key)
-
       // track changes on every child object inside the players MapSchema
       player.onChange = (changes) => {
         changes.forEach((change) => {
           const { field, value } = change
           phaserEvents.emit(Event.PLAYER_UPDATED, field, value, key)
-          if (field === 'name') {
+
+          // when a new player finished setting up player name
+          if (field === 'name' && value !== '') {
+            phaserEvents.emit(Event.PLAYER_JOINED, player, key)
             store.dispatch(setPlayerNameMap({ id: key, name: value }))
+            store.dispatch(pushPlayerJoinedMessage(value))
           }
         })
       }
@@ -55,6 +121,7 @@ export default class Network {
       phaserEvents.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
       this.webRTC?.deleteOnCalledVideoStream(key)
+      store.dispatch(pushPlayerLeftMessage(player.name))
       store.dispatch(removePlayerNameMap(key))
     }
 
@@ -69,7 +136,22 @@ export default class Network {
       }
     }
 
-    // when a peer disconnect with myPeer
+    // new instance added to the chatMessages ArraySchema
+    this.room.state.chatMessages.onAdd = (item, index) => {
+      store.dispatch(pushChatMessage(item))
+    }
+
+    // when the server sends room data
+    this.room.onMessage(Message.SEND_ROOM_DATA, (content) => {
+      store.dispatch(setJoinedRoomData(content))
+    })
+
+    // when a user sends a message
+    this.room.onMessage(Message.ADD_CHAT_MESSAGE, ({ clientId, content }) => {
+      phaserEvents.emit(Event.UPDATE_DIALOG_BUBBLE, clientId, content)
+    })
+
+    // when a peer disconnects with myPeer
     this.room.onMessage(Message.DISCONNECT_STREAM, (clientId: string) => {
       this.webRTC?.deleteOnCalledVideoStream(clientId)
     })
@@ -79,6 +161,11 @@ export default class Network {
       const computerState = store.getState().computer
       computerState.shareScreenManager?.onUserLeft(clientId)
     })
+  }
+
+  // method to register event listener and call back function when a item user added
+  onChatMessageAdded(callback: (playerId: string, content: string) => void, context?: any) {
+    phaserEvents.on(Event.UPDATE_DIALOG_BUBBLE, callback, context)
   }
 
   // method to register event listener and call back function when a item user added
@@ -106,6 +193,11 @@ export default class Network {
     phaserEvents.on(Event.MY_PLAYER_READY, callback, context)
   }
 
+  // method to register event listener and call back function when my video is connected
+  onMyPlayerVideoConnected(callback: (key: string) => void, context?: any) {
+    phaserEvents.on(Event.MY_PLAYER_VIDEO_CONNECTED, callback, context)
+  }
+
   // method to register event listener and call back function when a player updated
   onPlayerUpdated(
     callback: (field: string, value: number | string, key: string) => void,
@@ -130,6 +222,12 @@ export default class Network {
     phaserEvents.emit(Event.MY_PLAYER_READY)
   }
 
+  // method to send ready-to-connect signal to Colyseus server
+  videoConnected() {
+    this.room?.send(Message.VIDEO_CONNECTED)
+    phaserEvents.emit(Event.MY_PLAYER_VIDEO_CONNECTED)
+  }
+
   // method to send stream-disconnection signal to Colyseus server
   playerStreamDisconnect(id: string) {
     this.room?.send(Message.DISCONNECT_STREAM, { clientId: id })
@@ -146,5 +244,9 @@ export default class Network {
 
   onStopScreenShare(id: string) {
     this.room?.send(Message.STOP_SCREEN_SHARE, { computerId: id })
+  }
+
+  addChatMessage(content: string) {
+    this.room?.send(Message.ADD_CHAT_MESSAGE, { content: content })
   }
 }
