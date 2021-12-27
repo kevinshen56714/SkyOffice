@@ -10,11 +10,12 @@ import Whiteboard from '../items/Whiteboard'
 import '../characters/MyPlayer'
 import '../characters/OtherPlayer'
 import MyPlayer from '../characters/MyPlayer'
+import OtherPlayer from '../characters/OtherPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
 import Network from '../services/Network'
 import { IPlayer } from '../../../types/IOfficeState'
-import OtherPlayer from '../characters/OtherPlayer'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
+import { ItemType } from '../../../types/Items'
 
 import store from '../stores'
 import { setFocused, setShowChat } from '../stores/ChatStore'
@@ -243,14 +244,24 @@ export default class Game extends Phaser.Scene {
     otherPlayer.makeCall(myPlayer, this.network?.webRTC)
   }
 
-  private handleItemUserAdded(playerId: string, itemId: string) {
-    const computer = this.computerMap.get(itemId)
-    computer?.addCurrentUser(playerId)
+  private handleItemUserAdded(playerId: string, itemId: string, itemType: ItemType) {
+    if (itemType === ItemType.COMPUTER) {
+      const computer = this.computerMap.get(itemId)
+      computer?.addCurrentUser(playerId)
+    } else if (itemType === ItemType.WHITEBOARD) {
+      const whiteboard = this.whiteboardMap.get(itemId)
+      whiteboard?.addCurrentUser(playerId)
+    }
   }
 
-  private handleItemUserRemoved(playerId: string, itemId: string) {
-    const computer = this.computerMap.get(itemId)
-    computer?.removeCurrentUser(playerId)
+  private handleItemUserRemoved(playerId: string, itemId: string, itemType: ItemType) {
+    if (itemType === ItemType.COMPUTER) {
+      const computer = this.computerMap.get(itemId)
+      computer?.removeCurrentUser(playerId)
+    } else if (itemType === ItemType.WHITEBOARD) {
+      const whiteboard = this.whiteboardMap.get(itemId)
+      whiteboard?.removeCurrentUser(playerId)
+    }
   }
 
   private handleChatMessageAdded(playerId: string, content: string) {

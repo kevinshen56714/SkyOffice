@@ -52,6 +52,6 @@ export default class Whiteboard extends Item {
   openDialog(network: Network) {
     if (!this.id) return
     store.dispatch(openWhiteboardDialog(this.id))
-    network.connectToComputer(this.id)
+    network.connectToWhiteboard(this.id)
   }
 }

@@ -5,12 +5,14 @@ import Game from '../scenes/Game'
 
 interface WhiteboardState {
   whiteboardDialogOpen: boolean
+  whiteboardId: null | string
   whiteboardUrl: null | string
   urls: Map<string, string>
 }
 
 const initialState: WhiteboardState = {
   whiteboardDialogOpen: false,
+  whiteboardId: null,
   whiteboardUrl: null,
   urls: new Map(),
 }
@@ -21,16 +23,19 @@ export const whiteboardSlice = createSlice({
   reducers: {
     openWhiteboardDialog: (state, action: PayloadAction<string>) => {
       state.whiteboardDialogOpen = true
+      state.whiteboardId = action.payload
       const url = state.urls.get(action.payload)
       if (url) state.whiteboardUrl = url
       const game = phaserGame.scene.keys.game as Game
       game.disableKeys()
     },
     closeWhiteboardDialog: (state) => {
-      state.whiteboardDialogOpen = false
-      state.whiteboardUrl = null
       const game = phaserGame.scene.keys.game as Game
       game.enableKeys()
+      game.network.disconnectFromWhiteboard(state.whiteboardId!)
+      state.whiteboardDialogOpen = false
+      state.whiteboardId = null
+      state.whiteboardUrl = null
     },
     setWhiteboardUrls: (state, action: PayloadAction<{ whiteboardId: string; roomId: string }>) => {
       state.urls.set(
