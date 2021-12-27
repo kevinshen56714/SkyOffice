@@ -1,5 +1,11 @@
 import { Schema, ArraySchema, MapSchema, type } from '@colyseus/schema'
-import { IPlayer, IOfficeState, IComputer, IWhiteboard } from '../../../types/IOfficeState'
+import {
+  IPlayer,
+  IOfficeState,
+  IComputer,
+  IWhiteboard,
+  IChatMessage,
+} from '../../../types/IOfficeState'
 
 export class Player extends Schema implements IPlayer {
   @type('string') name = ''
