@@ -4,16 +4,17 @@ import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import { sittingShiftData } from './Player'
 import Player from './Player'
 import Network from '../services/Network'
-import Item from '../items/Item'
+import Chair from '../items/Chair'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
-import { openComputerDialog } from '../stores/ComputerStore'
-import { openWhiteboardDialog } from '../stores/WhiteboardStore'
 import { pushPlayerJoinedMessage } from '../stores/ChatStore'
+import { ItemType } from '../../../types/Items'
+import Computer from '../items/Computer'
+import Whiteboard from '../items/Whiteboard'
 
 export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
-  private itemOnSit?: Item
+  private chairOnSit?: Chair
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -50,16 +51,14 @@ export default class MyPlayer extends Player {
     const item = playerSelector.selectedItem
 
     if (Phaser.Input.Keyboard.JustDown(keyR)) {
-      switch (item?.texture.key) {
-        case 'computers':
-          if (item.id) {
-            store.dispatch(openComputerDialog({ computerId: item.id, myUserId: this.playerId }))
-            network.connectToComputer(item.id)
-          }
+      switch (item?.itemType) {
+        case ItemType.COMPUTER:
+          const computer = item as Computer
+          computer.openDialog(this.playerId, network)
           break
-
-        case 'whiteboards':
-          store.dispatch(openWhiteboardDialog())
+        case ItemType.WHITEBOARD:
+          const whiteboard = item as Whiteboard
+          whiteboard.openDialog(network)
           break
       }
     }
@@ -67,7 +66,8 @@ export default class MyPlayer extends Player {
     switch (this.playerBehavior) {
       case PlayerBehavior.IDLE:
         // if press E in front of selected chair
-        if (Phaser.Input.Keyboard.JustDown(keyE) && item?.texture.key === 'chairs') {
+        if (Phaser.Input.Keyboard.JustDown(keyE) && item?.itemType === ItemType.CHAIR) {
+          const chairItem = item as Chair
           /**
            * move player to the chair and play sit animation
            * a delay is called to wait for player movement (from previous velocity) to end
@@ -79,20 +79,20 @@ export default class MyPlayer extends Player {
             callback: () => {
               // update character velocity and position
               this.setVelocity(0, 0)
-              if (item.itemDirection) {
+              if (chairItem.itemDirection) {
                 this.setPosition(
-                  item.x + sittingShiftData[item.itemDirection][0],
-                  item.y + sittingShiftData[item.itemDirection][1]
-                ).setDepth(item.depth + sittingShiftData[item.itemDirection][2])
+                  chairItem.x + sittingShiftData[chairItem.itemDirection][0],
+                  chairItem.y + sittingShiftData[chairItem.itemDirection][1]
+                ).setDepth(chairItem.depth + sittingShiftData[chairItem.itemDirection][2])
                 // also update playerNameContainer velocity and position
                 this.playContainerBody.setVelocity(0, 0)
                 this.playerContainer.setPosition(
-                  item.x + sittingShiftData[item.itemDirection][0],
-                  item.y + sittingShiftData[item.itemDirection][1] - 30
+                  chairItem.x + sittingShiftData[chairItem.itemDirection][0],
+                  chairItem.y + sittingShiftData[chairItem.itemDirection][1] - 30
                 )
               }
 
-              this.play(`${this.playerTexture}_sit_${item.itemDirection}`, true)
+              this.play(`${this.playerTexture}_sit_${chairItem.itemDirection}`, true)
               playerSelector.selectedItem = undefined
               playerSelector.setPosition(this.x, this.y - this.height)
               // playerSelector.setPosition(0, 0)
@@ -102,9 +102,9 @@ export default class MyPlayer extends Player {
             loop: false,
           })
           // set up new dialog as player sits down
-          item.clearDialogBox()
-          item.setDialogBox('Press E to leave')
-          this.itemOnSit = item
+          chairItem.clearDialogBox()
+          chairItem.setDialogBox('Press E to leave')
+          this.chairOnSit = chairItem
           this.playerBehavior = PlayerBehavior.SITTING
           return
         }
@@ -159,7 +159,7 @@ export default class MyPlayer extends Player {
           parts[1] = 'idle'
           this.play(parts.join('_'), true)
           this.playerBehavior = PlayerBehavior.IDLE
-          this.itemOnSit?.clearDialogBox()
+          this.chairOnSit?.clearDialogBox()
           playerSelector.setPosition(this.x, this.y)
           playerSelector.update(this, cursors)
           network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)

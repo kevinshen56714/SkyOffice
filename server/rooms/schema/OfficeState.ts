@@ -16,7 +16,6 @@ export class Computer extends Schema implements IComputer {
 
 export class Whiteboard extends Schema implements IWhiteboard {
   @type('string') roomId = getRoomId()
-  @type('string') encryptionId = getEncryptionId()
   @type(['string']) connectedUser = new ArraySchema<string>()
 }
 
@@ -42,19 +41,9 @@ export class OfficeState extends Schema implements IOfficeState {
 
 function getRoomId() {
   let result = ''
-  const characters = 'abcdef0123456789'
-  const charactersLength = characters.length
-  for (let i = 0; i < 20; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
-  }
-  return result
-}
-
-function getEncryptionId() {
-  let result = ''
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   const charactersLength = characters.length
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < 12; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength))
   }
   return result

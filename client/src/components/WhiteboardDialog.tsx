@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import IconButton from '@mui/material/IconButton'
 import CloseIcon from '@mui/icons-material/Close'
 
-import { useAppDispatch } from '../hooks'
+import { useAppSelector, useAppDispatch } from '../hooks'
 import { closeWhiteboardDialog } from '../stores/WhiteboardStore'
 
 const Backdrop = styled.div`
@@ -45,6 +45,7 @@ const WhiteboardWrapper = styled.div`
 `
 
 export default function WhiteboardDialog() {
+  const whiteboardUrl = useAppSelector((state) => state.whiteboard.whiteboardUrl)
   const dispatch = useAppDispatch()
 
   return (
@@ -57,10 +58,11 @@ export default function WhiteboardDialog() {
         >
           <CloseIcon />
         </IconButton>
-
-        <WhiteboardWrapper>
-          <iframe title="white board" src="https://app.tryeraser.com/" />
-        </WhiteboardWrapper>
+        {whiteboardUrl && (
+          <WhiteboardWrapper>
+            <iframe title="white board" src={whiteboardUrl} />
+          </WhiteboardWrapper>
+        )}
       </Wrapper>
     </Backdrop>
   )

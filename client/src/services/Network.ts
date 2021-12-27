@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus.js'
-import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
+import { IComputer, IOfficeState, IPlayer, IWhiteboard } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import { IRoomData, RoomType } from '../../../types/Rooms'
 import WebRTC from '../web/WebRTC'
@@ -18,6 +18,7 @@ import {
   pushPlayerJoinedMessage,
   pushPlayerLeftMessage,
 } from '../stores/ChatStore'
+import { setWhiteboardUrls } from '../stores/WhiteboardStore'
 
 export default class Network {
   private client: Client
@@ -132,6 +133,23 @@ export default class Network {
         phaserEvents.emit(Event.ITEM_USER_ADDED, item, key)
       }
       computer.connectedUser.onRemove = (item, index) => {
+        phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key)
+      }
+    }
+
+    // new instance added to the whiteboards MapSchema
+    this.room.state.whiteboards.onAdd = (whiteboard: IWhiteboard, key: string) => {
+      store.dispatch(
+        setWhiteboardUrls({
+          whiteboardId: key,
+          roomId: whiteboard.roomId,
+        })
+      )
+      // track changes on every child object's connectedUser
+      whiteboard.connectedUser.onAdd = (item, index) => {
+        phaserEvents.emit(Event.ITEM_USER_ADDED, item, key)
+      }
+      whiteboard.connectedUser.onRemove = (item, index) => {
         phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key)
       }
     }

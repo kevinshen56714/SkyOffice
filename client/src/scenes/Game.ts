@@ -4,6 +4,9 @@ import Phaser from 'phaser'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
+import Chair from '../items/Chair'
+import Computer from '../items/Computer'
+import Whiteboard from '../items/Whiteboard'
 import '../characters/MyPlayer'
 import '../characters/OtherPlayer'
 import MyPlayer from '../characters/MyPlayer'
@@ -23,12 +26,11 @@ export default class Game extends Phaser.Scene {
   private keyR!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
   myPlayer!: MyPlayer
-  private items!: Phaser.Physics.Arcade.StaticGroup
   private playerSelector!: Phaser.GameObjects.Zone
   private otherPlayers!: Phaser.Physics.Arcade.Group
   private otherPlayerMap = new Map<string, OtherPlayer>()
-  computerMap = new Map<string, Item>()
-  private whiteboardMap = new Map<string, Item>()
+  computerMap = new Map<string, Computer>()
+  private whiteboardMap = new Map<string, Whiteboard>()
 
   constructor() {
     super('game')
@@ -77,19 +79,21 @@ export default class Game extends Phaser.Scene {
     this.myPlayer = this.add.myPlayer(705, 500, 'adam', this.network.mySessionId)
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
-    // import item objects (currently chairs) from Tiled map to Phaser
-    this.items = this.physics.add.staticGroup({ classType: Item })
+    // import chair objects from Tiled map to Phaser
+    const chairs = this.physics.add.staticGroup({ classType: Chair })
     const chairLayer = this.map.getObjectLayer('Chair')
     chairLayer.objects.forEach((chairObj) => {
-      const item = this.addObjectFromTiled(this.items, chairObj, 'chairs', 'chair') as Item
+      const item = this.addObjectFromTiled(chairs, chairObj, 'chairs', 'chair') as Chair
       // custom properties[0] is the object direction specified in Tiled
       item.itemDirection = chairObj.properties[0].value
     })
 
+    // import computers objects from Tiled map to Phaser
+    const computers = this.physics.add.staticGroup({ classType: Computer })
     const computerLayer = this.map.getObjectLayer('Computer')
     let counter = 0
-    computerLayer.objects.forEach((Obj) => {
-      const item = this.addObjectFromTiled(this.items, Obj, 'computers', 'computer') as Item
+    computerLayer.objects.forEach((obj) => {
+      const item = this.addObjectFromTiled(computers, obj, 'computers', 'computer') as Computer
       item.setDepth(item.y + item.height * 0.27)
       const id = String(counter)
       item.id = id
@@ -97,10 +101,17 @@ export default class Game extends Phaser.Scene {
       ++counter
     })
 
+    // import whiteboards objects from Tiled map to Phaser
+    const whiteboards = this.physics.add.staticGroup({ classType: Whiteboard })
     const whiteboardLayer = this.map.getObjectLayer('Whiteboard')
     counter = 0
-    whiteboardLayer.objects.forEach((Obj) => {
-      const item = this.addObjectFromTiled(this.items, Obj, 'whiteboards', 'whiteboard') as Item
+    whiteboardLayer.objects.forEach((obj) => {
+      const item = this.addObjectFromTiled(
+        whiteboards,
+        obj,
+        'whiteboards',
+        'whiteboard'
+      ) as Whiteboard
       const id = String(counter)
       item.id = id
       this.whiteboardMap.set(id, item)
@@ -122,7 +133,7 @@ export default class Game extends Phaser.Scene {
     this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], groundLayer)
     this.physics.add.overlap(
       this.playerSelector,
-      this.items,
+      [chairs, computers, whiteboards],
       this.handleItemSelectorOverlap,
       undefined,
       this
@@ -148,7 +159,7 @@ export default class Game extends Phaser.Scene {
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
-    const currentItem = playerSelector.selectedItem
+    const currentItem = playerSelector.selectedItem as Item
     // currentItem is undefined if nothing was perviously selected
     if (currentItem) {
       // if the selection has not changed, do nothing
@@ -235,13 +246,11 @@ export default class Game extends Phaser.Scene {
   private handleItemUserAdded(playerId: string, itemId: string) {
     const computer = this.computerMap.get(itemId)
     computer?.addCurrentUser(playerId)
-    computer?.updateStatus()
   }
 
   private handleItemUserRemoved(playerId: string, itemId: string) {
     const computer = this.computerMap.get(itemId)
     computer?.removeCurrentUser(playerId)
-    computer?.updateStatus()
   }
 
   private handleChatMessageAdded(playerId: string, content: string) {

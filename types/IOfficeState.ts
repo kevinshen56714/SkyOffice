@@ -14,6 +14,7 @@ export interface IComputer extends Schema {
 }
 
 export interface IWhiteboard extends Schema {
+  roomId: string
   connectedUser: ArraySchema<string>
 }
 

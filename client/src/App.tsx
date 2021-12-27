@@ -23,27 +23,35 @@ function App() {
   const whiteboardDialogOpen = useAppSelector((state) => state.whiteboard.whiteboardDialogOpen)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
+  const anyDialogOpened = computerDialogOpen || whiteboardDialogOpen
 
   return (
     <Backdrop>
-      {/* Render the LoginDialog if not logged in, else render Chat. */}
       {loggedIn ? (
-        /* Render the ComputerDialog if user is using a computer. */
-        computerDialogOpen ? (
-          <ComputerDialog />
+        anyDialogOpened ? (
+          <>
+            {/* Render ComputerDialog if user is using a computer. */}
+            {computerDialogOpen && <ComputerDialog />}
+            {/* Render WhiteboardDialog if user is using a whiteboard. */}
+            {whiteboardDialogOpen && <WhiteboardDialog />}
+          </>
         ) : (
+          /* Render Chat or VideoConnectionDialog if no dialogs are opened. */
           <>
             <Chat />
-            {/* Render the VideoConnectionDialog if user is not connected to a webcam. */}
+            {/* Render VideoConnectionDialog if user is not connected to a webcam. */}
             {!videoConnected && <VideoConnectionDialog />}
           </>
         )
       ) : roomJoined ? (
+        /* Render LoginDialog if not logged in. */
         <LoginDialog />
       ) : (
+        /* Render RoomSelectionDialog if yet selected a room. */
         <RoomSelectionDialog />
       )}
-      {!computerDialogOpen && <HelperButtonGroup />}
+      {/* Render HelperButtonGroup if no dialogs are opened. */}
+      {!anyDialogOpened && <HelperButtonGroup />}
     </Backdrop>
   )
 }

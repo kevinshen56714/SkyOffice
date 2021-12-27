@@ -1,12 +1,10 @@
 import Phaser from 'phaser'
-import store from '../stores'
+import { ItemType } from '../../../types/Items'
 
 export default class Item extends Phaser.Physics.Arcade.Sprite {
   private dialogBox!: Phaser.GameObjects.Container
   private statusBox!: Phaser.GameObjects.Container
-  itemDirection?: string
-  id?: string
-  currentUsers = new Array<string>()
+  itemType!: ItemType
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
     super(scene, x, y, texture, frame)
@@ -14,26 +12,6 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
     // add dialogBox and statusBox containers on top of everything which we can add text in later
     this.dialogBox = this.scene.add.container().setDepth(10000)
     this.statusBox = this.scene.add.container().setDepth(10000)
-  }
-
-  onOverlapDialog() {
-    switch (this.texture.key) {
-      case 'chairs':
-        this.setDialogBox('Press E to sit')
-        break
-
-      case 'computers':
-        if (this.currentUsers.length === 0) {
-          this.setDialogBox('Press R to use computer')
-        } else {
-          this.setDialogBox('Press R join')
-        }
-        break
-
-      case 'whiteboards':
-        this.setDialogBox('Press R to use whiteboard')
-        break
-    }
   }
 
   // add texts into dialog box container
@@ -95,37 +73,5 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
   // remove everything in the status box container
   clearStatusBox() {
     this.statusBox.removeAll(true)
-  }
-
-  addCurrentUser(userId: string) {
-    this.currentUsers?.push(userId)
-    const computerState = store.getState().computer
-    if (computerState.computerId === this.id) {
-      computerState.shareScreenManager?.onUserJoined(userId)
-    }
-  }
-
-  removeCurrentUser(userId: string) {
-    if (this.currentUsers) {
-      const index = this.currentUsers.indexOf(userId)
-      if (index > -1) {
-        this.currentUsers.splice(index, 1)
-
-        const computerState = store.getState().computer
-        if (computerState.computerId === this.id) {
-          computerState.shareScreenManager?.onUserLeft(userId)
-        }
-      }
-    }
-  }
-
-  updateStatus() {
-    const numberOfUsers = this.currentUsers.length
-    this.clearStatusBox()
-    if (numberOfUsers === 1) {
-      this.setStatusBox(`${numberOfUsers} user`)
-    } else if (numberOfUsers > 1) {
-      this.setStatusBox(`${numberOfUsers} users`)
-    }
   }
 }
