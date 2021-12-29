@@ -94,8 +94,11 @@ export default class MyPlayer extends Player {
 
               this.play(`${this.playerTexture}_sit_${chairItem.itemDirection}`, true)
               playerSelector.selectedItem = undefined
-              playerSelector.setPosition(this.x, this.y - this.height)
-              // playerSelector.setPosition(0, 0)
+              if (chairItem.itemDirection === 'up') {
+                playerSelector.setPosition(this.x, this.y - this.height)
+              } else {
+                playerSelector.setPosition(0, 0)
+              }
               // send new location and anim to server
               network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
             },
