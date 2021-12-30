@@ -2,15 +2,15 @@
 
 <img alt="Logo" align="right" src="https://user-images.githubusercontent.com/11501902/139942585-a6b044ce-3695-460a-91bd-dd9f1d4611c8.png" width="20%" />
 
-An immersive remote-working platform - Winner of [2021 Monte Jade Innovation Competition](http://www.montejadese.org/pages/mjic.html)
+An immersive virtual office - Winner of [2021 Monte Jade Innovation Competition](http://www.montejadese.org/pages/mjic.html)
 
-- Come try it out - [Official Website](https://skyoffice.netlify.app/)
+- Come try it out - [Official Website](https://sky-office.co/)
 - Why we built this - [Concept Video](https://www.youtube.com/watch?v=BpDqGTPh8pc)
 
 SkyOffice works on all PC browsers (mobile browsers are currently not supported)
+### SkyOffice is constantly improving, follow our [Twitter](https://twitter.com/SkyOfficeApp) to get latest updates
 
 ## Built with
-
 - [Phaser3](https://github.com/photonstorm/phaser) - Game Engine
 - [Colyseus](https://github.com/colyseus/colyseus) - WebSocket-based Server Framework
 - [React/Redux](https://github.com/facebook/react) - Front-end Framework
@@ -18,12 +18,12 @@ SkyOffice works on all PC browsers (mobile browsers are currently not supported)
 - [TypeScript](https://github.com/microsoft/TypeScript) and [ES6](https://github.com/eslint/eslint) - for both client and server sides
 
 ## Features
-- [Custom/Private Rooms (*NEW*)](#customprivate-rooms-new)
-- [Embedded Whiteboards (*NEW*)](#embedded-whiteboards-new)
-- [Proximity Chat (distance-based interactive system)](#proximity-chat-distance-based-interactive-system)
+- [Proximity Chat](#proximity-chat-distance-based-interactive-system)
+- [Flexible Screen Sharing](#flexible--immediate-screen-sharing)
 - [Multifunctional Rooms](#multifunctional-rooms)
-- [Flexible & Immediate Screen Sharing](#flexible--immediate-screen-sharing)
-- [Text Message Chat (with real time dialog bubbles)](#text-message-chat-with-real-time-dialog-bubbles)
+- [Text Message Chat](#text-message-chat-with-real-time-dialog-bubbles)
+- [Custom/Private Rooms](#customprivate-rooms-new) (*NEW*)
+- [Embedded Whiteboards](#embedded-whiteboards-new) (*NEW*)
 
 ### Embedded Whiteboards (*NEW*)
 ![image](https://user-images.githubusercontent.com/11501902/147785323-19dbf0e6-056d-44c5-8efe-e969297bbe52.png)
