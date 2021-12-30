@@ -45,12 +45,20 @@ export class OfficeState extends Schema implements IOfficeState {
   chatMessages = new ArraySchema<ChatMessage>()
 }
 
+export const whiteboardRoomIds = new Set<string>()
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+const charactersLength = characters.length
+
 function getRoomId() {
   let result = ''
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  const charactersLength = characters.length
   for (let i = 0; i < 12; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength))
   }
-  return result
+  if (!whiteboardRoomIds.has(result)) {
+    whiteboardRoomIds.add(result)
+    return result
+  } else {
+    console.log('roomId exists, remaking another one.')
+    getRoomId()
+  }
 }

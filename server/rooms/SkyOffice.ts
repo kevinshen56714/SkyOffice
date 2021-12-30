@@ -4,6 +4,7 @@ import { Dispatcher } from '@colyseus/command'
 import { Player, OfficeState, Computer, Whiteboard } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
 import { IRoomData } from '../../types/Rooms'
+import { whiteboardRoomIds } from './schema/OfficeState'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
 import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
 import {
@@ -190,6 +191,10 @@ export class SkyOffice extends Room<OfficeState> {
   }
 
   onDispose() {
+    this.state.whiteboards.forEach((whiteboard) => {
+      if (whiteboardRoomIds.has(whiteboard.roomId)) whiteboardRoomIds.delete(whiteboard.roomId)
+    })
+
     console.log('room', this.roomId, 'disposing...')
     this.dispatcher.stop()
   }
