@@ -1,7 +1,8 @@
 import { Client, Room } from 'colyseus.js'
-import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
+import { IComputer, IOfficeState, IPlayer, IWhiteboard } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import { IRoomData, RoomType } from '../../../types/Rooms'
+import { ItemType } from '../../../types/Items'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
@@ -18,6 +19,7 @@ import {
   pushPlayerJoinedMessage,
   pushPlayerLeftMessage,
 } from '../stores/ChatStore'
+import { setWhiteboardUrls } from '../stores/WhiteboardStore'
 
 export default class Network {
   private client: Client
@@ -129,10 +131,27 @@ export default class Network {
     this.room.state.computers.onAdd = (computer: IComputer, key: string) => {
       // track changes on every child object's connectedUser
       computer.connectedUser.onAdd = (item, index) => {
-        phaserEvents.emit(Event.ITEM_USER_ADDED, item, key)
+        phaserEvents.emit(Event.ITEM_USER_ADDED, item, key, ItemType.COMPUTER)
       }
       computer.connectedUser.onRemove = (item, index) => {
-        phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key)
+        phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key, ItemType.COMPUTER)
+      }
+    }
+
+    // new instance added to the whiteboards MapSchema
+    this.room.state.whiteboards.onAdd = (whiteboard: IWhiteboard, key: string) => {
+      store.dispatch(
+        setWhiteboardUrls({
+          whiteboardId: key,
+          roomId: whiteboard.roomId,
+        })
+      )
+      // track changes on every child object's connectedUser
+      whiteboard.connectedUser.onAdd = (item, index) => {
+        phaserEvents.emit(Event.ITEM_USER_ADDED, item, key, ItemType.WHITEBOARD)
+      }
+      whiteboard.connectedUser.onRemove = (item, index) => {
+        phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key, ItemType.WHITEBOARD)
       }
     }
 
@@ -169,12 +188,18 @@ export default class Network {
   }
 
   // method to register event listener and call back function when a item user added
-  onItemUserAdded(callback: (playerId: string, key: string) => void, context?: any) {
+  onItemUserAdded(
+    callback: (playerId: string, key: string, itemType: ItemType) => void,
+    context?: any
+  ) {
     phaserEvents.on(Event.ITEM_USER_ADDED, callback, context)
   }
 
   // method to register event listener and call back function when a item user removed
-  onItemUserRemoved(callback: (playerId: string, key: string) => void, context?: any) {
+  onItemUserRemoved(
+    callback: (playerId: string, key: string, itemType: ItemType) => void,
+    context?: any
+  ) {
     phaserEvents.on(Event.ITEM_USER_REMOVED, callback, context)
   }
 
@@ -240,6 +265,14 @@ export default class Network {
 
   disconnectFromComputer(id: string) {
     this.room?.send(Message.DISCONNECT_FROM_COMPUTER, { computerId: id })
+  }
+
+  connectToWhiteboard(id: string) {
+    this.room?.send(Message.CONNECT_TO_WHITEBOARD, { whiteboardId: id })
+  }
+
+  disconnectFromWhiteboard(id: string) {
+    this.room?.send(Message.DISCONNECT_FROM_WHITEBOARD, { whiteboardId: id })
   }
 
   onStopScreenShare(id: string) {

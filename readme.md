@@ -18,23 +18,30 @@ SkyOffice works on all PC browsers (mobile browsers are currently not supported)
 - [TypeScript](https://github.com/microsoft/TypeScript) and [ES6](https://github.com/eslint/eslint) - for both client and server sides
 
 ## Features
+- [Custom/Private Rooms (*NEW*)](#customprivate-rooms-new)
+- [Embedded Whiteboards (*NEW*)](#embedded-whiteboards-new)
+- [Proximity Chat (distance-based interactive system)](#proximity-chat-distance-based-interactive-system)
+- [Multifunctional Rooms](#multifunctional-rooms)
+- [Flexible & Immediate Screen Sharing](#flexible--immediate-screen-sharing)
+- [Text Message Chat (with real time dialog bubbles)](#text-message-chat-with-real-time-dialog-bubbles)
 
-### Text Messages (*NEW*)
+### Embedded Whiteboards (*NEW*)
+![image](https://user-images.githubusercontent.com/11501902/147785323-19dbf0e6-056d-44c5-8efe-e969297bbe52.png)
 
-![image](https://user-images.githubusercontent.com/11501902/145925423-3b5b9026-d3b9-429d-920b-98b0bcd6300a.png)
-
+### Custom/Private Rooms (*NEW*)
+![image](https://user-images.githubusercontent.com/11501902/147784118-15ef50bf-0f67-4704-89d7-81b2fa7f8ceb.png)
 
 ### Proximity Chat (distance-based interactive system)
-
 ![image](https://user-images.githubusercontent.com/11501902/139960852-cf0e0883-8fbe-459d-bb11-3707d0ae1360.png)
 
 ### Multifunctional Rooms
-
 ![image](https://user-images.githubusercontent.com/11501902/139961091-1801bd4d-fbd6-4400-8503-85ece744e979.png)
 
 ### Flexible & Immediate Screen Sharing
-
 ![image](https://user-images.githubusercontent.com/11501902/139961155-44a85cd9-ac25-4563-9d82-6537ed7435f6.png)
+
+### Text Message Chat (with real time dialog bubbles)
+![image](https://user-images.githubusercontent.com/11501902/145925423-3b5b9026-d3b9-429d-920b-98b0bcd6300a.png)
 
 ## Controls
 
@@ -78,8 +85,9 @@ npm install && npm run start
 
 ## Credits 🎉
 
-Big thanks to this great repo:
-https://github.com/ourcade/phaser3-typescript-parcel-template
+Big thanks to this great repo - [ourcade/phaser3-typescript-parcel-template](https://github.com/ourcade/phaser3-typescript-parcel-template)
+
+Big thanks to pixel artist - [LimeZu](https://limezu.itch.io/)
 
 ## License
 
