@@ -23,35 +23,38 @@ function App() {
   const whiteboardDialogOpen = useAppSelector((state) => state.whiteboard.whiteboardDialogOpen)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
-  const anyDialogOpened = computerDialogOpen || whiteboardDialogOpen
+
+  let ui: JSX.Element
+  if (loggedIn) {
+    if (computerDialogOpen) {
+      /* Render ComputerDialog if user is using a computer. */
+      ui = <ComputerDialog />
+    } else if (whiteboardDialogOpen) {
+      /* Render WhiteboardDialog if user is using a whiteboard. */
+      ui = <WhiteboardDialog />
+    } else {
+      ui = (
+        /* Render Chat or VideoConnectionDialog if no dialogs are opened. */
+        <>
+          <Chat />
+          {/* Render VideoConnectionDialog if user is not connected to a webcam. */}
+          {!videoConnected && <VideoConnectionDialog />}
+        </>
+      )
+    }
+  } else if (roomJoined) {
+    /* Render LoginDialog if not logged in but selected a room. */
+    ui = <LoginDialog />
+  } else {
+    /* Render RoomSelectionDialog if yet selected a room. */
+    ui = <RoomSelectionDialog />
+  }
 
   return (
     <Backdrop>
-      {loggedIn ? (
-        anyDialogOpened ? (
-          <>
-            {/* Render ComputerDialog if user is using a computer. */}
-            {computerDialogOpen && <ComputerDialog />}
-            {/* Render WhiteboardDialog if user is using a whiteboard. */}
-            {whiteboardDialogOpen && <WhiteboardDialog />}
-          </>
-        ) : (
-          /* Render Chat or VideoConnectionDialog if no dialogs are opened. */
-          <>
-            <Chat />
-            {/* Render VideoConnectionDialog if user is not connected to a webcam. */}
-            {!videoConnected && <VideoConnectionDialog />}
-          </>
-        )
-      ) : roomJoined ? (
-        /* Render LoginDialog if not logged in. */
-        <LoginDialog />
-      ) : (
-        /* Render RoomSelectionDialog if yet selected a room. */
-        <RoomSelectionDialog />
-      )}
+      {ui}
       {/* Render HelperButtonGroup if no dialogs are opened. */}
-      {!anyDialogOpened && <HelperButtonGroup />}
+      {!computerDialogOpen && !whiteboardDialogOpen && <HelperButtonGroup />}
     </Backdrop>
   )
 }
