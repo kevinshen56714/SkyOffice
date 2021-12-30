@@ -1,4 +1,4 @@
-import { Schema, ArraySchema, MapSchema } from '@colyseus/schema'
+import { Schema, ArraySchema, SetSchema, MapSchema } from '@colyseus/schema'
 
 export interface IPlayer extends Schema {
   name: string
@@ -10,12 +10,12 @@ export interface IPlayer extends Schema {
 }
 
 export interface IComputer extends Schema {
-  connectedUser: ArraySchema<string>
+  connectedUser: SetSchema<string>
 }
 
 export interface IWhiteboard extends Schema {
   roomId: string
-  connectedUser: ArraySchema<string>
+  connectedUser: SetSchema<string>
 }
 
 export interface IChatMessage extends Schema {

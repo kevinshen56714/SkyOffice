@@ -1,4 +1,4 @@
-import { Schema, ArraySchema, MapSchema, type } from '@colyseus/schema'
+import { Schema, ArraySchema, SetSchema, MapSchema, type } from '@colyseus/schema'
 import {
   IPlayer,
   IOfficeState,
@@ -17,12 +17,12 @@ export class Player extends Schema implements IPlayer {
 }
 
 export class Computer extends Schema implements IComputer {
-  @type(['string']) connectedUser = new ArraySchema<string>()
+  @type({ set: 'string' }) connectedUser = new SetSchema<string>()
 }
 
 export class Whiteboard extends Schema implements IWhiteboard {
   @type('string') roomId = getRoomId()
-  @type(['string']) connectedUser = new ArraySchema<string>()
+  @type({ set: 'string' }) connectedUser = new SetSchema<string>()
 }
 
 export class ChatMessage extends Schema implements IChatMessage {

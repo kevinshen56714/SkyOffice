@@ -13,8 +13,8 @@ export class WhiteboardAddUserCommand extends Command<IOfficeState, Payload> {
     const whiteboard = this.room.state.whiteboards.get(whiteboardId)
     const clientId = client.sessionId
 
-    if (!whiteboard || whiteboard.connectedUser.includes(clientId)) return
-    whiteboard.connectedUser.push(clientId)
+    if (!whiteboard || whiteboard.connectedUser.has(clientId)) return
+    whiteboard.connectedUser.add(clientId)
   }
 }
 
@@ -22,10 +22,9 @@ export class WhiteboardRemoveUserCommand extends Command<IOfficeState, Payload> 
   execute(data: Payload) {
     const { client, whiteboardId } = data
     const whiteboard = this.state.whiteboards.get(whiteboardId)
-    const index = whiteboard.connectedUser.indexOf(client.sessionId)
 
-    if (index > -1) {
-      whiteboard.connectedUser.splice(index, 1)
+    if (whiteboard.connectedUser.has(client.sessionId)) {
+      whiteboard.connectedUser.delete(client.sessionId)
     }
   }
 }

@@ -92,31 +92,27 @@ export default class Game extends Phaser.Scene {
     // import computers objects from Tiled map to Phaser
     const computers = this.physics.add.staticGroup({ classType: Computer })
     const computerLayer = this.map.getObjectLayer('Computer')
-    let counter = 0
-    computerLayer.objects.forEach((obj) => {
+    computerLayer.objects.forEach((obj, i) => {
       const item = this.addObjectFromTiled(computers, obj, 'computers', 'computer') as Computer
       item.setDepth(item.y + item.height * 0.27)
-      const id = String(counter)
+      const id = `${i}`
       item.id = id
       this.computerMap.set(id, item)
-      ++counter
     })
 
     // import whiteboards objects from Tiled map to Phaser
     const whiteboards = this.physics.add.staticGroup({ classType: Whiteboard })
     const whiteboardLayer = this.map.getObjectLayer('Whiteboard')
-    counter = 0
-    whiteboardLayer.objects.forEach((obj) => {
+    whiteboardLayer.objects.forEach((obj, i) => {
       const item = this.addObjectFromTiled(
         whiteboards,
         obj,
         'whiteboards',
         'whiteboard'
       ) as Whiteboard
-      const id = String(counter)
+      const id = `${i}`
       item.id = id
       this.whiteboardMap.set(id, item)
-      ++counter
     })
 
     // import other objects from Tiled map to Phaser

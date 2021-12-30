@@ -158,7 +158,7 @@ export class SkyOffice extends Room<OfficeState> {
     if (this.password) {
       const validPassword = await bcrypt.compare(options.password, this.password)
       if (!validPassword) {
-        throw new ServerError(400, 'Password is incorrect!')
+        throw new ServerError(403, 'Password is incorrect!')
       }
     }
     return true
@@ -178,9 +178,13 @@ export class SkyOffice extends Room<OfficeState> {
       this.state.players.delete(client.sessionId)
     }
     this.state.computers.forEach((computer) => {
-      const index = computer.connectedUser.indexOf(client.sessionId)
-      if (index > -1) {
-        computer.connectedUser.splice(index, 1)
+      if (computer.connectedUser.has(client.sessionId)) {
+        computer.connectedUser.delete(client.sessionId)
+      }
+    })
+    this.state.whiteboards.forEach((whiteboard) => {
+      if (whiteboard.connectedUser.has(client.sessionId)) {
+        whiteboard.connectedUser.delete(client.sessionId)
       }
     })
   }

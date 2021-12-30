@@ -40,7 +40,7 @@ export const whiteboardSlice = createSlice({
     setWhiteboardUrls: (state, action: PayloadAction<{ whiteboardId: string; roomId: string }>) => {
       state.urls.set(
         action.payload.whiteboardId,
-        `https://www.tldraw.com/r/${action.payload.roomId}`
+        `https://www.tldraw.com/r/sky-office-${action.payload.roomId}`
       )
     },
   },
