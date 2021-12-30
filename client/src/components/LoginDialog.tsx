@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import Avatar from '@mui/material/Avatar'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
+import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
 import SwiperCore, { Navigation } from 'swiper'
@@ -16,6 +18,7 @@ import Lucy from '../assets/Lucy_login.png'
 import Nancy from '../assets/Nancy_login.png'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { setLoggedIn } from '../stores/UserStore'
+import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
@@ -30,12 +33,40 @@ const Wrapper = styled.form`
   background: #222639;
   border-radius: 16px;
   padding: 36px 60px;
+  box-shadow: 0px 0px 5px #0000006f;
 `
 
-const Title = styled.h1`
-  font-size: 24px;
-  color: #eee;
+const Title = styled.p`
+  margin: 5px;
+  font-size: 20px;
+  color: #c2c2c2;
   text-align: center;
+`
+
+const RoomName = styled.div`
+  max-width: 500px;
+  max-height: 120px;
+  overflow-wrap: anywhere;
+  overflow-y: auto;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+
+  h3 {
+    font-size: 24px;
+    color: #eee;
+  }
+`
+
+const RoomDescription = styled.div`
+  max-width: 500px;
+  max-height: 150px;
+  overflow-wrap: anywhere;
+  overflow-y: auto;
+  font-size: 16px;
+  color: #c2c2c2;
+  display: flex;
+  justify-content: center;
 `
 
 const SubTitle = styled.h3`
@@ -104,34 +135,49 @@ const avatars = [
   { name: 'nancy', img: Nancy },
 ]
 
+// shuffle the avatars array
+for (let i = avatars.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1))
+  ;[avatars[i], avatars[j]] = [avatars[j], avatars[i]]
+}
+
 export default function LoginDialog() {
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
   const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
   const dispatch = useAppDispatch()
-  const connected = useAppSelector((state) => state.user.connected)
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
+  const roomJoined = useAppSelector((state) => state.room.roomJoined)
+  const roomName = useAppSelector((state) => state.room.roomName)
+  const roomDescription = useAppSelector((state) => state.room.roomDescription)
   const game = phaserGame.scene.keys.game as Game
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (name === '') {
       setNameFieldEmpty(true)
-    } else {
-      if (connected) {
-        console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
-        game.registerKeys()
-        game.myPlayer.setPlayerName(name)
-        game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
-        game.network.readyToConnect()
-        dispatch(setLoggedIn(true))
-      }
+    } else if (roomJoined) {
+      console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
+      game.registerKeys()
+      game.myPlayer.setPlayerName(name)
+      game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+      game.network.readyToConnect()
+      dispatch(setLoggedIn(true))
     }
   }
 
   return (
     <Wrapper onSubmit={handleSubmit}>
-      <Title>Welcome to SkyOffice</Title>
+      <Title>Joining</Title>
+      <RoomName>
+        <Avatar style={{ background: getColorByString(roomName) }}>
+          {getAvatarString(roomName)}
+        </Avatar>
+        <h3>{roomName}</h3>
+      </RoomName>
+      <RoomDescription>
+        <ArrowRightIcon /> {roomDescription}
+      </RoomDescription>
       <Content>
         <Left>
           <SubTitle>Select an avatar</SubTitle>
@@ -166,7 +212,7 @@ export default function LoginDialog() {
           />
           {!videoConnected && (
             <Warning>
-              <Alert severity="warning">
+              <Alert variant="outlined" severity="warning">
                 <AlertTitle>Warning</AlertTitle>
                 No webcam/mic connected - <strong>connect one for best experience!</strong>
               </Alert>
@@ -184,7 +230,7 @@ export default function LoginDialog() {
 
           {videoConnected && (
             <Warning>
-              <Alert>Webcam connected!</Alert>
+              <Alert variant="outlined">Webcam connected!</Alert>
             </Warning>
           )}
         </Right>

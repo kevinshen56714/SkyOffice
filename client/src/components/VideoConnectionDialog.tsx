@@ -10,6 +10,7 @@ import Game from '../scenes/Game'
 const Backdrop = styled.div`
   position: fixed;
   top: 0;
+  left: 0;
 `
 
 const Wrapper = styled.div`

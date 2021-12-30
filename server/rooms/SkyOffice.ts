@@ -1,7 +1,9 @@
-import { Room, Client } from 'colyseus'
+import bcrypt from 'bcrypt'
+import { Room, Client, ServerError } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
 import { Player, OfficeState, Computer } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
+import { IRoomData } from '../../types/Rooms'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
 import PlayerUpdateNameCommand from './commands/PlayerUpdateNameCommand'
 import ComputerUpdateArrayCommand from './commands/ComputerUpdateArrayCommand'
@@ -9,10 +11,25 @@ import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
+  private name: string
+  private description: string
+  private password: string | null = null
 
-  onCreate(options: any) {
+  async onCreate(options: IRoomData) {
+    const { name, description, password, autoDispose } = options
+    this.name = name
+    this.description = description
+    this.autoDispose = autoDispose
+
+    let hasPassword = false
+    if (password) {
+      const salt = await bcrypt.genSalt(10)
+      this.password = await bcrypt.hash(password, salt)
+      hasPassword = true
+    }
+    this.setMetadata({ name, description, hasPassword })
+
     this.setState(new OfficeState())
-    this.autoDispose = false
 
     // HARD-CODED: Add 5 computers in a room
     for (let i = 0; i < 5; i++) {
@@ -107,8 +124,23 @@ export class SkyOffice extends Room<OfficeState> {
     })
   }
 
+  async onAuth(client: Client, options: { password: string | null }) {
+    if (this.password) {
+      const validPassword = await bcrypt.compare(options.password, this.password)
+      if (!validPassword) {
+        throw new ServerError(400, 'Password is incorrect!')
+      }
+    }
+    return true
+  }
+
   onJoin(client: Client, options: any) {
     this.state.players.set(client.sessionId, new Player())
+    client.send(Message.SEND_ROOM_DATA, {
+      id: this.roomId,
+      name: this.name,
+      description: this.description,
+    })
   }
 
   onLeave(client: Client, consented: boolean) {
@@ -125,5 +157,6 @@ export class SkyOffice extends Room<OfficeState> {
 
   onDispose() {
     console.log('room', this.roomId, 'disposing...')
+    this.dispatcher.stop()
   }
 }

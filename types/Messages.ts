@@ -8,4 +8,5 @@ export enum Message {
   STOP_SCREEN_SHARE,
   VIDEO_CONNECTED,
   ADD_CHAT_MESSAGE,
+  SEND_ROOM_DATA,
 }

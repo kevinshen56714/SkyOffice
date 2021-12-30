@@ -1,10 +1,18 @@
 import { Client, Room } from 'colyseus.js'
 import { IComputer, IOfficeState, IPlayer } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
+import { IRoomData, RoomType } from '../../../types/Rooms'
 import WebRTC from '../web/WebRTC'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
+import {
+  setLobbyJoined,
+  setJoinedRoomData,
+  setAvailableRooms,
+  addAvailableRooms,
+  removeAvailableRooms,
+} from '../stores/RoomStore'
 import {
   pushChatMessage,
   pushPlayerJoinedMessage,
@@ -14,6 +22,7 @@ import {
 export default class Network {
   private client: Client
   private room?: Room<IOfficeState>
+  private lobby!: Room
   webRTC?: WebRTC
 
   mySessionId!: string
@@ -25,14 +34,64 @@ export default class Network {
         ? `wss://sky-office.herokuapp.com`
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
+    this.joinLobbyRoom().then(() => {
+      store.dispatch(setLobbyJoined(true))
+    })
 
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
     phaserEvents.on(Event.MY_PLAYER_TEXTURE_CHANGE, this.updatePlayer, this)
     phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
   }
 
-  async join() {
-    this.room = await this.client.joinOrCreate('skyoffice')
+  /**
+   * method to join Colyseus' built-in LobbyRoom, which automatically notifies
+   * connected clients whenever rooms with "realtime listing" have updates
+   */
+  async joinLobbyRoom() {
+    this.lobby = await this.client.joinOrCreate(RoomType.LOBBY)
+
+    this.lobby.onMessage('rooms', (rooms) => {
+      store.dispatch(setAvailableRooms(rooms))
+    })
+
+    this.lobby.onMessage('+', ([roomId, room]) => {
+      store.dispatch(addAvailableRooms({ roomId, room }))
+    })
+
+    this.lobby.onMessage('-', (roomId) => {
+      store.dispatch(removeAvailableRooms(roomId))
+    })
+  }
+
+  // method to join the public lobby
+  async joinOrCreatePublic() {
+    this.room = await this.client.joinOrCreate(RoomType.PUBLIC)
+    this.initialize()
+  }
+
+  // method to join a custom room
+  async joinCustomById(roomId: string, password: string | null) {
+    this.room = await this.client.joinById(roomId, { password })
+    this.initialize()
+  }
+
+  // method to create a custom room
+  async createCustom(roomData: IRoomData) {
+    const { name, description, password, autoDispose } = roomData
+    this.room = await this.client.create(RoomType.CUSTOM, {
+      name,
+      description,
+      password,
+      autoDispose,
+    })
+    this.initialize()
+  }
+
+  // set up all network listeners before the game starts
+  initialize() {
+    if (!this.room) return
+
+    this.lobby.leave()
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)
@@ -81,6 +140,11 @@ export default class Network {
     this.room.state.chatMessages.onAdd = (item, index) => {
       store.dispatch(pushChatMessage(item))
     }
+
+    // when the server sends room data
+    this.room.onMessage(Message.SEND_ROOM_DATA, (content) => {
+      store.dispatch(setJoinedRoomData(content))
+    })
 
     // when a user sends a message
     this.room.onMessage(Message.ADD_CHAT_MESSAGE, ({ clientId, content }) => {

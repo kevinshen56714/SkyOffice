@@ -1,8 +1,9 @@
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
-import { Server } from 'colyseus'
+import { Server, LobbyRoom } from 'colyseus'
 import { monitor } from '@colyseus/monitor'
+import { RoomType } from '../types/Rooms'
 
 // import socialRoutes from "@colyseus/social/express"
 
@@ -20,8 +21,15 @@ const gameServer = new Server({
   server,
 })
 
-// register your room handlers
-gameServer.define('skyoffice', SkyOffice)
+// register room handlers
+gameServer.define(RoomType.LOBBY, LobbyRoom)
+gameServer.define(RoomType.PUBLIC, SkyOffice, {
+  name: 'Public Lobby',
+  description: 'For making friends and familiarizing yourself with the controls',
+  password: null,
+  autoDispose: false,
+})
+gameServer.define(RoomType.CUSTOM, SkyOffice).enableRealtimeListing()
 
 /**
  * Register @colyseus/social routes

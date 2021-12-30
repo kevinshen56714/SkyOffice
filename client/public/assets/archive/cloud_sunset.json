@@ -1,0 +1,60 @@
+{"frames": [
+
+{
+	"filename": "04_mountains1sunset.png",
+	"frame": {"x":90,"y":159,"w":71,"h":29},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":250,"y":22,"w":71,"h":29},
+	"sourceSize": {"w":480,"h":270}
+},
+{
+	"filename": "05_mountains1sunset.png",
+	"frame": {"x":133,"y":128,"w":92,"h":29},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":168,"y":86,"w":92,"h":29},
+	"sourceSize": {"w":480,"h":270}
+},
+{
+	"filename": "06_mountains1sunset.png",
+	"frame": {"x":1,"y":1,"w":227,"h":64},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":0,"y":2,"w":227,"h":64},
+	"sourceSize": {"w":480,"h":270}
+},
+{
+	"filename": "07_mountains1sunset.png",
+	"frame": {"x":1,"y":128,"w":130,"h":29},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":71,"y":55,"w":130,"h":29},
+	"sourceSize": {"w":480,"h":270}
+},
+{
+	"filename": "08_mountains1sunset.png",
+	"frame": {"x":1,"y":159,"w":87,"h":21},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":393,"y":21,"w":87,"h":21},
+	"sourceSize": {"w":480,"h":270}
+},
+{
+	"filename": "09_mountains1sunset.png",
+	"frame": {"x":1,"y":67,"w":222,"h":59},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":253,"y":44,"w":222,"h":59},
+	"sourceSize": {"w":480,"h":270}
+}],
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "cloud_sunset.png",
+	"format": "RGBA8888",
+	"size": {"w":229,"h":189},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:eca7f6f3f88143379c2f001d9a99a76b:913c9a98401071cf955a20a2d051a83d:dd0928588b2d54143da39856e339e6cd$"
+}
+}

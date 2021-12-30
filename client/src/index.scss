@@ -22,12 +22,6 @@ body {
   }
 }
 
-#root {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-}
-
 .video-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 160px);
@@ -36,6 +30,8 @@ body {
   position: absolute;
   top: 35px;
   right: 10px;
+  max-height: calc(100% - 100px);
+  overflow-y: auto;
 }
 
 .video-grid video {

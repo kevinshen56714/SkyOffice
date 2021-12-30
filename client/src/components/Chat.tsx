@@ -14,6 +14,7 @@ import { Picker } from 'emoji-mart'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
 
+import { getColorByString } from '../util'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { MessageType, setFocused, setShowChat } from '../stores/ChatStore'
 
@@ -118,22 +119,6 @@ const EmojiPickerWrapper = styled.div`
   right: 16px;
 `
 
-const colorArr = [
-  '#7bf1a8',
-  '#ff7e50',
-  '#9acd32',
-  '#daa520',
-  '#ff69b4',
-  '#c085f6',
-  '#1e90ff',
-  '#5f9da0',
-]
-
-// determine name color by first character charCode
-const getColorByName = (author: string) => {
-  return colorArr[Math.floor(author.charCodeAt(0) % colorArr.length)]
-}
-
 const dateFormatter = new Intl.DateTimeFormat('en', {
   timeStyle: 'short',
   dateStyle: 'short',
@@ -160,7 +145,7 @@ const Message = ({ chatMessage, messageType }) => {
         {messageType === MessageType.REGULAR_MESSAGE ? (
           <p
             style={{
-              color: getColorByName(chatMessage.author),
+              color: getColorByString(chatMessage.author),
             }}
           >
             {chatMessage.author}: <span>{chatMessage.content}</span>
@@ -272,20 +257,11 @@ export default function Chat() {
                 onKeyDown={handleKeyDown}
                 onChange={handleChange}
                 onFocus={() => {
-                  game.disableKeys()
                   if (!focused) dispatch(setFocused(true))
                 }}
-                onBlur={() => {
-                  game.enableKeys()
-                  dispatch(setFocused(false))
-                }}
+                onBlur={() => dispatch(setFocused(false))}
               />
-              <IconButton
-                aria-label="emoji"
-                onClick={() => {
-                  setShowEmojiPicker(!showEmojiPicker)
-                }}
-              >
+              <IconButton aria-label="emoji" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                 <InsertEmoticonIcon />
               </IconButton>
             </InputWrapper>

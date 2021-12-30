@@ -14,7 +14,6 @@ import OtherPlayer from '../characters/OtherPlayer'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 
 import store from '../stores'
-import { setConnected } from '../stores/UserStore'
 import { setFocused, setShowChat } from '../stores/ChatStore'
 
 export default class Game extends Phaser.Scene {
@@ -57,20 +56,12 @@ export default class Game extends Phaser.Scene {
     this.input.keyboard.enabled = true
   }
 
-  init() {
-    this.network = new Network()
-  }
-
-  async create() {
-    // initialize network instance (connect to server)
-    if (!this.network) {
+  create(data: { network: Network }) {
+    if (!data.network) {
       throw new Error('server instance missing')
+    } else {
+      this.network = data.network
     }
-    await this.network.join()
-    store.dispatch(setConnected(true))
-
-    // if in the future we have a bootstrap scene to manage all the scene transferring, we can put this line there
-    this.scene.stop('preloader')
 
     createCharacterAnims(this.anims)
 
