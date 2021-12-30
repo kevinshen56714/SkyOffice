@@ -51,7 +51,7 @@ export const CreateRoomForm = () => {
       bootstrap.network
         .createCustom(values)
         .then(() => bootstrap.launchGame())
-        .catch((error) => console.log(error))
+        .catch((error) => console.error(error))
     }
   }
 

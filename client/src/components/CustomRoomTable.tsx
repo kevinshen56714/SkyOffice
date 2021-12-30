@@ -99,7 +99,7 @@ export const CustomRoomTable = () => {
       .joinCustomById(roomId, password)
       .then(() => bootstrap.launchGame())
       .catch((error) => {
-        console.log(error)
+        console.error(error)
         if (password) setShowPasswordError(true)
       })
   }

@@ -14,16 +14,17 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import GitHubIcon from '@mui/icons-material/GitHub'
 
 import { BackgroundMode } from '../../../types/BackgroundMode'
-import { switchBackgroundMode } from '../stores/UserStore'
+import { toggleBackgroundMode } from '../stores/UserStore'
 import { useAppSelector, useAppDispatch } from '../hooks'
-import { getAvatarString, getColorByString, handleGitHubClick } from '../util'
+import { getAvatarString, getColorByString } from '../util'
 
 const Backdrop = styled.div`
   position: fixed;
   display: flex;
   gap: 10px;
-  top: 16px;
-  left: 10px;
+  bottom: 16px;
+  right: 16px;
+  align-items: flex-end;
 
   .wrapper-group {
     display: flex;
@@ -57,7 +58,6 @@ const Wrapper = styled.div`
 
 const ButtonGroup = styled.div`
   display: flex;
-  flex-direction: column;
   gap: 10px;
 `
 
@@ -95,6 +95,12 @@ const RoomDescription = styled.div`
   justify-content: center;
 `
 
+const StyledFab = styled(Fab)`
+  &:hover {
+    color: #1ea2df;
+  }
+`
+
 export default function HelperButtonGroup() {
   const [showControlGuide, setShowControlGuide] = useState(false)
   const [showRoomInfo, setShowRoomInfo] = useState(false)
@@ -107,44 +113,6 @@ export default function HelperButtonGroup() {
 
   return (
     <Backdrop>
-      <ButtonGroup>
-        <Tooltip title="Switch Background Theme" placement="right">
-          <Fab size="small" onClick={() => dispatch(switchBackgroundMode())}>
-            {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
-          </Fab>
-        </Tooltip>
-        <Tooltip title="Our GitHub Link" placement="right">
-          <Fab size="small" onClick={handleGitHubClick}>
-            <GitHubIcon />
-          </Fab>
-        </Tooltip>
-        {roomJoined && (
-          <>
-            <Tooltip title="Control Guide" placement="right">
-              <Fab
-                size="small"
-                onClick={() => {
-                  setShowControlGuide(!showControlGuide)
-                  setShowRoomInfo(false)
-                }}
-              >
-                <HelpOutlineIcon />
-              </Fab>
-            </Tooltip>
-            <Tooltip title="Room Info" placement="right">
-              <Fab
-                size="small"
-                onClick={() => {
-                  setShowRoomInfo(!showRoomInfo)
-                  setShowControlGuide(false)
-                }}
-              >
-                <ShareIcon />
-              </Fab>
-            </Tooltip>
-          </>
-        )}
-      </ButtonGroup>
       <div className="wrapper-group">
         {showRoomInfo && (
           <Wrapper>
@@ -199,6 +167,48 @@ export default function HelperButtonGroup() {
           </Wrapper>
         )}
       </div>
+      <ButtonGroup>
+        {roomJoined && (
+          <>
+            <Tooltip title="Room Info">
+              <StyledFab
+                size="small"
+                onClick={() => {
+                  setShowRoomInfo(!showRoomInfo)
+                  setShowControlGuide(false)
+                }}
+              >
+                <ShareIcon />
+              </StyledFab>
+            </Tooltip>
+            <Tooltip title="Control Guide">
+              <StyledFab
+                size="small"
+                onClick={() => {
+                  setShowControlGuide(!showControlGuide)
+                  setShowRoomInfo(false)
+                }}
+              >
+                <HelpOutlineIcon />
+              </StyledFab>
+            </Tooltip>
+          </>
+        )}
+        <Tooltip title="Our GitHub Link">
+          <StyledFab
+            size="small"
+            href="https://github.com/kevinshen56714/SkyOffice"
+            target="_blank"
+          >
+            <GitHubIcon />
+          </StyledFab>
+        </Tooltip>
+        <Tooltip title="Switch Background Theme">
+          <StyledFab size="small" onClick={() => dispatch(toggleBackgroundMode())}>
+            {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
+          </StyledFab>
+        </Tooltip>
+      </ButtonGroup>
     </Backdrop>
   )
 }

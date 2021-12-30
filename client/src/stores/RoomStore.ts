@@ -2,11 +2,14 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RoomAvailable } from 'colyseus.js'
 import { RoomType } from '../../../types/Rooms'
 
+interface RoomInterface extends RoomAvailable {
+  name?: string
+}
+
 /**
  * Colyseus' real time room list always includes the public lobby so we have to remove it manually.
- * room: RoomAvailable is typed as any here in order to call the name attribute (untyped property)
  */
-const isCustomRoom = (room: any) => {
+const isCustomRoom = (room: RoomInterface) => {
   return room.name === RoomType.CUSTOM
 }
 

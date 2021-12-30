@@ -20,7 +20,7 @@ export const userSlice = createSlice({
     playerNameMap: new Map<string, string>(),
   },
   reducers: {
-    switchBackgroundMode: (state) => {
+    toggleBackgroundMode: (state) => {
       const newMode =
         state.backgroundMode === BackgroundMode.DAY ? BackgroundMode.NIGHT : BackgroundMode.DAY
 
@@ -47,7 +47,7 @@ export const userSlice = createSlice({
 })
 
 export const {
-  switchBackgroundMode,
+  toggleBackgroundMode,
   setSessionId,
   setVideoConnected,
   setLoggedIn,

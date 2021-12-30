@@ -100,7 +100,7 @@ export default function RoomSelectionDialog() {
       bootstrap.network
         .joinOrCreatePublic()
         .then(() => bootstrap.launchGame())
-        .catch((error) => console.log(error))
+        .catch((error) => console.error(error))
     } else {
       setShowSnackbar(true)
     }
