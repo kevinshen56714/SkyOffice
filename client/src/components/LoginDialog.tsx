@@ -21,7 +21,7 @@ import { setLoggedIn } from '../stores/UserStore'
 import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
-import Game from '../scenes/Game'
+import Lobby from '../scenes/Lobby'
 
 SwiperCore.use([Navigation])
 
@@ -150,7 +150,7 @@ export default function LoginDialog() {
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
-  const game = phaserGame.scene.keys.game as Game
+  const lobby = phaserGame.scene.keys.lobby as Lobby
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -158,10 +158,10 @@ export default function LoginDialog() {
       setNameFieldEmpty(true)
     } else if (roomJoined) {
       console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
-      game.registerKeys()
-      game.myPlayer.setPlayerName(name)
-      game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
-      game.network.readyToConnect()
+      lobby.registerKeys()
+      lobby.myPlayer.setPlayerName(name)
+      lobby.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+      lobby.network.readyToConnect()
       dispatch(setLoggedIn(true))
     }
   }
@@ -220,7 +220,7 @@ export default function LoginDialog() {
                 variant="outlined"
                 color="secondary"
                 onClick={() => {
-                  game.network.webRTC?.getUserMedia()
+                  lobby.network.webRTC?.getUserMedia()
                 }}
               >
                 Connect Webcam

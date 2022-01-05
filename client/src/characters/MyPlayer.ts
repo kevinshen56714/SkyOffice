@@ -15,6 +15,8 @@ import Whiteboard from '../items/Whiteboard'
 export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
   private chairOnSit?: Chair
+  escalatorOnTouch?: Phaser.GameObjects.Sprite
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -112,9 +114,26 @@ export default class MyPlayer extends Player {
           return
         }
 
+        // while currently on an escalator
+        // if myPlayer and the current escalatorOnTouch stop overlapping, clear the escalatorOnTouch
+        // if (this.escalatorOnTouch) {
+        //   if (!this.scene.physics.overlap(this, this.escalatorOnTouch)) {
+        //     this.escalatorOnTouch = undefined
+        //   } else {
+        //     const escalatorDirection = this.escalatorOnTouch.anims.currentAnim.key.split('_')[1]
+        //     escalatorDirection === 'up' ? -100 : 100
+        //   }
+        // }
+
         const speed = 200
         let vx = 0
         let vy = 0
+        // let escalatorSpeed = 0
+        // if (this.escalatorOnTouch) {
+        //   const escalatorDirection = this.escalatorOnTouch.anims.currentAnim.key.split('_')[1]
+        //   escalatorSpeed = escalatorDirection === 'up' ? -100 : 100
+        //   vy = escalatorSpeed
+        // }
         if (cursors.left?.isDown) vx -= speed
         if (cursors.right?.isDown) vx += speed
         if (cursors.up?.isDown) {
@@ -151,6 +170,19 @@ export default class MyPlayer extends Player {
             this.play(parts.join('_'), true)
             // send new location and anim to server
             network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
+          }
+        }
+
+        // while currently on an escalator
+        // if myPlayer and the current escalatorOnTouch stop overlapping, clear the escalatorOnTouch
+        if (this.escalatorOnTouch) {
+          if (!this.scene.physics.overlap(this, this.escalatorOnTouch)) {
+            this.escalatorOnTouch = undefined
+          } else {
+            const escalatorDirection = this.escalatorOnTouch.anims.currentAnim.key.split('_')[1]
+            const escalatorSpeed = escalatorDirection === 'up' ? -100 : 100
+            this.setVelocityY(vy + escalatorSpeed)
+            this.playContainerBody.setVelocityY(vy + escalatorSpeed)
           }
         }
         break
