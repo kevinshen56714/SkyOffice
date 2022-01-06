@@ -2,8 +2,9 @@ import Phaser from 'phaser'
 import Player from './Player'
 import MyPlayer from './MyPlayer'
 import { sittingShiftData } from './Player'
-import WebRTC from '../web/WebRTC'
 import { Event, phaserEvents } from '../events/EventCenter'
+
+import network from '../services/Network'
 
 export default class OtherPlayer extends Player {
   private targetPosition: [number, number]
@@ -29,7 +30,7 @@ export default class OtherPlayer extends Player {
     this.playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
   }
 
-  makeCall(myPlayer: MyPlayer, webRTC: WebRTC) {
+  makeCall(myPlayer: MyPlayer) {
     this.myPlayer = myPlayer
     const myPlayerId = myPlayer.playerId
     if (
@@ -42,7 +43,7 @@ export default class OtherPlayer extends Player {
         (myPlayer.videoConnected && !this.videoConnected) ||
         (myPlayer.videoConnected && this.videoConnected && myPlayerId > this.playerId)
       ) {
-        webRTC.connectToNewUser(this.playerId)
+        network.webRTC?.connectToNewUser(this.playerId)
         this.connected = true
         this.connectionBufferTime = 0
       }

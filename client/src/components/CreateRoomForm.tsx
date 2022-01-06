@@ -10,6 +10,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { IRoomData } from '../../../types/Rooms'
 import { useAppSelector } from '../hooks'
 
+import network from '../services/Network'
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
 
@@ -48,7 +49,7 @@ export const CreateRoomForm = () => {
     // create custom room if name and description are not empty
     if (isValidName && isValidDescription && lobbyJoined) {
       const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
-      bootstrap.network
+      network
         .createCustom(values)
         .then(() => bootstrap.launchGame())
         .catch((error) => console.error(error))

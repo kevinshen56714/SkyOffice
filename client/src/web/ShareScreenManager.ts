@@ -1,6 +1,8 @@
 import Peer from 'peerjs'
 import store from '../stores'
 import { setMyStream, addVideoStream, removeVideoStream } from '../stores/ComputerStore'
+
+import network from '../services/Network'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
 
@@ -86,8 +88,7 @@ export default class ShareScreenManager {
     if (shouldDispatch) {
       store.dispatch(setMyStream(null))
       // Manually let all other existing users know screen sharing is stopped
-      const game = phaserGame.scene.keys.game as Game
-      game.network.onStopScreenShare(store.getState().computer.computerId!)
+      network.onStopScreenShare(store.getState().computer.computerId!)
     }
   }
 

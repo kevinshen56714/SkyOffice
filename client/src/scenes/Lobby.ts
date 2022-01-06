@@ -1,12 +1,12 @@
 import MyPlayer from '../characters/MyPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
-import Network from '../services/Network'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 import { createItemAnims } from '../anims/ItemAnims'
 import TeleportZone from '../zones/TeleportZone'
 
+import network from '../services/Network'
+
 export default class Lobby extends Phaser.Scene {
-  network!: Network
   myPlayer!: MyPlayer
   private playerSelector!: Phaser.GameObjects.Zone
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
@@ -50,11 +50,9 @@ export default class Lobby extends Phaser.Scene {
     })
   }
 
-  create(data: { network: Network }) {
-    if (!data.network) {
+  create() {
+    if (!network) {
       throw new Error('server instance missing')
-    } else {
-      this.network = data.network
     }
 
     createCharacterAnims(this.anims)
@@ -158,9 +156,9 @@ export default class Lobby extends Phaser.Scene {
   }
 
   update() {
-    if (this.myPlayer && this.network) {
+    if (this.myPlayer) {
       this.playerSelector.update(this.myPlayer, this.cursors)
-      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR, this.network)
+      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR)
     }
   }
 

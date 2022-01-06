@@ -1,12 +1,11 @@
 import Phaser from 'phaser'
-import Network from '../services/Network'
 import { BackgroundMode } from '../../../types/BackgroundMode'
+
+import network from '../services/Network'
 import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
 
 export default class Bootstrap extends Phaser.Scene {
-  network!: Network
-
   constructor() {
     super('bootstrap')
   }
@@ -73,10 +72,6 @@ export default class Bootstrap extends Phaser.Scene {
     })
   }
 
-  init() {
-    this.network = new Network()
-  }
-
   create() {
     this.launchBackground(store.getState().user.backgroundMode)
   }
@@ -86,13 +81,9 @@ export default class Bootstrap extends Phaser.Scene {
   }
 
   launchGame() {
-    this.network.webRTC?.checkPreviousPermission()
-    // this.scene.launch('game', {
-    //   network: this.network,
-    // })
-    this.scene.launch('lobby', {
-      network: this.network,
-    })
+    network.webRTC?.checkPreviousPermission()
+    this.scene.launch('game')
+    // this.scene.launch('lobby')
 
     // update Redux state
     store.dispatch(setRoomJoined(true))

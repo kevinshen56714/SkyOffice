@@ -12,16 +12,15 @@ import '../characters/OtherPlayer'
 import MyPlayer from '../characters/MyPlayer'
 import OtherPlayer from '../characters/OtherPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
-import Network from '../services/Network'
 import { IPlayer } from '../../../types/IOfficeState'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import { ItemType } from '../../../types/Items'
 
+import network from '../services/Network'
 import store from '../stores'
 import { setFocused, setShowChat } from '../stores/ChatStore'
 
 export default class Game extends Phaser.Scene {
-  network!: Network
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
   private keyR!: Phaser.Input.Keyboard.Key
@@ -60,11 +59,9 @@ export default class Game extends Phaser.Scene {
     this.input.keyboard.enabled = true
   }
 
-  create(data: { network: Network }) {
-    if (!data.network) {
+  create() {
+    if (!network) {
       throw new Error('server instance missing')
-    } else {
-      this.network = data.network
     }
 
     createCharacterAnims(this.anims)
@@ -77,7 +74,7 @@ export default class Game extends Phaser.Scene {
 
     // debugDraw(groundLayer, this)
 
-    this.myPlayer = this.add.myPlayer(705, 500, 'adam', this.network.mySessionId)
+    this.myPlayer = this.add.myPlayer(705, 500, 'adam', network.mySessionId)
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
     // import chair objects from Tiled map to Phaser
@@ -146,14 +143,14 @@ export default class Game extends Phaser.Scene {
     )
 
     // register network event listeners
-    this.network.onPlayerJoined(this.handlePlayerJoined, this)
-    this.network.onPlayerLeft(this.handlePlayerLeft, this)
-    this.network.onMyPlayerReady(this.handleMyPlayerReady, this)
-    this.network.onMyPlayerVideoConnected(this.handleMyVideoConnected, this)
-    this.network.onPlayerUpdated(this.handlePlayerUpdated, this)
-    this.network.onItemUserAdded(this.handleItemUserAdded, this)
-    this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
-    this.network.onChatMessageAdded(this.handleChatMessageAdded, this)
+    network.onPlayerJoined(this.handlePlayerJoined, this)
+    network.onPlayerLeft(this.handlePlayerLeft, this)
+    network.onMyPlayerReady(this.handleMyPlayerReady, this)
+    network.onMyPlayerVideoConnected(this.handleMyVideoConnected, this)
+    network.onPlayerUpdated(this.handlePlayerUpdated, this)
+    network.onItemUserAdded(this.handleItemUserAdded, this)
+    network.onItemUserRemoved(this.handleItemUserRemoved, this)
+    network.onChatMessageAdded(this.handleChatMessageAdded, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -238,7 +235,7 @@ export default class Game extends Phaser.Scene {
   }
 
   private handlePlayersOverlap(myPlayer, otherPlayer) {
-    otherPlayer.makeCall(myPlayer, this.network?.webRTC)
+    otherPlayer.makeCall(myPlayer)
   }
 
   private handleItemUserAdded(playerId: string, itemId: string, itemType: ItemType) {
@@ -267,9 +264,9 @@ export default class Game extends Phaser.Scene {
   }
 
   update(t: number, dt: number) {
-    if (this.myPlayer && this.network) {
+    if (this.myPlayer) {
       this.playerSelector.update(this.myPlayer, this.cursors)
-      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR, this.network)
+      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR)
     }
   }
 }

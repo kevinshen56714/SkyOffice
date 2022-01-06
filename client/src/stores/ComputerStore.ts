@@ -1,9 +1,11 @@
 import Peer from 'peerjs'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import ShareScreenManager from '../web/ShareScreenManager'
+import { sanitizeId } from '../util'
+
+import network from '../services/Network'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
-import { sanitizeId } from '../util'
 
 interface ComputerState {
   computerDialogOpen: boolean
@@ -48,7 +50,7 @@ export const computerSlice = createSlice({
       // Tell server the computer dialog is closed.
       const game = phaserGame.scene.keys.game as Game
       game.enableKeys()
-      game.network.disconnectFromComputer(state.computerId!)
+      network.disconnectFromComputer(state.computerId!)
       for (const { call } of state.peerStreams.values()) {
         call.close()
       }

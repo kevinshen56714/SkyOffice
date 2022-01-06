@@ -1,7 +1,8 @@
 import { ItemType } from '../../../types/Items'
-import store from '../stores'
 import Item from './Item'
-import Network from '../services/Network'
+
+import network from '../services/Network'
+import store from '../stores'
 import { openWhiteboardDialog } from '../stores/WhiteboardStore'
 
 export default class Whiteboard extends Item {
@@ -45,7 +46,7 @@ export default class Whiteboard extends Item {
     this.updateStatus()
   }
 
-  openDialog(network: Network) {
+  openDialog() {
     if (!this.id) return
     store.dispatch(openWhiteboardDialog(this.id))
     network.connectToWhiteboard(this.id)

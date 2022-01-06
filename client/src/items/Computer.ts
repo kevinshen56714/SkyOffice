@@ -1,7 +1,8 @@
 import { ItemType } from '../../../types/Items'
-import store from '../stores'
 import Item from './Item'
-import Network from '../services/Network'
+
+import network from '../services/Network'
+import store from '../stores'
 import { openComputerDialog } from '../stores/ComputerStore'
 
 export default class Computer extends Item {
@@ -53,7 +54,7 @@ export default class Computer extends Item {
     this.updateStatus()
   }
 
-  openDialog(playerId: string, network: Network) {
+  openDialog(playerId: string) {
     if (!this.id) return
     store.dispatch(openComputerDialog({ computerId: this.id, myUserId: playerId }))
     network.connectToComputer(this.id)

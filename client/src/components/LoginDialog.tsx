@@ -20,6 +20,7 @@ import { useAppSelector, useAppDispatch } from '../hooks'
 import { setLoggedIn } from '../stores/UserStore'
 import { getAvatarString, getColorByString } from '../util'
 
+import network from '../services/Network'
 import phaserGame from '../PhaserGame'
 import Lobby from '../scenes/Lobby'
 
@@ -161,7 +162,7 @@ export default function LoginDialog() {
       lobby.registerKeys()
       lobby.myPlayer.setPlayerName(name)
       lobby.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
-      lobby.network.readyToConnect()
+      network.readyToConnect()
       dispatch(setLoggedIn(true))
     }
   }
@@ -219,9 +220,7 @@ export default function LoginDialog() {
               <Button
                 variant="outlined"
                 color="secondary"
-                onClick={() => {
-                  lobby.network.webRTC?.getUserMedia()
-                }}
+                onClick={() => network.webRTC?.getUserMedia()}
               >
                 Connect Webcam
               </Button>

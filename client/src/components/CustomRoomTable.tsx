@@ -20,6 +20,7 @@ import LockIcon from '@mui/icons-material/Lock'
 import { useAppSelector } from '../hooks'
 import { getAvatarString, getColorByString } from '../util'
 
+import network from '../services/Network'
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
 
@@ -95,7 +96,7 @@ export const CustomRoomTable = () => {
   const handleJoinClick = (roomId: string, password: string | null) => {
     if (!lobbyJoined) return
     const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
-    bootstrap.network
+    network
       .joinCustomById(roomId, password)
       .then(() => bootstrap.launchGame())
       .catch((error) => {

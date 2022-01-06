@@ -21,7 +21,7 @@ import {
 } from '../stores/ChatStore'
 import { setWhiteboardUrls } from '../stores/WhiteboardStore'
 
-export default class Network {
+class Network {
   private client: Client
   private room?: Room<IOfficeState>
   private lobby!: Room
@@ -96,7 +96,7 @@ export default class Network {
     this.lobby.leave()
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
-    this.webRTC = new WebRTC(this.mySessionId, this)
+    this.webRTC = new WebRTC(this.mySessionId)
 
     // new instance added to the players MapSchema
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
@@ -283,3 +283,5 @@ export default class Network {
     this.room?.send(Message.ADD_CHAT_MESSAGE, { content: content })
   }
 }
+
+export default new Network()

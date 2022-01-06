@@ -4,8 +4,7 @@ import Button from '@mui/material/Button'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
 
-import phaserGame from '../PhaserGame'
-import Game from '../scenes/Game'
+import network from '../services/Network'
 
 const Backdrop = styled.div`
   position: fixed;
@@ -42,10 +41,7 @@ export default function VideoConnectionDialog() {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => {
-            const game = phaserGame.scene.keys.game as Game
-            game.network.webRTC?.getUserMedia()
-          }}
+          onClick={() => network.webRTC?.getUserMedia()}
         >
           Connect Webcam
         </Button>

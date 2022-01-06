@@ -3,7 +3,6 @@ import PlayerSelector from './PlayerSelector'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import { sittingShiftData } from './Player'
 import Player from './Player'
-import Network from '../services/Network'
 import Chair from '../items/Chair'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
@@ -11,6 +10,8 @@ import { pushPlayerJoinedMessage } from '../stores/ChatStore'
 import { ItemType } from '../../../types/Items'
 import Computer from '../items/Computer'
 import Whiteboard from '../items/Whiteboard'
+
+import network from '../services/Network'
 
 export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
@@ -45,8 +46,7 @@ export default class MyPlayer extends Player {
     playerSelector: PlayerSelector,
     cursors: Phaser.Types.Input.Keyboard.CursorKeys,
     keyE: Phaser.Input.Keyboard.Key,
-    keyR: Phaser.Input.Keyboard.Key,
-    network: Network
+    keyR: Phaser.Input.Keyboard.Key
   ) {
     if (!cursors) return
 
@@ -56,11 +56,11 @@ export default class MyPlayer extends Player {
       switch (item?.itemType) {
         case ItemType.COMPUTER:
           const computer = item as Computer
-          computer.openDialog(this.playerId, network)
+          computer.openDialog(this.playerId)
           break
         case ItemType.WHITEBOARD:
           const whiteboard = item as Whiteboard
-          whiteboard.openDialog(network)
+          whiteboard.openDialog()
           break
       }
     }
@@ -114,26 +114,10 @@ export default class MyPlayer extends Player {
           return
         }
 
-        // while currently on an escalator
-        // if myPlayer and the current escalatorOnTouch stop overlapping, clear the escalatorOnTouch
-        // if (this.escalatorOnTouch) {
-        //   if (!this.scene.physics.overlap(this, this.escalatorOnTouch)) {
-        //     this.escalatorOnTouch = undefined
-        //   } else {
-        //     const escalatorDirection = this.escalatorOnTouch.anims.currentAnim.key.split('_')[1]
-        //     escalatorDirection === 'up' ? -100 : 100
-        //   }
-        // }
-
         const speed = 200
         let vx = 0
         let vy = 0
-        // let escalatorSpeed = 0
-        // if (this.escalatorOnTouch) {
-        //   const escalatorDirection = this.escalatorOnTouch.anims.currentAnim.key.split('_')[1]
-        //   escalatorSpeed = escalatorDirection === 'up' ? -100 : 100
-        //   vy = escalatorSpeed
-        // }
+
         if (cursors.left?.isDown) vx -= speed
         if (cursors.right?.isDown) vx += speed
         if (cursors.up?.isDown) {

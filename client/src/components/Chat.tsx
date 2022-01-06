@@ -11,6 +11,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 
+import network from '../services/Network'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
 
@@ -191,7 +192,7 @@ export default function Chat() {
     const val = inputValue.trim()
     setInputValue('')
     if (val) {
-      game.network.addChatMessage(val)
+      network.addChatMessage(val)
       game.myPlayer.updateDialogBubble(val)
     }
   }

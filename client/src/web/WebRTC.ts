@@ -1,7 +1,7 @@
 import Peer from 'peerjs'
-import Network from '../services/Network'
 import store from '../stores'
 import { setVideoConnected } from '../stores/UserStore'
+import network from '../services/Network'
 
 export default class WebRTC {
   private myPeer: Peer
@@ -11,12 +11,10 @@ export default class WebRTC {
   private buttonGrid = document.querySelector('.button-grid')
   private myVideo = document.createElement('video')
   private myStream?: MediaStream
-  private network: Network
 
-  constructor(userId: string, network: Network) {
+  constructor(userId: string) {
     const sanitizedId = this.replaceInvalidId(userId)
     this.myPeer = new Peer(sanitizedId)
-    this.network = network
     console.log('userId:', userId)
     console.log('sanitizedId:', sanitizedId)
     this.myPeer.on('error', (err) => {
@@ -77,7 +75,7 @@ export default class WebRTC {
         this.addVideoStream(this.myVideo, this.myStream)
         this.setUpButtons()
         store.dispatch(setVideoConnected(true))
-        this.network.videoConnected()
+        network.videoConnected()
       })
       .catch((error) => {
         store.dispatch(setVideoConnected(false))
