@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="1" nextlayerid="19" nextobjectid="2673">
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="1" nextlayerid="19" nextobjectid="2683">
  <editorsettings>
   <export target="lobby.json" format="json"/>
  </editorsettings>
@@ -8208,10 +8208,55 @@
   <object id="2586" gid="6559" x="32" y="-32" width="32" height="64"/>
   <object id="2587" gid="6559" x="256" y="768" width="32" height="64"/>
  </objectgroup>
- <objectgroup id="18" name="WarpZones">
+ <objectgroup id="18" name="TeleportZones">
   <object id="2670" x="416" y="608" width="64" height="48">
    <properties>
-    <property name="warpTo" value="skyoffice"/>
+    <property name="teleportTo" value="skyoffice"/>
+   </properties>
+  </object>
+  <object id="2674" x="896" y="96" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A9"/>
+   </properties>
+  </object>
+  <object id="2675" x="896" y="-256" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A8"/>
+   </properties>
+  </object>
+  <object id="2676" x="896" y="-608" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A7"/>
+   </properties>
+  </object>
+  <object id="2677" x="256" y="-960" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A6"/>
+   </properties>
+  </object>
+  <object id="2678" x="96" y="-960" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A5"/>
+   </properties>
+  </object>
+  <object id="2679" x="-512" y="-960" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A4"/>
+   </properties>
+  </object>
+  <object id="2680" x="-928" y="-608" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A3"/>
+   </properties>
+  </object>
+  <object id="2681" x="-928" y="-256" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A2"/>
+   </properties>
+  </object>
+  <object id="2682" x="-928" y="96" width="64" height="48">
+   <properties>
+    <property name="teleportTo" value="A1"/>
    </properties>
   </object>
  </objectgroup>

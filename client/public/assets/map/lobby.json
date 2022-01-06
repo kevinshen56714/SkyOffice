@@ -7116,7 +7116,7 @@
         {
          "draworder":"topdown",
          "id":18,
-         "name":"WarpZones",
+         "name":"TeleportZones",
          "objects":[
                 {
                  "height":48,
@@ -7124,7 +7124,7 @@
                  "name":"",
                  "properties":[
                         {
-                         "name":"warpTo",
+                         "name":"teleportTo",
                          "type":"string",
                          "value":"skyoffice"
                         }],
@@ -7134,6 +7134,159 @@
                  "width":64,
                  "x":416,
                  "y":608
+                }, 
+                {
+                 "height":48,
+                 "id":2674,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A9"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":896,
+                 "y":96
+                }, 
+                {
+                 "height":48,
+                 "id":2675,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A8"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":896,
+                 "y":-256
+                }, 
+                {
+                 "height":48,
+                 "id":2676,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A7"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":896,
+                 "y":-608
+                }, 
+                {
+                 "height":48,
+                 "id":2677,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A6"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":256,
+                 "y":-960
+                }, 
+                {
+                 "height":48,
+                 "id":2678,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A5"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":96,
+                 "y":-960
+                }, 
+                {
+                 "height":48,
+                 "id":2679,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A4"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":-512,
+                 "y":-960
+                }, 
+                {
+                 "height":48,
+                 "id":2680,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A3"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":-928,
+                 "y":-608
+                }, 
+                {
+                 "height":48,
+                 "id":2681,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A2"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":-928,
+                 "y":-256
+                }, 
+                {
+                 "height":48,
+                 "id":2682,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"A1"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":-928,
+                 "y":96
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -7142,7 +7295,7 @@
          "y":0
         }],
  "nextlayerid":19,
- "nextobjectid":2673,
+ "nextobjectid":2683,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.0",

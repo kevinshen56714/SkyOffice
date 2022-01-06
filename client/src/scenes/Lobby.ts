@@ -3,6 +3,7 @@ import PlayerSelector from '../characters/PlayerSelector'
 import Network from '../services/Network'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 import { createItemAnims } from '../anims/ItemAnims'
+import TeleportZone from '../zones/TeleportZone'
 
 export default class Lobby extends Phaser.Scene {
   network!: Network
@@ -76,12 +77,22 @@ export default class Lobby extends Phaser.Scene {
     this.map.createLayer('MidDepth', Upstairs).setDepth(-5000)
     this.map.createLayer('HighDepth', FloorAndGround).setDepth(10000)
 
-    const collidergroup = this.physics.add.staticGroup()
+    const colliderGroup = this.physics.add.staticGroup()
     const colliderLayer = this.map.getObjectLayer('Colliders')
     colliderLayer.objects.forEach((object) => {
       const { x, y, width, height } = object
       const collisionRegion = this.add.zone(x!, y!, width!, height!).setOrigin(0)
-      collidergroup.add(collisionRegion)
+      colliderGroup.add(collisionRegion)
+    })
+
+    const teleportZoneGroup = this.physics.add.staticGroup({ classType: TeleportZone })
+    const teleportZoneLayer = this.map.getObjectLayer('TeleportZones')
+    teleportZoneLayer.objects.forEach((object) => {
+      const { x, y, width, height } = object
+      // custom properties[0] is the teleportTo property specified in Tiled
+      const teleportTo = object.properties[0].value
+      const teleportZone = new TeleportZone(this, x!, y!, width!, height!, teleportTo).setOrigin(0)
+      teleportZoneGroup.add(teleportZone)
     })
 
     const escalatorGroup = this.physics.add.staticGroup()
@@ -123,7 +134,7 @@ export default class Lobby extends Phaser.Scene {
 
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.myPlayer, true)
-    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], collidergroup)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], colliderGroup)
     this.physics.add.collider(
       [this.myPlayer, this.myPlayer.playerContainer],
       [groundLayer, lowDepthLayer]
@@ -133,6 +144,14 @@ export default class Lobby extends Phaser.Scene {
       this.myPlayer,
       escalatorGroup,
       this.handlePlayerEscalatorOverlap,
+      undefined,
+      this
+    )
+
+    this.physics.add.overlap(
+      this.myPlayer,
+      teleportZoneGroup,
+      this.handlePlayerTeleportZoneOverlap,
       undefined,
       this
     )
@@ -159,5 +178,9 @@ export default class Lobby extends Phaser.Scene {
 
   private handlePlayerEscalatorOverlap(myPlayer, escalator) {
     if (!myPlayer.escalatorOnTouch) myPlayer.escalatorOnTouch = escalator
+  }
+
+  private handlePlayerTeleportZoneOverlap(myPlayer, teleportZone) {
+    console.log(teleportZone.teleportTo)
   }
 }
