@@ -31,6 +31,10 @@ export default class Lobby extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 32,
     })
+    this.load.spritesheet('classroom', 'assets/items/Classroom_and_library.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    })
     this.load.spritesheet('glassdoor', 'assets/items/glassdoor.png', {
       frameWidth: 32,
       frameHeight: 64,
@@ -38,6 +42,10 @@ export default class Lobby extends Phaser.Scene {
     this.load.spritesheet('escalator', 'assets/items/escalator.png', {
       frameWidth: 96,
       frameHeight: 160,
+    })
+    this.load.spritesheet('receptionist', 'assets/items/receptionist.png', {
+      frameWidth: 32,
+      frameHeight: 64,
     })
   }
 
@@ -72,13 +80,13 @@ export default class Lobby extends Phaser.Scene {
     const colliderLayer = this.map.getObjectLayer('Colliders')
     colliderLayer.objects.forEach((object) => {
       const { x, y, width, height } = object
-      const collisionRegion = this.add.rectangle(x, y, width, height).setOrigin(0)
+      const collisionRegion = this.add.zone(x!, y!, width!, height!).setOrigin(0)
       collidergroup.add(collisionRegion)
     })
 
     const escalatorGroup = this.physics.add.staticGroup()
-    const objectLayer = this.map.getObjectLayer('Escalators')
-    objectLayer.objects.forEach((object) => {
+    const escalatorLayer = this.map.getObjectLayer('Escalators')
+    escalatorLayer.objects.forEach((object) => {
       const { x, y, width, height } = object
       const actualX = x! + width! * 0.5
       const actualY = y! - height! * 0.5
@@ -94,10 +102,23 @@ export default class Lobby extends Phaser.Scene {
       escalator.body.height = height! * 0.75
     })
 
+    const receptionistGroup = this.physics.add.staticGroup()
+    const receptionistLayer = this.map.getObjectLayer('Receptionists')
+    receptionistLayer.objects.forEach((object, id) => {
+      const { x, y, width, height } = object
+      const actualX = x! + width! * 0.5
+      const actualY = y! - height! * 0.5
+      receptionistGroup
+        .get(actualX, actualY)
+        .setDepth(actualY)
+        .anims.play(`receptionist_${id % 2}`)
+    })
+
+    this.addGroupFromTiled('ClassroomObjects', 'classroom', 'Classroom_and_library')
     this.addGroupFromTiled('UpstairsObjects', 'upstairs', 'UpstairsConnectorsStairsAndOthers')
     this.addGroupFromTiled('Glassdoor', 'glassdoor', 'glassdoor')
 
-    this.myPlayer = this.add.myPlayer(0, 100, 'adam', '123')
+    this.myPlayer = this.add.myPlayer(0, 0, 'adam', '123')
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
     this.cameras.main.zoom = 1.5
