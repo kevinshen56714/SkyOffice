@@ -17,12 +17,11 @@ import Ash from '../assets/Ash_login.png'
 import Lucy from '../assets/Lucy_login.png'
 import Nancy from '../assets/Nancy_login.png'
 import { useAppSelector, useAppDispatch } from '../hooks'
-import { setLoggedIn } from '../stores/UserStore'
+import { logIn, setMyPlayerProps } from '../stores/UserStore'
 import { getAvatarString, getColorByString } from '../util'
+import { pushPlayerJoinedMessage } from '../stores/ChatStore'
 
 import network from '../services/Network'
-import phaserGame from '../PhaserGame'
-import Bootstrap from '../scenes/Bootstrap'
 
 SwiperCore.use([Navigation])
 
@@ -151,7 +150,6 @@ export default function LoginDialog() {
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
-  const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -159,11 +157,9 @@ export default function LoginDialog() {
       setNameFieldEmpty(true)
     } else if (roomJoined) {
       console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
-      currentScene?.registerKeys()
-      currentScene?.myPlayer.setPlayerName(name)
-      currentScene?.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
-      network.readyToConnect()
-      dispatch(setLoggedIn(true))
+      dispatch(setMyPlayerProps({ name, texture: avatars[avatarIndex].name }))
+      dispatch(pushPlayerJoinedMessage(name))
+      dispatch(logIn())
     }
   }
 

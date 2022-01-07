@@ -107,7 +107,7 @@ export default class OtherPlayer extends Player {
       this.x = this.targetPosition[0]
       this.y = this.targetPosition[1]
       this.playerContainer.x = this.targetPosition[0]
-      this.playerContainer.y = this.targetPosition[1] - 30
+      this.playerContainer.y = this.targetPosition[1] + this.playerContainerOffsetY
       return
     }
 
@@ -137,7 +137,7 @@ export default class OtherPlayer extends Player {
     }
     if (Math.abs(dy) < delta) {
       this.y = this.targetPosition[1]
-      this.playerContainer.y = this.targetPosition[1] - 30
+      this.playerContainer.y = this.targetPosition[1] + this.playerContainerOffsetY
       dy = 0
     }
 

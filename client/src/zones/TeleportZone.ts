@@ -4,7 +4,6 @@ import MyPlayer from '../characters/MyPlayer'
 
 export default class TeleportZone extends Phaser.GameObjects.Zone {
   teleportTo!: RoomType
-  roomId?: string
 
   constructor(
     scene: Phaser.Scene,

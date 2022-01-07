@@ -5,8 +5,6 @@ import { sittingShiftData } from './Player'
 import Player from './Player'
 import Chair from '../items/Chair'
 import { phaserEvents, Event } from '../events/EventCenter'
-import store from '../stores'
-import { pushPlayerJoinedMessage } from '../stores/ChatStore'
 import { ItemType } from '../../../types/Items'
 import Computer from '../items/Computer'
 import Whiteboard from '../items/Whiteboard'
@@ -24,21 +22,24 @@ export default class MyPlayer extends Player {
     y: number,
     texture: string,
     id: string,
+    name?: string,
     frame?: string | number
   ) {
     super(scene, x, y, texture, id, frame)
     this.playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
+    if (name) this.playerName.setText(name)
   }
 
   setPlayerName(name: string) {
     this.playerName.setText(name)
     phaserEvents.emit(Event.MY_PLAYER_NAME_CHANGE, name)
-    store.dispatch(pushPlayerJoinedMessage(name))
   }
 
   setPlayerTexture(texture: string) {
     this.playerTexture = texture
-    this.anims.play(`${this.playerTexture}_idle_down`, true)
+    const parts = this.anims.currentAnim.key.split('_')
+    parts[0] = this.playerTexture
+    this.play(parts.join('_'), true)
     phaserEvents.emit(Event.MY_PLAYER_TEXTURE_CHANGE, this.x, this.y, this.anims.currentAnim.key)
   }
 
@@ -90,7 +91,9 @@ export default class MyPlayer extends Player {
                 this.playContainerBody.setVelocity(0, 0)
                 this.playerContainer.setPosition(
                   chairItem.x + sittingShiftData[chairItem.itemDirection][0],
-                  chairItem.y + sittingShiftData[chairItem.itemDirection][1] - 30
+                  chairItem.y +
+                    sittingShiftData[chairItem.itemDirection][1] +
+                    this.playerContainerOffsetY
                 )
               }
 
@@ -191,7 +194,14 @@ export default class MyPlayer extends Player {
 declare global {
   namespace Phaser.GameObjects {
     interface GameObjectFactory {
-      myPlayer(x: number, y: number, texture: string, id: string, frame?: string | number): MyPlayer
+      myPlayer(
+        x: number,
+        y: number,
+        texture: string,
+        id: string,
+        name?: string,
+        frame?: string | number
+      ): MyPlayer
     }
   }
 }
@@ -204,9 +214,10 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     id: string,
+    name?: string,
     frame?: string | number
   ) {
-    const sprite = new MyPlayer(this.scene, x, y, texture, id, frame)
+    const sprite = new MyPlayer(this.scene, x, y, texture, id, name, frame)
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)

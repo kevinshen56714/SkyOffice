@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
 
 // import { debugDraw } from '../utils/debug'
-import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
 import Chair from '../items/Chair'
@@ -9,24 +8,16 @@ import Computer from '../items/Computer'
 import Whiteboard from '../items/Whiteboard'
 import '../characters/MyPlayer'
 import '../characters/OtherPlayer'
-import MyPlayer from '../characters/MyPlayer'
 import OtherPlayer from '../characters/OtherPlayer'
-import PlayerSelector from '../characters/PlayerSelector'
 import { IPlayer } from '../../../types/IOfficeState'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import { ItemType } from '../../../types/Items'
+import { ISceneData } from '../../../types/Scenes'
+import Scene from './Scene'
 
 import network from '../services/Network'
-import store from '../stores'
-import { setFocused, setShowChat } from '../stores/ChatStore'
 
-export default class Office extends Phaser.Scene {
-  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
-  private keyE!: Phaser.Input.Keyboard.Key
-  private keyR!: Phaser.Input.Keyboard.Key
-  private map!: Phaser.Tilemaps.Tilemap
-  myPlayer!: MyPlayer
-  private playerSelector!: Phaser.GameObjects.Zone
+export default class Office extends Scene {
   private otherPlayers!: Phaser.Physics.Arcade.Group
   private otherPlayerMap = new Map<string, OtherPlayer>()
   computerMap = new Map<string, Computer>()
@@ -36,46 +27,17 @@ export default class Office extends Phaser.Scene {
     super('office')
   }
 
-  registerKeys() {
-    this.cursors = this.input.keyboard.createCursorKeys()
-    // maybe we can have a dedicated method for adding keys if more keys are needed in the future
-    this.keyE = this.input.keyboard.addKey('E')
-    this.keyR = this.input.keyboard.addKey('R')
-    this.input.keyboard.disableGlobalCapture()
-    this.input.keyboard.on('keydown-ENTER', (event) => {
-      store.dispatch(setShowChat(true))
-      store.dispatch(setFocused(true))
-    })
-    this.input.keyboard.on('keydown-ESC', (event) => {
-      store.dispatch(setShowChat(false))
-    })
-  }
-
-  disableKeys() {
-    this.input.keyboard.enabled = false
-  }
-
-  enableKeys() {
-    this.input.keyboard.enabled = true
-  }
-
-  create() {
-    if (!network) {
-      throw new Error('server instance missing')
-    }
-
-    createCharacterAnims(this.anims)
-
+  create(data: ISceneData) {
     this.map = this.make.tilemap({ key: 'tilemap' })
-    const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
+    super.create(data)
 
-    const groundLayer = this.map.createLayer('Ground', FloorAndGround)
-    groundLayer.setCollisionByProperty({ collides: true })
+    const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
+    const groundLayer = this.map
+      .createLayer('Ground', FloorAndGround)
+      .setDepth(-10000)
+      .setCollisionByProperty({ collides: true })
 
     // debugDraw(groundLayer, this)
-
-    this.myPlayer = this.add.myPlayer(705, 500, 'adam', network.mySessionId)
-    this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
     // import chair objects from Tiled map to Phaser
     const chairs = this.physics.add.staticGroup({ classType: Chair })
@@ -122,8 +84,10 @@ export default class Office extends Phaser.Scene {
 
     this.otherPlayers = this.physics.add.group({ classType: OtherPlayer })
 
-    this.cameras.main.zoom = 1.5
-    this.cameras.main.startFollow(this.myPlayer, true)
+    // Have my player plays facing up animation
+    const parts = this.myPlayer.anims.currentAnim.key.split('_')
+    parts[2] = 'up'
+    this.myPlayer.play(parts.join('_'), true)
 
     this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], groundLayer)
     this.physics.add.overlap(
@@ -184,25 +148,6 @@ export default class Office extends Phaser.Scene {
     return obj
   }
 
-  private addGroupFromTiled(
-    objectLayerName: string,
-    key: string,
-    tilesetName: string,
-    collidable: boolean
-  ) {
-    const group = this.physics.add.staticGroup()
-    const objectLayer = this.map.getObjectLayer(objectLayerName)
-    objectLayer.objects.forEach((object) => {
-      const actualX = object.x! + object.width! * 0.5
-      const actualY = object.y! - object.height! * 0.5
-      group
-        .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
-        .setDepth(actualY)
-    })
-    if (this.myPlayer && collidable)
-      this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], group)
-  }
-
   // function to add new player to the otherPlayer group
   private handlePlayerJoined(newPlayer: IPlayer, id: string) {
     const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'adam', id, newPlayer.name)
@@ -261,12 +206,5 @@ export default class Office extends Phaser.Scene {
   private handleChatMessageAdded(playerId: string, content: string) {
     const otherPlayer = this.otherPlayerMap.get(playerId)
     otherPlayer?.updateDialogBubble(content)
-  }
-
-  update(t: number, dt: number) {
-    if (this.myPlayer) {
-      this.playerSelector.update(this.myPlayer, this.cursors)
-      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR)
-    }
   }
 }

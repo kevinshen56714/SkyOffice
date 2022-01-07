@@ -9,8 +9,8 @@ import {
 
 export class Player extends Schema implements IPlayer {
   @type('string') name = ''
-  @type('number') x = 705
-  @type('number') y = 500
+  @type('number') x = 0
+  @type('number') y = 0
   @type('string') anim = 'adam_idle_down'
   @type('boolean') readyToConnect = false
   @type('boolean') videoConnected = false

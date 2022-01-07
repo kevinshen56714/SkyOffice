@@ -19,6 +19,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   videoConnected = false
   playerName: Phaser.GameObjects.Text
   playerContainer: Phaser.GameObjects.Container
+  playerContainerOffsetY = -30
   private playerDialogBubble: Phaser.GameObjects.Container
   private timeoutID?: number
 
@@ -38,10 +39,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.anims.play(`${this.playerTexture}_idle_down`, true)
 
-    this.playerContainer = this.scene.add.container(this.x, this.y - 30).setDepth(5000)
+    this.playerContainer = this.scene.add
+      .container(this.x, this.y + this.playerContainerOffsetY)
+      .setDepth(5000)
 
     // add dialogBubble to playerContainer
-    this.playerDialogBubble = this.scene.add.container(0, 0).setDepth(5000)
+    this.playerDialogBubble = this.scene.add.container(0, 0)
     this.playerContainer.add(this.playerDialogBubble)
 
     // add playerName to playerContainer

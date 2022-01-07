@@ -15,6 +15,7 @@ export default class Bootstrap extends Phaser.Scene {
   }
 
   preload() {
+    // background images
     this.load.atlas(
       'cloud_day',
       'assets/background/cloud_day.png',
@@ -29,10 +30,34 @@ export default class Bootstrap extends Phaser.Scene {
     this.load.image('backdrop_night', 'assets/background/backdrop_night.png')
     this.load.image('sun_moon', 'assets/background/sun_moon.png')
 
+    // tilemaps
+    this.load.tilemapTiledJSON('lobby_map', 'assets/map/lobby.json')
     this.load.tilemapTiledJSON('tilemap', 'assets/map/map.json')
+
+    // item images
     this.load.spritesheet('tiles_wall', 'assets/map/FloorAndGround.png', {
       frameWidth: 32,
       frameHeight: 32,
+    })
+    this.load.spritesheet('upstairs', 'assets/items/UpstairsConnectorsStairsAndOthers.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    })
+    this.load.spritesheet('classroom', 'assets/items/Classroom_and_library.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    })
+    this.load.spritesheet('glassdoor', 'assets/items/glassdoor.png', {
+      frameWidth: 32,
+      frameHeight: 64,
+    })
+    this.load.spritesheet('escalator', 'assets/items/escalator.png', {
+      frameWidth: 96,
+      frameHeight: 160,
+    })
+    this.load.spritesheet('receptionist', 'assets/items/receptionist.png', {
+      frameWidth: 32,
+      frameHeight: 64,
     })
     this.load.spritesheet('chairs', 'assets/items/chair.png', {
       frameWidth: 32,
@@ -58,6 +83,8 @@ export default class Bootstrap extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 32,
     })
+
+    //character images
     this.load.spritesheet('adam', 'assets/character/adam.png', {
       frameWidth: 32,
       frameHeight: 48,
@@ -86,7 +113,6 @@ export default class Bootstrap extends Phaser.Scene {
 
   launchGame() {
     network.webRTC?.checkPreviousPermission()
-    // this.scene.launch('office')
     this.scene.launch('lobby', { onLeave: this.handleEnterOffice })
     this.currentScene = this.scene.get('lobby') as Lobby
 
@@ -99,15 +125,16 @@ export default class Bootstrap extends Phaser.Scene {
     this.launchBackground(backgroundMode)
   }
 
-  private handleEnterLobby() {
+  private handleEnterLobby = () => {
     this.scene.stop('office')
     this.scene.launch('lobby', { onLeave: this.handleEnterOffice })
     this.currentScene = this.scene.get('lobby') as Lobby
   }
 
-  private handleEnterOffice() {
+  private handleEnterOffice = (teleportTo: string) => {
+    // network connects to "teleportTo"
     this.scene.stop('lobby')
-    this.scene.launch('office')
+    this.scene.launch('office', { onLeave: this.handleEnterLobby })
     this.currentScene = this.scene.get('office') as Office
   }
 }
