@@ -4,7 +4,7 @@ import { setMyStream, addVideoStream, removeVideoStream } from '../stores/Comput
 
 import network from '../services/Network'
 import phaserGame from '../PhaserGame'
-import Game from '../scenes/Game'
+import Bootstrap from '../scenes/Bootstrap'
 
 export default class ShareScreenManager {
   private myPeer: Peer
@@ -69,8 +69,8 @@ export default class ShareScreenManager {
         store.dispatch(setMyStream(stream))
 
         // Call all existing users.
-        const game = phaserGame.scene.keys.game as Game
-        const computerItem = game.computerMap.get(store.getState().computer.computerId!)
+        const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
+        const computerItem = currentScene?.computerMap.get(store.getState().computer.computerId!)
         if (computerItem) {
           for (const userId of computerItem.currentUsers) {
             this.onUserJoined(userId)

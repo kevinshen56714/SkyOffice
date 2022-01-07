@@ -1,11 +1,15 @@
 import Phaser from 'phaser'
 import { BackgroundMode } from '../../../types/BackgroundMode'
+import Lobby from './Lobby'
+import Office from './Office'
 
 import network from '../services/Network'
 import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
 
 export default class Bootstrap extends Phaser.Scene {
+  currentScene?: Office | Lobby
+
   constructor() {
     super('bootstrap')
   }
@@ -82,8 +86,9 @@ export default class Bootstrap extends Phaser.Scene {
 
   launchGame() {
     network.webRTC?.checkPreviousPermission()
-    this.scene.launch('game')
-    // this.scene.launch('lobby')
+    // this.scene.launch('office')
+    this.scene.launch('lobby', { onLeave: this.handleEnterOffice })
+    this.currentScene = this.scene.get('lobby') as Lobby
 
     // update Redux state
     store.dispatch(setRoomJoined(true))
@@ -92,5 +97,17 @@ export default class Bootstrap extends Phaser.Scene {
   changeBackgroundMode(backgroundMode: BackgroundMode) {
     this.scene.stop('background')
     this.launchBackground(backgroundMode)
+  }
+
+  private handleEnterLobby() {
+    this.scene.stop('office')
+    this.scene.launch('lobby', { onLeave: this.handleEnterOffice })
+    this.currentScene = this.scene.get('lobby') as Lobby
+  }
+
+  private handleEnterOffice() {
+    this.scene.stop('lobby')
+    this.scene.launch('office')
+    this.currentScene = this.scene.get('office') as Office
   }
 }

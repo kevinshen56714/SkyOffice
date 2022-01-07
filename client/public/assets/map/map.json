@@ -2236,7 +2236,7 @@
                  "visible":true,
                  "width":32,
                  "x":664,
-                 "y":161.333333333333
+                 "y":161.333
                 }, 
                 {
                  "gid":2935,
@@ -2248,7 +2248,7 @@
                  "visible":true,
                  "width":32,
                  "x":664,
-                 "y":193.333333333333
+                 "y":193.333
                 }, 
                 {
                  "gid":3327,
@@ -3352,7 +3352,7 @@
                  "visible":true,
                  "width":32,
                  "x":632,
-                 "y":161.333333333333
+                 "y":161.333
                 }, 
                 {
                  "gid":2934,
@@ -3364,7 +3364,7 @@
                  "visible":true,
                  "width":32,
                  "x":632,
-                 "y":193.333333333333
+                 "y":193.333
                 }, 
                 {
                  "gid":2894,
@@ -4422,9 +4422,37 @@
          "visible":true,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "id":14,
+         "name":"TeleportZones",
+         "objects":[
+                {
+                 "height":32,
+                 "id":1264,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"teleportTo",
+                         "type":"string",
+                         "value":"lobby"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":640,
+                 "y":896
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextlayerid":14,
- "nextobjectid":1262,
+ "nextlayerid":15,
+ "nextobjectid":1265,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.7.0",

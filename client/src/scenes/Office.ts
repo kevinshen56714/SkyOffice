@@ -20,7 +20,7 @@ import network from '../services/Network'
 import store from '../stores'
 import { setFocused, setShowChat } from '../stores/ChatStore'
 
-export default class Game extends Phaser.Scene {
+export default class Office extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private keyE!: Phaser.Input.Keyboard.Key
   private keyR!: Phaser.Input.Keyboard.Key
@@ -33,7 +33,7 @@ export default class Game extends Phaser.Scene {
   private whiteboardMap = new Map<string, Whiteboard>()
 
   constructor() {
-    super('game')
+    super('office')
   }
 
   registerKeys() {

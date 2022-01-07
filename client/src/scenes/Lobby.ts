@@ -3,6 +3,7 @@ import PlayerSelector from '../characters/PlayerSelector'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 import { createItemAnims } from '../anims/ItemAnims'
 import TeleportZone from '../zones/TeleportZone'
+import Computer from '../items/Computer'
 
 import network from '../services/Network'
 
@@ -13,6 +14,8 @@ export default class Lobby extends Phaser.Scene {
   private keyE!: Phaser.Input.Keyboard.Key
   private keyR!: Phaser.Input.Keyboard.Key
   private map!: Phaser.Tilemaps.Tilemap
+  private onLeave!: () => void
+  computerMap = new Map<string, Computer>()
 
   constructor() {
     super('lobby')
@@ -24,6 +27,14 @@ export default class Lobby extends Phaser.Scene {
     this.keyE = this.input.keyboard.addKey('E')
     this.keyR = this.input.keyboard.addKey('R')
     this.input.keyboard.disableGlobalCapture()
+  }
+
+  disableKeys() {
+    this.input.keyboard.enabled = false
+  }
+
+  enableKeys() {
+    this.input.keyboard.enabled = true
   }
 
   preload() {
@@ -50,10 +61,12 @@ export default class Lobby extends Phaser.Scene {
     })
   }
 
-  create() {
+  create(data: { onLeave: () => void }) {
     if (!network) {
       throw new Error('server instance missing')
     }
+
+    this.onLeave = data.onLeave
 
     createCharacterAnims(this.anims)
     createItemAnims(this.anims)
@@ -155,13 +168,6 @@ export default class Lobby extends Phaser.Scene {
     )
   }
 
-  update() {
-    if (this.myPlayer) {
-      this.playerSelector.update(this.myPlayer, this.cursors)
-      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR)
-    }
-  }
-
   private addGroupFromTiled(objectLayerName: string, key: string, tilesetName: string) {
     const group = this.physics.add.staticGroup()
     const objectLayer = this.map.getObjectLayer(objectLayerName)
@@ -179,6 +185,14 @@ export default class Lobby extends Phaser.Scene {
   }
 
   private handlePlayerTeleportZoneOverlap(myPlayer, teleportZone) {
+    this.onLeave()
     console.log(teleportZone.teleportTo)
+  }
+
+  update() {
+    if (this.myPlayer) {
+      this.playerSelector.update(this.myPlayer, this.cursors)
+      this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR)
+    }
   }
 }

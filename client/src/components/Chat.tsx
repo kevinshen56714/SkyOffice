@@ -13,7 +13,7 @@ import { Picker } from 'emoji-mart'
 
 import network from '../services/Network'
 import phaserGame from '../PhaserGame'
-import Game from '../scenes/Game'
+import Bootstrap from '../scenes/Bootstrap'
 
 import { getColorByString } from '../util'
 import { useAppDispatch, useAppSelector } from '../hooks'
@@ -170,7 +170,7 @@ export default function Chat() {
   const focused = useAppSelector((state) => state.chat.focused)
   const showChat = useAppSelector((state) => state.chat.showChat)
   const dispatch = useAppDispatch()
-  const game = phaserGame.scene.keys.game as Game
+  const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
 
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     setInputValue(event.currentTarget.value)
@@ -193,7 +193,7 @@ export default function Chat() {
     setInputValue('')
     if (val) {
       network.addChatMessage(val)
-      game.myPlayer.updateDialogBubble(val)
+      currentScene?.myPlayer.updateDialogBubble(val)
     }
   }
 

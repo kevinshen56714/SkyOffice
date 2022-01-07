@@ -5,7 +5,7 @@ import { sanitizeId } from '../util'
 
 import network from '../services/Network'
 import phaserGame from '../PhaserGame'
-import Game from '../scenes/Game'
+import Bootstrap from '../scenes/Bootstrap'
 
 interface ComputerState {
   computerDialogOpen: boolean
@@ -40,16 +40,16 @@ export const computerSlice = createSlice({
       if (!state.shareScreenManager) {
         state.shareScreenManager = new ShareScreenManager(action.payload.myUserId)
       }
-      const game = phaserGame.scene.keys.game as Game
-      game.disableKeys()
+      const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
+      currentScene?.disableKeys()
       state.shareScreenManager.onOpen()
       state.computerDialogOpen = true
       state.computerId = action.payload.computerId
     },
     closeComputerDialog: (state) => {
       // Tell server the computer dialog is closed.
-      const game = phaserGame.scene.keys.game as Game
-      game.enableKeys()
+      const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
+      currentScene?.enableKeys()
       network.disconnectFromComputer(state.computerId!)
       for (const { call } of state.peerStreams.values()) {
         call.close()
