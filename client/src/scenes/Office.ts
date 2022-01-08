@@ -8,21 +8,10 @@ import Computer from '../items/Computer'
 import Whiteboard from '../items/Whiteboard'
 import '../characters/MyPlayer'
 import '../characters/OtherPlayer'
-import OtherPlayer from '../characters/OtherPlayer'
-import { IPlayer } from '../../../types/IOfficeState'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
-import { ItemType } from '../../../types/Items'
-import { ISceneData } from '../../../types/Scenes'
-import Scene from './Scene'
-
-import network from '../services/Network'
+import Scene, { ISceneData } from './Scene'
 
 export default class Office extends Scene {
-  private otherPlayers!: Phaser.Physics.Arcade.Group
-  private otherPlayerMap = new Map<string, OtherPlayer>()
-  computerMap = new Map<string, Computer>()
-  private whiteboardMap = new Map<string, Whiteboard>()
-
   constructor() {
     super('office')
   }
@@ -82,8 +71,6 @@ export default class Office extends Scene {
     this.addGroupFromTiled('GenericObjectsOnCollide', 'generic', 'Generic', true)
     this.addGroupFromTiled('Basement', 'basement', 'Basement', true)
 
-    this.otherPlayers = this.physics.add.group({ classType: OtherPlayer })
-
     // Have my player plays facing up animation
     const parts = this.myPlayer.anims.currentAnim.key.split('_')
     parts[2] = 'up'
@@ -97,24 +84,6 @@ export default class Office extends Scene {
       undefined,
       this
     )
-
-    this.physics.add.overlap(
-      this.myPlayer,
-      this.otherPlayers,
-      this.handlePlayersOverlap,
-      undefined,
-      this
-    )
-
-    // register network event listeners
-    network.onPlayerJoined(this.handlePlayerJoined, this)
-    network.onPlayerLeft(this.handlePlayerLeft, this)
-    network.onMyPlayerReady(this.handleMyPlayerReady, this)
-    network.onMyPlayerVideoConnected(this.handleMyVideoConnected, this)
-    network.onPlayerUpdated(this.handlePlayerUpdated, this)
-    network.onItemUserAdded(this.handleItemUserAdded, this)
-    network.onItemUserRemoved(this.handleItemUserRemoved, this)
-    network.onChatMessageAdded(this.handleChatMessageAdded, this)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -146,65 +115,5 @@ export default class Office extends Scene {
       .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
       .setDepth(actualY)
     return obj
-  }
-
-  // function to add new player to the otherPlayer group
-  private handlePlayerJoined(newPlayer: IPlayer, id: string) {
-    const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'adam', id, newPlayer.name)
-    this.otherPlayers.add(otherPlayer)
-    this.otherPlayerMap.set(id, otherPlayer)
-  }
-
-  // function to remove the player who left from the otherPlayer group
-  private handlePlayerLeft(id: string) {
-    if (this.otherPlayerMap.has(id)) {
-      const otherPlayer = this.otherPlayerMap.get(id)
-      if (!otherPlayer) return
-      this.otherPlayers.remove(otherPlayer, true, true)
-      this.otherPlayerMap.delete(id)
-    }
-  }
-
-  private handleMyPlayerReady() {
-    this.myPlayer.readyToConnect = true
-  }
-
-  private handleMyVideoConnected() {
-    this.myPlayer.videoConnected = true
-  }
-
-  // function to update target position upon receiving player updates
-  private handlePlayerUpdated(field: string, value: number | string, id: string) {
-    const otherPlayer = this.otherPlayerMap.get(id)
-    otherPlayer?.updateOtherPlayer(field, value)
-  }
-
-  private handlePlayersOverlap(myPlayer, otherPlayer) {
-    otherPlayer.makeCall(myPlayer)
-  }
-
-  private handleItemUserAdded(playerId: string, itemId: string, itemType: ItemType) {
-    if (itemType === ItemType.COMPUTER) {
-      const computer = this.computerMap.get(itemId)
-      computer?.addCurrentUser(playerId)
-    } else if (itemType === ItemType.WHITEBOARD) {
-      const whiteboard = this.whiteboardMap.get(itemId)
-      whiteboard?.addCurrentUser(playerId)
-    }
-  }
-
-  private handleItemUserRemoved(playerId: string, itemId: string, itemType: ItemType) {
-    if (itemType === ItemType.COMPUTER) {
-      const computer = this.computerMap.get(itemId)
-      computer?.removeCurrentUser(playerId)
-    } else if (itemType === ItemType.WHITEBOARD) {
-      const whiteboard = this.whiteboardMap.get(itemId)
-      whiteboard?.removeCurrentUser(playerId)
-    }
-  }
-
-  private handleChatMessageAdded(playerId: string, content: string) {
-    const otherPlayer = this.otherPlayerMap.get(playerId)
-    otherPlayer?.updateDialogBubble(content)
   }
 }

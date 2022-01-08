@@ -1,13 +1,6 @@
-import Scene from './Scene'
-import Computer from '../items/Computer'
-import Whiteboard from '../items/Whiteboard'
-import { ISceneData } from '../../../types/Scenes'
-import store from '../stores'
+import Scene, { ISceneData } from './Scene'
 
 export default class Lobby extends Scene {
-  computerMap = new Map<string, Computer>()
-  private whiteboardMap = new Map<string, Whiteboard>()
-
   constructor() {
     super('lobby')
   }
@@ -92,16 +85,6 @@ export default class Lobby extends Scene {
       undefined,
       this
     )
-
-    // A9 is placeHolder
-    const teleportZone = this.teleportZoneMap.get('A9')?.getBottomCenter()
-    if (store.getState().user.loggedIn && teleportZone) {
-      this.myPlayer.setPosition(teleportZone.x, teleportZone.y + 32)
-      this.myPlayer.playerContainer.setPosition(
-        teleportZone.x,
-        teleportZone.y + 32 + this.myPlayer.playerContainerOffsetY
-      )
-    }
   }
 
   private handlePlayerEscalatorOverlap(myPlayer, escalator) {

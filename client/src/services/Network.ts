@@ -25,9 +25,9 @@ class Network {
   private client: Client
   private room?: Room<IOfficeState>
   private lobby!: Room
-  webRTC?: WebRTC
-
-  mySessionId!: string
+  webRTC!: WebRTC
+  webRTCId!: string
+  mySessionId?: string
 
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws')
@@ -36,8 +36,10 @@ class Network {
         ? `wss://sky-office.herokuapp.com`
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
-    this.joinLobbyRoom().then(() => {
+    this.joinColyseusLobbyRoom().then(() => {
       store.dispatch(setLobbyJoined(true))
+      this.webRTCId = this.lobby.sessionId
+      this.webRTC = new WebRTC(this.webRTCId)
     })
 
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
@@ -49,8 +51,8 @@ class Network {
    * method to join Colyseus' built-in LobbyRoom, which automatically notifies
    * connected clients whenever rooms with "realtime listing" have updates
    */
-  async joinLobbyRoom() {
-    this.lobby = await this.client.joinOrCreate(RoomType.LOBBY)
+  async joinColyseusLobbyRoom() {
+    this.lobby = await this.client.joinOrCreate(RoomType.COLYSEUS_LOBBYROOM)
 
     this.lobby.onMessage('rooms', (rooms) => {
       store.dispatch(setAvailableRooms(rooms))
@@ -66,8 +68,42 @@ class Network {
   }
 
   // method to join the public lobby
-  async joinOrCreatePublic() {
-    this.room = await this.client.joinOrCreate(RoomType.PUBLIC)
+  async joinOrCreateLobby(enterX?: number, enterY?: number) {
+    if (this.room) await this.room.leave()
+    const { name, texture } = store.getState().user
+    if (name && texture && enterX && enterY) {
+      this.room = await this.client.joinOrCreate(RoomType.LOBBY, {
+        playerName: name,
+        playerTexture: texture,
+        enterX,
+        enterY,
+      })
+    } else {
+      this.room = await this.client.joinOrCreate(RoomType.LOBBY)
+    }
+    this.initialize()
+  }
+
+  // method to join an office
+  async joinOffice(roomNumber: string) {
+    if (this.room) await this.room.leave()
+    const { name, texture } = store.getState().user
+    if (roomNumber === RoomType.PUBLIC) {
+      this.room = await this.client.joinOrCreate(RoomType.PUBLIC, {
+        playerName: name,
+        playerTexture: texture,
+      })
+    } else {
+      this.room = await this.client.joinOrCreate(RoomType.OFFICE, {
+        name: roomNumber,
+        roomNumber,
+        description: roomNumber,
+        password: null,
+        autoDispose: false,
+        playerName: name,
+        playerTexture: texture,
+      })
+    }
     this.initialize()
   }
 
@@ -80,7 +116,7 @@ class Network {
   // method to create a custom room
   async createCustom(roomData: IRoomData) {
     const { name, description, password, autoDispose } = roomData
-    this.room = await this.client.create(RoomType.CUSTOM, {
+    this.room = await this.client.create(RoomType.OFFICE, {
       name,
       description,
       password,
@@ -93,10 +129,8 @@ class Network {
   initialize() {
     if (!this.room) return
 
-    this.lobby.leave()
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
-    this.webRTC = new WebRTC(this.mySessionId)
 
     // new instance added to the players MapSchema
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {

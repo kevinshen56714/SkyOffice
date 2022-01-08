@@ -99,7 +99,7 @@ export default function RoomSelectionDialog() {
     if (lobbyJoined) {
       const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
       network
-        .joinOrCreatePublic()
+        .joinOrCreateLobby()
         .then(() => bootstrap.launchGame())
         .catch((error) => console.error(error))
     } else {

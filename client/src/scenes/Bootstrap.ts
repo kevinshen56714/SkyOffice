@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import { BackgroundMode } from '../../../types/BackgroundMode'
 import Lobby from './Lobby'
 import Office from './Office'
+import TeleportZone from '../zones/TeleportZone'
 
 import network from '../services/Network'
 import store from '../stores'
@@ -9,6 +10,7 @@ import { setRoomJoined } from '../stores/RoomStore'
 
 export default class Bootstrap extends Phaser.Scene {
   currentScene?: Office | Lobby
+  private lobbyReturnPosition?: Phaser.Math.Vector2
 
   constructor() {
     super('bootstrap')
@@ -127,14 +129,25 @@ export default class Bootstrap extends Phaser.Scene {
 
   private handleEnterLobby = () => {
     this.scene.stop('office')
-    this.scene.launch('lobby', { onLeave: this.handleEnterOffice })
-    this.currentScene = this.scene.get('lobby') as Lobby
+    const { x, y } = this.lobbyReturnPosition!
+    network
+      .joinOrCreateLobby(x, y + 32)
+      .then(() => {
+        this.scene.launch('lobby', { onLeave: this.handleEnterOffice, enterX: x, enterY: y })
+        this.currentScene = this.scene.get('lobby') as Lobby
+      })
+      .catch((error) => console.error(error))
   }
 
-  private handleEnterOffice = (teleportTo: string) => {
-    // network connects to "teleportTo"
+  private handleEnterOffice = (teleportZone: TeleportZone) => {
     this.scene.stop('lobby')
-    this.scene.launch('office', { onLeave: this.handleEnterLobby })
-    this.currentScene = this.scene.get('office') as Office
+    this.lobbyReturnPosition = teleportZone.getBottomCenter()
+    network
+      .joinOffice(teleportZone.teleportTo)
+      .then(() => {
+        this.scene.launch('office', { onLeave: this.handleEnterLobby })
+        this.currentScene = this.scene.get('office') as Office
+      })
+      .catch((error) => console.error(error))
   }
 }

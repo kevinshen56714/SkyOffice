@@ -14,6 +14,14 @@ export class Player extends Schema implements IPlayer {
   @type('string') anim = 'adam_idle_down'
   @type('boolean') readyToConnect = false
   @type('boolean') videoConnected = false
+
+  constructor(playerName?: string, playerTexture?: string, enterX?: number, enterY?: number) {
+    super()
+    if (playerName) this.name = playerName
+    if (playerTexture) this.anim = `${playerTexture}_idle_down`
+    if (enterX) this.x = enterX
+    if (enterY) this.y = enterY
+  }
 }
 
 export class Computer extends Schema implements IComputer {

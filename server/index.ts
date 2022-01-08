@@ -17,19 +17,26 @@ app.use(express.json())
 // app.use(express.static('dist'))
 
 const server = http.createServer(app)
-const gameServer = new Server({
-  server,
-})
+const gameServer = new Server({ server })
 
 // register room handlers
-gameServer.define(RoomType.LOBBY, LobbyRoom)
-gameServer.define(RoomType.PUBLIC, SkyOffice, {
+gameServer.define(RoomType.COLYSEUS_LOBBYROOM, LobbyRoom)
+gameServer.define(RoomType.LOBBY, SkyOffice, {
   name: 'Public Lobby',
-  description: 'For making friends and familiarizing yourself with the controls',
+  roomNumber: null,
+  description: 'Public area for everyone to connect and relax',
   password: null,
   autoDispose: false,
 })
-gameServer.define(RoomType.CUSTOM, SkyOffice).enableRealtimeListing()
+gameServer.define(RoomType.PUBLIC, SkyOffice, {
+  name: "SkyOffice's Office",
+  roomNumber: null,
+  description:
+    'This is to showcase how office space looks like, go to the lobby to register one for free!',
+  password: null,
+  autoDispose: false,
+})
+gameServer.define(RoomType.OFFICE, SkyOffice).enableRealtimeListing().filterBy(['roomNumber'])
 
 /**
  * Register @colyseus/social routes

@@ -23,6 +23,7 @@ const CreateRoomFormWrapper = styled.form`
 
 export const CreateRoomForm = () => {
   const [values, setValues] = useState<IRoomData>({
+    roomNumber: null,
     name: '',
     description: '',
     password: null,

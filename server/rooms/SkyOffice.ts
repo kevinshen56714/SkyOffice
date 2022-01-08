@@ -20,13 +20,15 @@ import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
   private name: string
+  private roomNumber: string
   private description: string
   private password: string | null = null
 
   async onCreate(options: IRoomData) {
-    const { name, description, password, autoDispose } = options
+    const { name, roomNumber, description, password, autoDispose } = options
     this.name = name
     this.description = description
+    this.roomNumber = roomNumber
     this.autoDispose = autoDispose
 
     let hasPassword = false
@@ -35,7 +37,7 @@ export class SkyOffice extends Room<OfficeState> {
       this.password = await bcrypt.hash(password, salt)
       hasPassword = true
     }
-    this.setMetadata({ name, description, hasPassword })
+    this.setMetadata({ name, roomNumber, description, hasPassword })
 
     this.setState(new OfficeState())
 
@@ -165,11 +167,13 @@ export class SkyOffice extends Room<OfficeState> {
     return true
   }
 
-  onJoin(client: Client, options: any) {
-    this.state.players.set(client.sessionId, new Player())
+  onJoin(client: Client, options: IRoomData) {
+    const { playerName, playerTexture, enterX, enterY } = options
+    this.state.players.set(client.sessionId, new Player(playerName, playerTexture, enterX, enterY))
+
     client.send(Message.SEND_ROOM_DATA, {
-      id: this.roomId,
       name: this.name,
+      roomNumber: this.roomNumber,
       description: this.description,
     })
   }

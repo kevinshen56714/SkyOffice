@@ -10,17 +10,17 @@ export const createItemAnims = (anims: Phaser.Animations.AnimationManager) => {
       end: 5,
     }),
     repeat: -1,
-    frameRate: animsFrameRate * 0.75,
+    frameRate: animsFrameRate * 0.7,
   })
 
   anims.create({
     key: 'escalator_down',
     frames: anims.generateFrameNames('escalator', {
-      start: 5,
-      end: 0,
+      start: 6,
+      end: 11,
     }),
     repeat: -1,
-    frameRate: animsFrameRate * 0.75,
+    frameRate: animsFrameRate * 0.7,
   })
 
   anims.create({

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="1" nextlayerid="19" nextobjectid="2683">
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="1" nextlayerid="19" nextobjectid="2691">
  <editorsettings>
   <export target="lobby.json" format="json"/>
  </editorsettings>
@@ -6763,13 +6763,13 @@
  <tileset firstgid="6003" name="glassdoor" tilewidth="32" tileheight="64" tilecount="6" columns="1">
   <image source="../items/glassdoor.png" width="32" height="384"/>
  </tileset>
- <tileset firstgid="6009" name="escalator" tilewidth="96" tileheight="160" tilecount="6" columns="6">
-  <image source="../items/escalator.png" width="576" height="160"/>
+ <tileset firstgid="6009" name="escalator" tilewidth="96" tileheight="160" tilecount="12" columns="12">
+  <image source="../items/escalator.png" width="1152" height="160"/>
  </tileset>
- <tileset firstgid="6015" name="Classroom_and_library" tilewidth="32" tileheight="32" tilecount="544" columns="16">
+ <tileset firstgid="6021" name="Classroom_and_library" tilewidth="32" tileheight="32" tilecount="544" columns="16">
   <image source="../items/Classroom_and_library.png" width="512" height="1088"/>
  </tileset>
- <tileset firstgid="6559" name="receptionist" tilewidth="32" tileheight="64" tilecount="14" columns="14">
+ <tileset firstgid="6565" name="receptionist" tilewidth="32" tileheight="64" tilecount="14" columns="14">
   <image source="../items/receptionist.png" width="448" height="64"/>
  </tileset>
  <layer id="1" name="Ground" width="40" height="30">
@@ -7658,33 +7658,33 @@
   <object id="2540" gid="4916" x="96" y="480" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="16" name="ClassroomObjects">
-  <object id="2605" gid="6186" x="-96" y="-64" width="32" height="32"/>
-  <object id="2606" gid="6187" x="-64" y="-64" width="32" height="32"/>
-  <object id="2607" gid="6203" x="-64" y="-32" width="32" height="32"/>
-  <object id="2608" gid="6202" x="-96" y="-32" width="32" height="32"/>
-  <object id="2609" gid="6218" x="-96" y="0" width="32" height="32"/>
-  <object id="2610" gid="6219" x="-64" y="0" width="32" height="32"/>
-  <object id="2611" gid="6220" x="-32" y="0" width="32" height="32"/>
-  <object id="2612" gid="6235" x="0" y="-32" width="32" height="32"/>
-  <object id="2613" gid="6220" x="0" y="0" width="32" height="32"/>
-  <object id="2614" gid="6221" x="32" y="0" width="32" height="32"/>
-  <object id="2615" gid="6205" x="64" y="-32" width="32" height="32"/>
-  <object id="2616" gid="6221" x="64" y="0" width="32" height="32"/>
-  <object id="2617" gid="6222" x="96" y="0" width="32" height="32"/>
-  <object id="2618" gid="6206" x="96" y="-32" width="32" height="32"/>
-  <object id="2619" gid="6190" x="96" y="-64" width="32" height="32"/>
-  <object id="2620" gid="6189" x="64" y="-64" width="32" height="32"/>
-  <object id="2621" gid="6220" x="192" y="800" width="32" height="32"/>
-  <object id="2622" gid="6235" x="224" y="768" width="32" height="32"/>
-  <object id="2623" gid="6220" x="224" y="800" width="32" height="32"/>
-  <object id="2624" gid="6221" x="256" y="800" width="32" height="32"/>
-  <object id="2625" gid="6205" x="288" y="768" width="32" height="32"/>
-  <object id="2626" gid="6221" x="288" y="800" width="32" height="32"/>
-  <object id="2627" gid="6222" x="320" y="800" width="32" height="32"/>
-  <object id="2628" gid="6206" x="320" y="768" width="32" height="32"/>
-  <object id="2629" gid="6190" x="320" y="736" width="32" height="32"/>
-  <object id="2630" gid="6189" x="288" y="736" width="32" height="32"/>
-  <object id="2631" gid="6235" x="192" y="768" width="32" height="32"/>
+  <object id="2605" gid="6192" x="-96" y="-64" width="32" height="32"/>
+  <object id="2606" gid="6193" x="-64" y="-64" width="32" height="32"/>
+  <object id="2607" gid="6209" x="-64" y="-32" width="32" height="32"/>
+  <object id="2608" gid="6208" x="-96" y="-32" width="32" height="32"/>
+  <object id="2609" gid="6224" x="-96" y="0" width="32" height="32"/>
+  <object id="2610" gid="6225" x="-64" y="0" width="32" height="32"/>
+  <object id="2611" gid="6226" x="-32" y="0" width="32" height="32"/>
+  <object id="2612" gid="6241" x="0" y="-32" width="32" height="32"/>
+  <object id="2613" gid="6226" x="0" y="0" width="32" height="32"/>
+  <object id="2614" gid="6227" x="32" y="0" width="32" height="32"/>
+  <object id="2615" gid="6211" x="64" y="-32" width="32" height="32"/>
+  <object id="2616" gid="6227" x="64" y="0" width="32" height="32"/>
+  <object id="2617" gid="6228" x="96" y="0" width="32" height="32"/>
+  <object id="2618" gid="6212" x="96" y="-32" width="32" height="32"/>
+  <object id="2619" gid="6196" x="96" y="-64" width="32" height="32"/>
+  <object id="2620" gid="6195" x="64" y="-64" width="32" height="32"/>
+  <object id="2621" gid="6226" x="192" y="800" width="32" height="32"/>
+  <object id="2622" gid="6241" x="224" y="768" width="32" height="32"/>
+  <object id="2623" gid="6226" x="224" y="800" width="32" height="32"/>
+  <object id="2624" gid="6227" x="256" y="800" width="32" height="32"/>
+  <object id="2625" gid="6211" x="288" y="768" width="32" height="32"/>
+  <object id="2626" gid="6227" x="288" y="800" width="32" height="32"/>
+  <object id="2627" gid="6228" x="320" y="800" width="32" height="32"/>
+  <object id="2628" gid="6212" x="320" y="768" width="32" height="32"/>
+  <object id="2629" gid="6196" x="320" y="736" width="32" height="32"/>
+  <object id="2630" gid="6195" x="288" y="736" width="32" height="32"/>
+  <object id="2631" gid="6241" x="192" y="768" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="12" name="Glassdoor">
   <object id="1747" gid="6003" x="-512" y="-704" width="32" height="64"/>
@@ -8060,10 +8060,10 @@
   </data>
  </layer>
  <objectgroup id="9" name="Colliders">
-  <object id="993" x="528" y="-592" width="16" height="400"/>
-  <object id="1568" x="528" y="-96" width="16" height="480"/>
-  <object id="1569" x="-512" y="-592" width="16" height="400"/>
-  <object id="1570" x="-512" y="-96" width="16" height="480"/>
+  <object id="993" x="528" y="-592" width="20" height="400"/>
+  <object id="1568" x="528" y="-96" width="20" height="480"/>
+  <object id="1569" x="-516" y="-592" width="20" height="400"/>
+  <object id="1570" x="-516" y="-96" width="20" height="480"/>
   <object id="1572" x="-512" y="-640" width="288" height="48"/>
   <object id="1573" x="-128" y="-640" width="288" height="48"/>
   <object id="1574" x="256" y="-640" width="288" height="48"/>
@@ -8112,18 +8112,12 @@
   <object id="1999" x="320" y="-192" width="16" height="96"/>
   <object id="2000" x="-496" y="-200" width="192" height="24"/>
   <object id="2009" x="336" y="-200" width="192" height="24"/>
-  <object id="2016" x="368" y="-112" width="16" height="96"/>
-  <object id="2021" x="480" y="-112" width="16" height="96"/>
   <object id="2060" x="496" y="-96" width="32" height="8"/>
   <object id="2061" x="-336" y="-96" width="32" height="8"/>
   <object id="2062" x="-496" y="-96" width="32" height="8"/>
   <object id="2065" x="336" y="-96" width="32" height="8"/>
-  <object id="2068" x="256" y="-656" width="16" height="96"/>
-  <object id="2069" x="-128" y="-656" width="16" height="96"/>
-  <object id="2070" x="-352" y="-112" width="16" height="96"/>
-  <object id="2071" x="-464" y="-112" width="16" height="96"/>
-  <object id="2072" x="-240" y="-656" width="16" height="96"/>
-  <object id="2073" x="144" y="-656" width="16" height="96"/>
+  <object id="2070" x="-352" y="-120" width="16" height="104"/>
+  <object id="2071" x="-464" y="-120" width="16" height="104"/>
   <object id="2074" x="-188" y="-672" width="24" height="112"/>
   <object id="2075" x="420" y="-128" width="24" height="112"/>
   <object id="2076" x="-412" y="-128" width="24" height="112"/>
@@ -8140,8 +8134,6 @@
   <object id="2366" x="-928" y="342" width="128" height="10"/>
   <object id="2403" x="-132" y="-448" width="296" height="306"/>
   <object id="2639" x="4" y="448" width="24" height="112"/>
-  <object id="2640" x="64" y="464" width="16" height="96"/>
-  <object id="2641" x="-48" y="464" width="16" height="96"/>
   <object id="2647" x="192" y="854" width="128" height="10"/>
   <object id="2648" x="352" y="854" width="128" height="10"/>
   <object id="2649" x="192" y="662" width="192" height="10"/>
@@ -8150,6 +8142,14 @@
   <object id="2667" x="-72" y="-48" width="176" height="48"/>
   <object id="2668" x="72" y="-64" width="32" height="16"/>
   <object id="2669" x="-72" y="-64" width="32" height="16"/>
+  <object id="2683" x="-128" y="-664" width="16" height="104"/>
+  <object id="2684" x="-240" y="-664" width="16" height="104"/>
+  <object id="2685" x="256" y="-664" width="16" height="104"/>
+  <object id="2686" x="144" y="-664" width="16" height="104"/>
+  <object id="2687" x="480" y="-120" width="16" height="104"/>
+  <object id="2688" x="368" y="-120" width="16" height="104"/>
+  <object id="2689" x="64" y="456" width="16" height="104"/>
+  <object id="2690" x="-48" y="456" width="16" height="104"/>
  </objectgroup>
  <objectgroup id="7" name="Escalators">
   <object id="1974" gid="6009" x="128" y="-544" width="96" height="160">
@@ -8204,9 +8204,9 @@
   </object>
  </objectgroup>
  <objectgroup id="15" name="Receptionists">
-  <object id="2585" gid="6559" x="-32" y="-32" width="32" height="64"/>
-  <object id="2586" gid="6559" x="32" y="-32" width="32" height="64"/>
-  <object id="2587" gid="6559" x="256" y="768" width="32" height="64"/>
+  <object id="2585" gid="6565" x="-32" y="-32" width="32" height="64"/>
+  <object id="2586" gid="6565" x="32" y="-32" width="32" height="64"/>
+  <object id="2587" gid="6565" x="256" y="768" width="32" height="64"/>
  </objectgroup>
  <objectgroup id="18" name="TeleportZones">
   <object id="2670" x="416" y="608" width="64" height="48">

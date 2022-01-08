@@ -107,8 +107,8 @@ export default function HelperButtonGroup() {
   const [showRoomInfo, setShowRoomInfo] = useState(false)
   const backgroundMode = useAppSelector((state) => state.user.backgroundMode)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
-  const roomId = useAppSelector((state) => state.room.roomId)
   const roomName = useAppSelector((state) => state.room.roomName)
+  const roomNumber = useAppSelector((state) => state.room.roomNumber)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
   const dispatch = useAppDispatch()
 
@@ -126,16 +126,14 @@ export default function HelperButtonGroup() {
               </Avatar>
               <h3>{roomName}</h3>
             </RoomName>
-            <RoomDescription>
-              <ArrowRightIcon /> ID: {roomId}
-            </RoomDescription>
+            {roomNumber && (
+              <RoomDescription>
+                <ArrowRightIcon /> Office: {roomNumber}
+              </RoomDescription>
+            )}
             <RoomDescription>
               <ArrowRightIcon /> Description: {roomDescription}
             </RoomDescription>
-            <p className="tip">
-              <LightbulbIcon />
-              Shareable link coming up 😄
-            </p>
           </Wrapper>
         )}
         {showControlGuide && (

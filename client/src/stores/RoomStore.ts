@@ -9,8 +9,8 @@ interface RoomInterface extends RoomAvailable {
 /**
  * Colyseus' real time room list always includes the public lobby so we have to remove it manually.
  */
-const isCustomRoom = (room: RoomInterface) => {
-  return room.name === RoomType.CUSTOM
+const isOfficeRoom = (room: RoomInterface) => {
+  return room.name === RoomType.OFFICE
 }
 
 export const roomSlice = createSlice({
@@ -18,8 +18,8 @@ export const roomSlice = createSlice({
   initialState: {
     lobbyJoined: false,
     roomJoined: false,
-    roomId: '',
     roomName: '',
+    roomNumber: '',
     roomDescription: '',
     availableRooms: new Array<RoomAvailable>(),
   },
@@ -32,17 +32,17 @@ export const roomSlice = createSlice({
     },
     setJoinedRoomData: (
       state,
-      action: PayloadAction<{ id: string; name: string; description: string }>
+      action: PayloadAction<{ name: string; roomNumber: string; description: string }>
     ) => {
-      state.roomId = action.payload.id
       state.roomName = action.payload.name
+      state.roomNumber = action.payload.roomNumber
       state.roomDescription = action.payload.description
     },
     setAvailableRooms: (state, action: PayloadAction<RoomAvailable[]>) => {
-      state.availableRooms = action.payload.filter((room) => isCustomRoom(room))
+      state.availableRooms = action.payload.filter((room) => isOfficeRoom(room))
     },
     addAvailableRooms: (state, action: PayloadAction<{ roomId: string; room: RoomAvailable }>) => {
-      if (!isCustomRoom(action.payload.room)) return
+      if (!isOfficeRoom(action.payload.room)) return
       const roomIndex = state.availableRooms.findIndex(
         (room) => room.roomId === action.payload.roomId
       )
