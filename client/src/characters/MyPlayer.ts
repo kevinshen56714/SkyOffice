@@ -4,7 +4,6 @@ import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import { sittingShiftData } from './Player'
 import Player from './Player'
 import Chair from '../items/Chair'
-import { phaserEvents, Event } from '../events/EventCenter'
 import { ItemType } from '../../../types/Items'
 import Computer from '../items/Computer'
 import Whiteboard from '../items/Whiteboard'
@@ -12,27 +11,12 @@ import Whiteboard from '../items/Whiteboard'
 import network from '../services/Network'
 
 export default class MyPlayer extends Player {
-  private playContainerBody: Phaser.Physics.Arcade.Body
   private chairOnSit?: Chair
   escalatorOnTouch?: Phaser.GameObjects.Sprite
 
-  constructor(
-    scene: Phaser.Scene,
-    x: number,
-    y: number,
-    texture: string,
-    id: string,
-    name?: string,
-    frame?: string | number
-  ) {
-    super(scene, x, y, texture, id, frame)
-    this.playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
-    if (name) this.playerName.setText(name)
-  }
-
   setPlayerName(name: string) {
     this.playerName.setText(name)
-    phaserEvents.emit(Event.MY_PLAYER_NAME_CHANGE, name)
+    network.updatePlayerName(name)
   }
 
   setPlayerTexture(texture: string) {
@@ -40,7 +24,7 @@ export default class MyPlayer extends Player {
     const parts = this.anims.currentAnim.key.split('_')
     parts[0] = this.playerTexture
     this.play(parts.join('_'), true)
-    phaserEvents.emit(Event.MY_PLAYER_TEXTURE_CHANGE, this.x, this.y, this.anims.currentAnim.key)
+    network.updatePlayer(this.x, this.y, this.anims.currentAnim.key)
   }
 
   update(
@@ -88,7 +72,7 @@ export default class MyPlayer extends Player {
                   chairItem.y + sittingShiftData[chairItem.itemDirection][1]
                 ).setDepth(chairItem.depth + sittingShiftData[chairItem.itemDirection][2])
                 // also update playerNameContainer velocity and position
-                this.playContainerBody.setVelocity(0, 0)
+                this.playerContainerBody.setVelocity(0, 0)
                 this.playerContainer.setPosition(
                   chairItem.x + sittingShiftData[chairItem.itemDirection][0],
                   chairItem.y +
@@ -133,8 +117,8 @@ export default class MyPlayer extends Player {
         this.setVelocity(vx, vy)
         this.body.velocity.setLength(speed)
         // also update playerNameContainer velocity
-        this.playContainerBody.setVelocity(vx, vy)
-        this.playContainerBody.velocity.setLength(speed)
+        this.playerContainerBody.setVelocity(vx, vy)
+        this.playerContainerBody.velocity.setLength(speed)
 
         // update animation according to velocity and send new location and anim to server
         if (vx > 0) {
@@ -164,7 +148,7 @@ export default class MyPlayer extends Player {
             const escalatorDirection = this.escalatorOnTouch.anims.currentAnim.key.split('_')[1]
             const escalatorSpeed = escalatorDirection === 'up' ? -100 : 100
             this.setVelocityY(vy + escalatorSpeed)
-            this.playContainerBody.setVelocityY(vy + escalatorSpeed)
+            this.playerContainerBody.setVelocityY(vy + escalatorSpeed)
           }
         }
         break

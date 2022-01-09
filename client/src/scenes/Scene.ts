@@ -17,6 +17,7 @@ export interface ISceneData {
   onLeave: (teleportZone?: TeleportZone) => void
   enterX?: number
   enterY?: number
+  teleportTo?: string
 }
 
 export default class Scene extends Phaser.Scene {
@@ -33,7 +34,7 @@ export default class Scene extends Phaser.Scene {
   onLeave!: (teleportZone?: TeleportZone) => void
 
   create(data: ISceneData) {
-    if (!network || !network.mySessionId) {
+    if (!network) {
       throw new Error('server instance missing')
     }
 
@@ -48,7 +49,7 @@ export default class Scene extends Phaser.Scene {
       data.enterX || 0,
       data.enterY || 0,
       texture || 'adam',
-      network.mySessionId,
+      network.webRTCId,
       name
     )
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
@@ -60,7 +61,7 @@ export default class Scene extends Phaser.Scene {
 
     const teleportZoneGroup = this.physics.add.staticGroup({ classType: TeleportZone })
     const teleportZoneLayer = this.map.getObjectLayer('TeleportZones')
-    teleportZoneLayer.objects.forEach((object) => {
+    teleportZoneLayer?.objects.forEach((object) => {
       const { x, y, width, height } = object
       // custom properties[0] is the teleportTo property specified in Tiled
       const teleportTo = object.properties[0].value
@@ -87,9 +88,9 @@ export default class Scene extends Phaser.Scene {
     // register network event listeners
     network.onPlayerJoined(this.handlePlayerJoined, this)
     network.onPlayerLeft(this.handlePlayerLeft, this)
+    network.onPlayerUpdated(this.handlePlayerUpdated, this)
     network.onMyPlayerReady(this.handleMyPlayerReady, this)
     network.onMyPlayerVideoConnected(this.handleMyVideoConnected, this)
-    network.onPlayerUpdated(this.handlePlayerUpdated, this)
     network.onItemUserAdded(this.handleItemUserAdded, this)
     network.onItemUserRemoved(this.handleItemUserRemoved, this)
     network.onChatMessageAdded(this.handleChatMessageAdded, this)
@@ -142,10 +143,6 @@ export default class Scene extends Phaser.Scene {
       this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], group)
   }
 
-  private handlePlayerTeleportZoneOverlap(myPlayer, teleportZone) {
-    this.onLeave(teleportZone)
-  }
-
   private handlePlayersOverlap(myPlayer, otherPlayer) {
     otherPlayer.makeCall(myPlayer)
   }
@@ -173,18 +170,18 @@ export default class Scene extends Phaser.Scene {
     }
   }
 
+  // function to update target position upon receiving player updates
+  private handlePlayerUpdated(field: string, value: number | string, id: string) {
+    const otherPlayer = this.otherPlayerMap.get(id)
+    otherPlayer?.updateOtherPlayer(field, value)
+  }
+
   private handleMyPlayerReady() {
     this.myPlayer.readyToConnect = true
   }
 
   private handleMyVideoConnected() {
     this.myPlayer.videoConnected = true
-  }
-
-  // function to update target position upon receiving player updates
-  private handlePlayerUpdated(field: string, value: number | string, id: string) {
-    const otherPlayer = this.otherPlayerMap.get(id)
-    otherPlayer?.updateOtherPlayer(field, value)
   }
 
   private handleItemUserAdded(playerId: string, itemId: string, itemType: ItemType) {
@@ -210,5 +207,9 @@ export default class Scene extends Phaser.Scene {
   private handleChatMessageAdded(playerId: string, content: string) {
     const otherPlayer = this.otherPlayerMap.get(playerId)
     otherPlayer?.updateDialogBubble(content)
+  }
+
+  private handlePlayerTeleportZoneOverlap(myPlayer, teleportZone) {
+    this.onLeave(teleportZone)
   }
 }

@@ -14,7 +14,6 @@ import { CustomRoomTable } from './CustomRoomTable'
 import { CreateRoomForm } from './CreateRoomForm'
 import { useAppSelector } from '../hooks'
 
-import network from '../services/Network'
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
 
@@ -98,10 +97,7 @@ export default function RoomSelectionDialog() {
   const handleConnect = () => {
     if (lobbyJoined) {
       const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
-      network
-        .joinOrCreateLobby()
-        .then(() => bootstrap.launchGame())
-        .catch((error) => console.error(error))
+      bootstrap.launchGame()
     } else {
       setShowSnackbar(true)
     }

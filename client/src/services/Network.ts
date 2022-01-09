@@ -4,7 +4,7 @@ import { Message } from '../../../types/Messages'
 import { IRoomData, RoomType } from '../../../types/Rooms'
 import { ItemType } from '../../../types/Items'
 import WebRTC from '../web/WebRTC'
-import { phaserEvents, Event } from '../events/EventCenter'
+import { Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
 import {
@@ -23,8 +23,9 @@ import { setWhiteboardUrls } from '../stores/WhiteboardStore'
 
 class Network {
   private client: Client
-  private room?: Room<IOfficeState>
+  private room: Room<IOfficeState> | null = null
   private lobby!: Room
+  private events: Phaser.Events.EventEmitter
   webRTC!: WebRTC
   webRTCId!: string
   mySessionId?: string
@@ -33,18 +34,16 @@ class Network {
     const protocol = window.location.protocol.replace('http', 'ws')
     const endpoint =
       process.env.NODE_ENV === 'production'
-        ? `wss://sky-office.herokuapp.com`
+        ? `wss://sky-office-dev.herokuapp.com`
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
+    this.events = new Phaser.Events.EventEmitter()
+
     this.joinColyseusLobbyRoom().then(() => {
       store.dispatch(setLobbyJoined(true))
       this.webRTCId = this.lobby.sessionId
       this.webRTC = new WebRTC(this.webRTCId)
     })
-
-    phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
-    phaserEvents.on(Event.MY_PLAYER_TEXTURE_CHANGE, this.updatePlayer, this)
-    phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
   }
 
   /**
@@ -69,7 +68,6 @@ class Network {
 
   // method to join the public lobby
   async joinOrCreateLobby(enterX?: number, enterY?: number) {
-    if (this.room) await this.room.leave()
     const { name, texture } = store.getState().user
     if (name && texture && enterX && enterY) {
       this.room = await this.client.joinOrCreate(RoomType.LOBBY, {
@@ -86,7 +84,6 @@ class Network {
 
   // method to join an office
   async joinOffice(roomNumber: string) {
-    if (this.room) await this.room.leave()
     const { name, texture } = store.getState().user
     if (roomNumber === RoomType.PUBLIC) {
       this.room = await this.client.joinOrCreate(RoomType.PUBLIC, {
@@ -105,6 +102,12 @@ class Network {
       })
     }
     this.initialize()
+  }
+
+  leave() {
+    this.room?.leave()
+    this.room = null
+    this.events.removeAllListeners()
   }
 
   // method to join a custom room
@@ -140,11 +143,11 @@ class Network {
       player.onChange = (changes) => {
         changes.forEach((change) => {
           const { field, value } = change
-          phaserEvents.emit(Event.PLAYER_UPDATED, field, value, key)
+          this.events.emit(Event.PLAYER_UPDATED, field, value, key)
 
           // when a new player finished setting up player name
           if (field === 'name' && value !== '') {
-            phaserEvents.emit(Event.PLAYER_JOINED, player, key)
+            this.events.emit(Event.PLAYER_JOINED, player, key)
             store.dispatch(setPlayerNameMap({ id: key, name: value }))
             store.dispatch(pushPlayerJoinedMessage(value))
           }
@@ -154,7 +157,7 @@ class Network {
 
     // an instance removed from the players MapSchema
     this.room.state.players.onRemove = (player: IPlayer, key: string) => {
-      phaserEvents.emit(Event.PLAYER_LEFT, key)
+      this.events.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
       this.webRTC?.deleteOnCalledVideoStream(key)
       store.dispatch(pushPlayerLeftMessage(player.name))
@@ -165,10 +168,10 @@ class Network {
     this.room.state.computers.onAdd = (computer: IComputer, key: string) => {
       // track changes on every child object's connectedUser
       computer.connectedUser.onAdd = (item, index) => {
-        phaserEvents.emit(Event.ITEM_USER_ADDED, item, key, ItemType.COMPUTER)
+        this.events.emit(Event.ITEM_USER_ADDED, item, key, ItemType.COMPUTER)
       }
       computer.connectedUser.onRemove = (item, index) => {
-        phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key, ItemType.COMPUTER)
+        this.events.emit(Event.ITEM_USER_REMOVED, item, key, ItemType.COMPUTER)
       }
     }
 
@@ -182,10 +185,10 @@ class Network {
       )
       // track changes on every child object's connectedUser
       whiteboard.connectedUser.onAdd = (item, index) => {
-        phaserEvents.emit(Event.ITEM_USER_ADDED, item, key, ItemType.WHITEBOARD)
+        this.events.emit(Event.ITEM_USER_ADDED, item, key, ItemType.WHITEBOARD)
       }
       whiteboard.connectedUser.onRemove = (item, index) => {
-        phaserEvents.emit(Event.ITEM_USER_REMOVED, item, key, ItemType.WHITEBOARD)
+        this.events.emit(Event.ITEM_USER_REMOVED, item, key, ItemType.WHITEBOARD)
       }
     }
 
@@ -201,7 +204,7 @@ class Network {
 
     // when a user sends a message
     this.room.onMessage(Message.ADD_CHAT_MESSAGE, ({ clientId, content }) => {
-      phaserEvents.emit(Event.UPDATE_DIALOG_BUBBLE, clientId, content)
+      this.events.emit(Event.UPDATE_DIALOG_BUBBLE, clientId, content)
     })
 
     // when a peer disconnects with myPeer
@@ -218,7 +221,7 @@ class Network {
 
   // method to register event listener and call back function when a item user added
   onChatMessageAdded(callback: (playerId: string, content: string) => void, context?: any) {
-    phaserEvents.on(Event.UPDATE_DIALOG_BUBBLE, callback, context)
+    this.events.on(Event.UPDATE_DIALOG_BUBBLE, callback, context)
   }
 
   // method to register event listener and call back function when a item user added
@@ -226,7 +229,7 @@ class Network {
     callback: (playerId: string, key: string, itemType: ItemType) => void,
     context?: any
   ) {
-    phaserEvents.on(Event.ITEM_USER_ADDED, callback, context)
+    this.events.on(Event.ITEM_USER_ADDED, callback, context)
   }
 
   // method to register event listener and call back function when a item user removed
@@ -234,27 +237,27 @@ class Network {
     callback: (playerId: string, key: string, itemType: ItemType) => void,
     context?: any
   ) {
-    phaserEvents.on(Event.ITEM_USER_REMOVED, callback, context)
+    this.events.on(Event.ITEM_USER_REMOVED, callback, context)
   }
 
   // method to register event listener and call back function when a player joined
   onPlayerJoined(callback: (Player: IPlayer, key: string) => void, context?: any) {
-    phaserEvents.on(Event.PLAYER_JOINED, callback, context)
+    this.events.on(Event.PLAYER_JOINED, callback, context)
   }
 
   // method to register event listener and call back function when a player left
   onPlayerLeft(callback: (key: string) => void, context?: any) {
-    phaserEvents.on(Event.PLAYER_LEFT, callback, context)
+    this.events.on(Event.PLAYER_LEFT, callback, context)
   }
 
   // method to register event listener and call back function when myPlayer is ready to connect
   onMyPlayerReady(callback: (key: string) => void, context?: any) {
-    phaserEvents.on(Event.MY_PLAYER_READY, callback, context)
+    this.events.on(Event.MY_PLAYER_READY, callback, context)
   }
 
   // method to register event listener and call back function when my video is connected
   onMyPlayerVideoConnected(callback: (key: string) => void, context?: any) {
-    phaserEvents.on(Event.MY_PLAYER_VIDEO_CONNECTED, callback, context)
+    this.events.on(Event.MY_PLAYER_VIDEO_CONNECTED, callback, context)
   }
 
   // method to register event listener and call back function when a player updated
@@ -262,7 +265,7 @@ class Network {
     callback: (field: string, value: number | string, key: string) => void,
     context?: any
   ) {
-    phaserEvents.on(Event.PLAYER_UPDATED, callback, context)
+    this.events.on(Event.PLAYER_UPDATED, callback, context)
   }
 
   // method to send player updates to Colyseus server
@@ -278,13 +281,13 @@ class Network {
   // method to send ready-to-connect signal to Colyseus server
   readyToConnect() {
     this.room?.send(Message.READY_TO_CONNECT)
-    phaserEvents.emit(Event.MY_PLAYER_READY)
+    this.events.emit(Event.MY_PLAYER_READY)
   }
 
   // method to send ready-to-connect signal to Colyseus server
   videoConnected() {
     this.room?.send(Message.VIDEO_CONNECTED)
-    phaserEvents.emit(Event.MY_PLAYER_VIDEO_CONNECTED)
+    this.events.emit(Event.MY_PLAYER_VIDEO_CONNECTED)
   }
 
   // method to send stream-disconnection signal to Colyseus server

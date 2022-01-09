@@ -1,13 +1,20 @@
 import Scene, { ISceneData } from './Scene'
+import network from '../services/Network'
 
 export default class Lobby extends Scene {
   constructor() {
     super('lobby')
   }
 
-  create(data: ISceneData) {
+  async create(data: ISceneData) {
     this.map = this.make.tilemap({ key: 'lobby_map' })
     super.create(data)
+
+    if (data.enterX && data.enterY) {
+      await network.joinOrCreateLobby(data.enterX, data.enterY + 32)
+    } else {
+      await network.joinOrCreateLobby()
+    }
 
     const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
     const Upstairs = this.map.addTilesetImage('UpstairsConnectorsStairsAndOthers', 'upstairs')

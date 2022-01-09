@@ -128,26 +128,23 @@ export default class Bootstrap extends Phaser.Scene {
   }
 
   private handleEnterLobby = () => {
-    this.scene.stop('office')
     const { x, y } = this.lobbyReturnPosition!
-    network
-      .joinOrCreateLobby(x, y + 32)
-      .then(() => {
-        this.scene.launch('lobby', { onLeave: this.handleEnterOffice, enterX: x, enterY: y })
-        this.currentScene = this.scene.get('lobby') as Lobby
-      })
-      .catch((error) => console.error(error))
+
+    this.scene.stop('office')
+    network.leave()
+    this.scene.launch('lobby', { onLeave: this.handleEnterOffice, enterX: x, enterY: y })
+    this.currentScene = this.scene.get('lobby') as Lobby
   }
 
   private handleEnterOffice = (teleportZone: TeleportZone) => {
-    this.scene.stop('lobby')
     this.lobbyReturnPosition = teleportZone.getBottomCenter()
-    network
-      .joinOffice(teleportZone.teleportTo)
-      .then(() => {
-        this.scene.launch('office', { onLeave: this.handleEnterLobby })
-        this.currentScene = this.scene.get('office') as Office
-      })
-      .catch((error) => console.error(error))
+
+    this.scene.stop('lobby')
+    network.leave()
+    this.scene.launch('office', {
+      onLeave: this.handleEnterLobby,
+      teleportTo: teleportZone.teleportTo,
+    })
+    this.currentScene = this.scene.get('office') as Office
   }
 }

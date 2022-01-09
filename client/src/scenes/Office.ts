@@ -10,6 +10,7 @@ import '../characters/MyPlayer'
 import '../characters/OtherPlayer'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import Scene, { ISceneData } from './Scene'
+import network from '../services/Network'
 
 export default class Office extends Scene {
   constructor() {
@@ -19,6 +20,12 @@ export default class Office extends Scene {
   create(data: ISceneData) {
     this.map = this.make.tilemap({ key: 'tilemap' })
     super.create(data)
+
+    if (data.teleportTo) {
+      network.joinOffice(data.teleportTo)
+    } else {
+      console.error('Missing office destination')
+    }
 
     const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
     const groundLayer = this.map

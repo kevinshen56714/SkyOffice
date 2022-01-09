@@ -19,6 +19,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   videoConnected = false
   playerName: Phaser.GameObjects.Text
   playerContainer: Phaser.GameObjects.Container
+  playerContainerBody: Phaser.Physics.Arcade.Body
   playerContainerOffsetY = -30
   private playerDialogBubble: Phaser.GameObjects.Container
   private timeoutID?: number
@@ -29,6 +30,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     y: number,
     texture: string,
     id: string,
+    name?: string,
     frame?: string | number
   ) {
     super(scene, x, y, texture, frame)
@@ -37,7 +39,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.playerTexture = texture
     this.setDepth(this.y)
 
-    this.anims.play(`${this.playerTexture}_idle_down`, true)
+    this.play(`${this.playerTexture}_idle_down`, true)
 
     this.playerContainer = this.scene.add
       .container(this.x, this.y + this.playerContainerOffsetY)
@@ -54,12 +56,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       .setFontSize(12)
       .setColor('#000000')
       .setOrigin(0.5)
+    if (name) this.playerName.setText(name)
     this.playerContainer.add(this.playerName)
 
     this.scene.physics.world.enable(this.playerContainer)
-    const playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
+    this.playerContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
     const collisionScale = [0.5, 0.2]
-    playContainerBody
+    this.playerContainerBody
       .setSize(this.width * collisionScale[0], this.height * collisionScale[1])
       .setOffset(-8, this.height * (1 - collisionScale[1]) + 6)
   }

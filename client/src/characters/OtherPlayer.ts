@@ -2,7 +2,6 @@ import Phaser from 'phaser'
 import Player from './Player'
 import MyPlayer from './MyPlayer'
 import { sittingShiftData } from './Player'
-import { Event, phaserEvents } from '../events/EventCenter'
 
 import network from '../services/Network'
 
@@ -11,7 +10,6 @@ export default class OtherPlayer extends Player {
   private lastUpdateTimestamp?: number
   private connectionBufferTime = 0
   private connected = false
-  private playContainerBody: Phaser.Physics.Arcade.Body
   private myPlayer?: MyPlayer
 
   constructor(
@@ -23,11 +21,10 @@ export default class OtherPlayer extends Player {
     name: string,
     frame?: string | number
   ) {
-    super(scene, x, y, texture, id, frame)
+    super(scene, x, y, texture, id, name, frame)
     this.targetPosition = [x, y]
 
     this.playerName.setText(name)
-    this.playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
   }
 
   makeCall(myPlayer: MyPlayer) {
@@ -72,7 +69,7 @@ export default class OtherPlayer extends Player {
 
       case 'anim':
         if (typeof value === 'string') {
-          this.anims.play(value, true)
+          this.play(value, true)
         }
         break
 
@@ -153,8 +150,8 @@ export default class OtherPlayer extends Player {
     this.setVelocity(vx, vy)
     this.body.velocity.setLength(speed)
     // also update playerNameContainer velocity
-    this.playContainerBody.setVelocity(vx, vy)
-    this.playContainerBody.velocity.setLength(speed)
+    this.playerContainerBody.setVelocity(vx, vy)
+    this.playerContainerBody.velocity.setLength(speed)
 
     // while currently connected with myPlayer
     // if myPlayer and the otherPlayer stop overlapping, delete video stream
@@ -166,7 +163,7 @@ export default class OtherPlayer extends Player {
       this.connectionBufferTime >= 750
     ) {
       if (this.x < 610 && this.y > 515 && this.myPlayer!.x < 610 && this.myPlayer!.y > 515) return
-      phaserEvents.emit(Event.PLAYER_DISCONNECTED, this.playerId)
+      network.playerStreamDisconnect(this.playerId)
       this.connectionBufferTime = 0
       this.connected = false
     }
