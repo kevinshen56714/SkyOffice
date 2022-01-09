@@ -5,12 +5,14 @@ export interface IPlayer extends Schema {
   x: number
   y: number
   anim: string
+  webRTCId: string
   readyToConnect: boolean
   videoConnected: boolean
 }
 
 export interface IComputer extends Schema {
   connectedUser: SetSchema<string>
+  connectedWebRTCId: SetSchema<string>
 }
 
 export interface IWhiteboard extends Schema {

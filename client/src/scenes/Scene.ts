@@ -44,13 +44,16 @@ export default class Scene extends Phaser.Scene {
     createItemAnims(this.anims)
     this.registerKeys()
 
-    const { name, texture } = store.getState().user
+    const { name, texture, videoConnected, loggedIn } = store.getState().user
     this.myPlayer = this.add.myPlayer(
       data.enterX || 0,
       data.enterY || 0,
       texture || 'adam',
+      network.mySessionId || '',
       network.webRTCId,
-      name
+      name,
+      loggedIn,
+      videoConnected
     )
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
@@ -154,7 +157,10 @@ export default class Scene extends Phaser.Scene {
       newPlayer.y,
       newPlayer.anim.split('_')[0],
       id,
-      newPlayer.name
+      newPlayer.webRTCId,
+      newPlayer.name,
+      newPlayer.readyToConnect,
+      newPlayer.videoConnected
     )
     this.otherPlayers.add(otherPlayer)
     this.otherPlayerMap.set(id, otherPlayer)

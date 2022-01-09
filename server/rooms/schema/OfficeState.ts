@@ -12,20 +12,33 @@ export class Player extends Schema implements IPlayer {
   @type('number') x = 0
   @type('number') y = 0
   @type('string') anim = 'adam_idle_down'
+  @type('string') webRTCId = ''
   @type('boolean') readyToConnect = false
   @type('boolean') videoConnected = false
 
-  constructor(playerName?: string, playerTexture?: string, enterX?: number, enterY?: number) {
+  constructor(
+    playerName?: string,
+    playerTexture?: string,
+    enterX?: number,
+    enterY?: number,
+    webRTCId?: string,
+    readyToConnect?: boolean,
+    videoConnected?: boolean
+  ) {
     super()
     if (playerName) this.name = playerName
     if (playerTexture) this.anim = `${playerTexture}_idle_down`
     if (enterX) this.x = enterX
     if (enterY) this.y = enterY
+    if (webRTCId) this.webRTCId = webRTCId
+    if (readyToConnect) this.readyToConnect = readyToConnect
+    if (videoConnected) this.videoConnected = videoConnected
   }
 }
 
 export class Computer extends Schema implements IComputer {
   @type({ set: 'string' }) connectedUser = new SetSchema<string>()
+  @type({ set: 'string' }) connectedWebRTCId = new SetSchema<string>()
 }
 
 export class Whiteboard extends Schema implements IWhiteboard {

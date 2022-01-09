@@ -70,10 +70,12 @@ export class SkyOffice extends Room<OfficeState> {
     // when a player stop sharing screen
     this.onMessage(Message.STOP_SCREEN_SHARE, (client, message: { computerId: string }) => {
       const computer = this.state.computers.get(message.computerId)
+      const player = this.state.players.get(client.sessionId)
+
       computer.connectedUser.forEach((id) => {
         this.clients.forEach((cli) => {
           if (cli.sessionId === id && cli.sessionId !== client.sessionId) {
-            cli.send(Message.STOP_SCREEN_SHARE, client.sessionId)
+            cli.send(Message.STOP_SCREEN_SHARE, player.webRTCId)
           }
         })
       })
@@ -133,9 +135,10 @@ export class SkyOffice extends Room<OfficeState> {
 
     // when a player disconnect a stream, broadcast the signal to the other player connected to the stream
     this.onMessage(Message.DISCONNECT_STREAM, (client, message: { clientId: string }) => {
+      const callerWebRTCId = this.state.players.get(client.sessionId).webRTCId
       this.clients.forEach((cli) => {
         if (cli.sessionId === message.clientId) {
-          cli.send(Message.DISCONNECT_STREAM, client.sessionId)
+          cli.send(Message.DISCONNECT_STREAM, callerWebRTCId)
         }
       })
     })
@@ -168,8 +171,20 @@ export class SkyOffice extends Room<OfficeState> {
   }
 
   onJoin(client: Client, options: IRoomData) {
-    const { playerName, playerTexture, enterX, enterY } = options
-    this.state.players.set(client.sessionId, new Player(playerName, playerTexture, enterX, enterY))
+    const { playerName, playerTexture, enterX, enterY, webRTCId, videoConnected, readyToConnect } =
+      options
+    this.state.players.set(
+      client.sessionId,
+      new Player(
+        playerName,
+        playerTexture,
+        enterX,
+        enterY,
+        webRTCId,
+        videoConnected,
+        readyToConnect
+      )
+    )
 
     client.send(Message.SEND_ROOM_DATA, {
       name: this.name,
@@ -179,19 +194,24 @@ export class SkyOffice extends Room<OfficeState> {
   }
 
   onLeave(client: Client, consented: boolean) {
-    if (this.state.players.has(client.sessionId)) {
-      this.state.players.delete(client.sessionId)
+    const clientId = client.sessionId
+    if (this.state.players.has(clientId)) {
+      const player = this.state.players.get(clientId)
+      this.state.computers.forEach((computer) => {
+        if (computer.connectedUser.has(clientId)) {
+          computer.connectedUser.delete(clientId)
+        }
+        if (computer.connectedWebRTCId.has(player.webRTCId)) {
+          computer.connectedWebRTCId.delete(player.webRTCId)
+        }
+      })
+      this.state.whiteboards.forEach((whiteboard) => {
+        if (whiteboard.connectedUser.has(clientId)) {
+          whiteboard.connectedUser.delete(clientId)
+        }
+      })
+      this.state.players.delete(clientId)
     }
-    this.state.computers.forEach((computer) => {
-      if (computer.connectedUser.has(client.sessionId)) {
-        computer.connectedUser.delete(client.sessionId)
-      }
-    })
-    this.state.whiteboards.forEach((whiteboard) => {
-      if (whiteboard.connectedUser.has(client.sessionId)) {
-        whiteboard.connectedUser.delete(client.sessionId)
-      }
-    })
   }
 
   onDispose() {

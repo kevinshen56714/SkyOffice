@@ -15,4 +15,7 @@ export interface IRoomData {
   playerTexture?: string
   enterX?: number
   enterY?: number
+  webRTCId?: string
+  readyToConnect?: boolean
+  videoConnected?: boolean
 }

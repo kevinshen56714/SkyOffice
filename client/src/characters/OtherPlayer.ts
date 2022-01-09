@@ -18,10 +18,13 @@ export default class OtherPlayer extends Player {
     y: number,
     texture: string,
     id: string,
+    webRTCId: string,
     name: string,
+    readyToConnect: boolean,
+    videoConnected: boolean,
     frame?: string | number
   ) {
-    super(scene, x, y, texture, id, name, frame)
+    super(scene, x, y, texture, id, webRTCId, name, readyToConnect, videoConnected, frame)
     this.targetPosition = [x, y]
 
     this.playerName.setText(name)
@@ -29,7 +32,6 @@ export default class OtherPlayer extends Player {
 
   makeCall(myPlayer: MyPlayer) {
     this.myPlayer = myPlayer
-    const myPlayerId = myPlayer.playerId
     if (
       !this.connected &&
       this.connectionBufferTime >= 750 &&
@@ -38,9 +40,9 @@ export default class OtherPlayer extends Player {
     ) {
       if (
         (myPlayer.videoConnected && !this.videoConnected) ||
-        (myPlayer.videoConnected && this.videoConnected && myPlayerId > this.playerId)
+        (myPlayer.videoConnected && this.videoConnected && myPlayer.webRTCId > this.webRTCId)
       ) {
-        network.webRTC?.connectToNewUser(this.playerId)
+        network.webRTC?.connectToNewUser(this.webRTCId)
         this.connected = true
         this.connectionBufferTime = 0
       }
@@ -163,7 +165,7 @@ export default class OtherPlayer extends Player {
       this.connectionBufferTime >= 750
     ) {
       if (this.x < 610 && this.y > 515 && this.myPlayer!.x < 610 && this.myPlayer!.y > 515) return
-      network.playerStreamDisconnect(this.playerId)
+      network.playerStreamDisconnect(this.playerId, this.webRTCId)
       this.connectionBufferTime = 0
       this.connected = false
     }
@@ -178,7 +180,10 @@ declare global {
         y: number,
         texture: string,
         id: string,
+        webRTCId: string,
         name: string,
+        readyToConnect: boolean,
+        videoConnected: boolean,
         frame?: string | number
       ): OtherPlayer
     }
@@ -193,10 +198,24 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     id: string,
+    webRTCId: string,
     name: string,
+    readyToConnect: boolean,
+    videoConnected: boolean,
     frame?: string | number
   ) {
-    const sprite = new OtherPlayer(this.scene, x, y, texture, id, name, frame)
+    const sprite = new OtherPlayer(
+      this.scene,
+      x,
+      y,
+      texture,
+      id,
+      webRTCId,
+      name,
+      readyToConnect,
+      videoConnected,
+      frame
+    )
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)

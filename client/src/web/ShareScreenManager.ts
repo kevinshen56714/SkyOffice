@@ -10,8 +10,8 @@ export default class ShareScreenManager {
   private myPeer: Peer
   myStream?: MediaStream
 
-  constructor(private userId: string) {
-    const sanatizedId = this.makeId(userId)
+  constructor(private webRTCId: string) {
+    const sanatizedId = this.makeId(webRTCId)
     this.myPeer = new Peer(sanatizedId)
     this.myPeer.on('error', (err) => {
       console.log('ShareScreenWebRTC err.type', err.type)
@@ -25,7 +25,7 @@ export default class ShareScreenManager {
         store.dispatch(addVideoStream({ id: call.peer, call, stream: userVideoStream }))
       })
       // triggered only when the connected peer is destroyed
-      call.on('closed', () => {
+      call.on('close', () => {
         store.dispatch(removeVideoStream(call.peer))
       })
     })
@@ -72,8 +72,8 @@ export default class ShareScreenManager {
         const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
         const computerItem = currentScene?.computerMap.get(store.getState().computer.computerId!)
         if (computerItem) {
-          for (const userId of computerItem.currentUsers) {
-            this.onUserJoined(userId)
+          for (const webRTCId of computerItem.currentUsers) {
+            this.onUserJoined(webRTCId)
           }
         }
       })
@@ -92,17 +92,17 @@ export default class ShareScreenManager {
     }
   }
 
-  onUserJoined(userId: string) {
-    if (!this.myStream || userId === this.userId) return
+  onUserJoined(webRTCId: string) {
+    if (!this.myStream || webRTCId === this.webRTCId) return
 
-    const sanatizedId = this.makeId(userId)
+    const sanatizedId = this.makeId(webRTCId)
     this.myPeer.call(sanatizedId, this.myStream)
   }
 
-  onUserLeft(userId: string) {
-    if (userId === this.userId) return
+  onUserLeft(webRTCId: string) {
+    if (webRTCId === this.webRTCId) return
 
-    const sanatizedId = this.makeId(userId)
+    const sanatizedId = this.makeId(webRTCId)
     store.dispatch(removeVideoStream(sanatizedId))
   }
 }

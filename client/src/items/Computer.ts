@@ -34,29 +34,29 @@ export default class Computer extends Item {
     }
   }
 
-  addCurrentUser(userId: string) {
-    if (!this.currentUsers || this.currentUsers.has(userId)) return
-    this.currentUsers.add(userId)
+  addCurrentUser(webRTCId: string) {
+    if (!this.currentUsers || this.currentUsers.has(webRTCId)) return
+    this.currentUsers.add(webRTCId)
     const computerState = store.getState().computer
     if (computerState.computerId === this.id) {
-      computerState.shareScreenManager?.onUserJoined(userId)
+      computerState.shareScreenManager?.onUserJoined(webRTCId)
     }
     this.updateStatus()
   }
 
-  removeCurrentUser(userId: string) {
-    if (!this.currentUsers || !this.currentUsers.has(userId)) return
-    this.currentUsers.delete(userId)
+  removeCurrentUser(webRTCId: string) {
+    if (!this.currentUsers || !this.currentUsers.has(webRTCId)) return
+    this.currentUsers.delete(webRTCId)
     const computerState = store.getState().computer
     if (computerState.computerId === this.id) {
-      computerState.shareScreenManager?.onUserLeft(userId)
+      computerState.shareScreenManager?.onUserLeft(webRTCId)
     }
     this.updateStatus()
   }
 
-  openDialog(playerId: string) {
+  openDialog(webRTCId: string) {
     if (!this.id) return
-    store.dispatch(openComputerDialog({ computerId: this.id, myUserId: playerId }))
+    store.dispatch(openComputerDialog({ computerId: this.id, myWebRTCId: webRTCId }))
     network.connectToComputer(this.id)
   }
 }

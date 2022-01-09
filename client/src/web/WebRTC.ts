@@ -6,20 +6,26 @@ import network from '../services/Network'
 export default class WebRTC {
   private myPeer: Peer
   peers = new Map<string, Peer.MediaConnection>()
-  onCalledVideos = new Map<string, HTMLVideoElement>()
+  onCalledPeers = new Map<
+    string,
+    {
+      call: Peer.MediaConnection
+      video: HTMLVideoElement
+    }
+  >()
   private videoGrid = document.querySelector('.video-grid')
   private buttonGrid = document.querySelector('.button-grid')
   private myVideo = document.createElement('video')
   private myStream?: MediaStream
 
-  constructor(userId: string) {
-    const sanitizedId = this.replaceInvalidId(userId)
+  constructor(webRTCId: string) {
+    const sanitizedId = this.replaceInvalidId(webRTCId)
     this.myPeer = new Peer(sanitizedId)
-    console.log('userId:', userId)
+    console.log('webRTCId:', webRTCId)
     console.log('sanitizedId:', sanitizedId)
     this.myPeer.on('error', (err) => {
       console.log(err.type)
-      console.log(err)
+      console.error(err)
     })
 
     // mute your own video stream (you don't want to hear yourself)
@@ -31,8 +37,8 @@ export default class WebRTC {
 
   // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
   // https://peerjs.com/docs.html#peer-id
-  private replaceInvalidId(userId: string) {
-    return userId.replace(/[^0-9a-z]/gi, 'G')
+  private replaceInvalidId(webRTCId: string) {
+    return webRTCId.replace(/[^0-9a-z]/gi, 'G')
   }
 
   initialize() {
@@ -44,14 +50,14 @@ export default class WebRTC {
         this.addVideoStream(video, userVideoStream)
       })
       // triggered only when the connected peer is destroyed
-      call.on('closed', () => {
+      call.on('close', () => {
         video.remove()
-        this.onCalledVideos.delete(call.peer)
+        this.onCalledPeers.delete(call.peer)
       })
       call.on('error', (err) => {
         console.log(err)
       })
-      this.onCalledVideos.set(call.peer, video)
+      this.onCalledPeers.set(call.peer, { call, video })
     })
   }
 
@@ -84,11 +90,11 @@ export default class WebRTC {
   }
 
   // method to call a peer
-  connectToNewUser(userId: string) {
-    console.log('calling')
+  connectToNewUser(webRTCId: string) {
     if (this.myStream) {
-      const sanitizedId = this.replaceInvalidId(userId)
-      if (!this.onCalledVideos.has(sanitizedId)) {
+      const sanitizedId = this.replaceInvalidId(webRTCId)
+      if (!this.onCalledPeers.has(sanitizedId) && !this.peers.has(sanitizedId)) {
+        console.log('calling', sanitizedId)
         const call = this.myPeer.call(sanitizedId, this.myStream)
         const video = document.createElement('video')
         call.on('stream', (userVideoStream) => {
@@ -112,8 +118,8 @@ export default class WebRTC {
   }
 
   // method to remove video stream (when we are the host of the call)
-  deleteVideoStream(userId: string) {
-    const sanitizedId = this.replaceInvalidId(userId)
+  deleteVideoStream(webRTCId: string) {
+    const sanitizedId = this.replaceInvalidId(webRTCId)
     if (this.peers.has(sanitizedId)) {
       const peerCall = this.peers.get(sanitizedId)
       peerCall?.close()
@@ -122,12 +128,23 @@ export default class WebRTC {
   }
 
   // method to remove video stream (when we are the guest of the call)
-  deleteOnCalledVideoStream(userId: string) {
-    const sanitizedId = this.replaceInvalidId(userId)
-    if (this.onCalledVideos.has(sanitizedId)) {
-      const video = this.onCalledVideos.get(sanitizedId)
-      video?.remove()
-      this.onCalledVideos.delete(sanitizedId)
+  deleteOnCalledVideoStream(webRTCId: string) {
+    const sanitizedId = this.replaceInvalidId(webRTCId)
+    if (this.onCalledPeers.has(sanitizedId)) {
+      const onCalledPeer = this.onCalledPeers.get(sanitizedId)
+      onCalledPeer?.video.remove()
+      onCalledPeer?.call.close()
+      this.onCalledPeers.delete(sanitizedId)
+    }
+  }
+
+  // method to remove all connected peers and videos (used when changing scenes)
+  reset() {
+    for (const key of this.peers.keys()) {
+      this.deleteVideoStream(key)
+    }
+    for (const key of this.onCalledPeers.keys()) {
+      this.deleteOnCalledVideoStream(key)
     }
   }
 

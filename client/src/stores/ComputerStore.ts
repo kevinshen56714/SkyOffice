@@ -35,10 +35,10 @@ export const computerSlice = createSlice({
   reducers: {
     openComputerDialog: (
       state,
-      action: PayloadAction<{ computerId: string; myUserId: string }>
+      action: PayloadAction<{ computerId: string; myWebRTCId: string }>
     ) => {
       if (!state.shareScreenManager) {
-        state.shareScreenManager = new ShareScreenManager(action.payload.myUserId)
+        state.shareScreenManager = new ShareScreenManager(action.payload.myWebRTCId)
       }
       const currentScene = (phaserGame.scene.keys.bootstrap as Bootstrap).currentScene
       currentScene?.disableKeys()

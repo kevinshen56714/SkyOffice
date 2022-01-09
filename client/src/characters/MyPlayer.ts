@@ -41,7 +41,7 @@ export default class MyPlayer extends Player {
       switch (item?.itemType) {
         case ItemType.COMPUTER:
           const computer = item as Computer
-          computer.openDialog(this.playerId)
+          computer.openDialog(this.webRTCId)
           break
         case ItemType.WHITEBOARD:
           const whiteboard = item as Whiteboard
@@ -179,7 +179,10 @@ declare global {
         y: number,
         texture: string,
         id: string,
-        name?: string,
+        webRTCId: string,
+        name: string,
+        readyToConnect: boolean,
+        videoConnected: boolean,
         frame?: string | number
       ): MyPlayer
     }
@@ -194,10 +197,24 @@ Phaser.GameObjects.GameObjectFactory.register(
     y: number,
     texture: string,
     id: string,
-    name?: string,
+    webRTCId: string,
+    name: string,
+    readyToConnect: boolean,
+    videoConnected: boolean,
     frame?: string | number
   ) {
-    const sprite = new MyPlayer(this.scene, x, y, texture, id, name, frame)
+    const sprite = new MyPlayer(
+      this.scene,
+      x,
+      y,
+      texture,
+      id,
+      webRTCId,
+      name,
+      readyToConnect,
+      videoConnected,
+      frame
+    )
 
     this.displayList.add(sprite)
     this.updateList.add(sprite)

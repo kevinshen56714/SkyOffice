@@ -18,7 +18,6 @@ export const userSlice = createSlice({
     name: '',
     texture: '',
     backgroundMode: getInitialBackgroundMode(),
-    sessionId: '',
     videoConnected: false,
     loggedIn: false,
     playerNameMap: new Map<string, string>(),
@@ -45,9 +44,6 @@ export const userSlice = createSlice({
       const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
       bootstrap.changeBackgroundMode(newMode)
     },
-    setSessionId: (state, action: PayloadAction<string>) => {
-      state.sessionId = action.payload
-    },
     setVideoConnected: (state, action: PayloadAction<boolean>) => {
       state.videoConnected = action.payload
     },
@@ -70,7 +66,6 @@ export const userSlice = createSlice({
 export const {
   setMyPlayerProps,
   toggleBackgroundMode,
-  setSessionId,
   setVideoConnected,
   logIn,
   setPlayerNameMap,

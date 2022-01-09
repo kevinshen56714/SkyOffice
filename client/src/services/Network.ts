@@ -6,7 +6,7 @@ import { ItemType } from '../../../types/Items'
 import WebRTC from '../web/WebRTC'
 import { Event } from '../events/EventCenter'
 import store from '../stores'
-import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
+import { setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
 import {
   setLobbyJoined,
   setJoinedRoomData,
@@ -26,9 +26,9 @@ class Network {
   private room: Room<IOfficeState> | null = null
   private lobby!: Room
   private events: Phaser.Events.EventEmitter
+  mySessionId: string | null = null
   webRTC!: WebRTC
   webRTCId!: string
-  mySessionId?: string
 
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws')
@@ -68,27 +68,30 @@ class Network {
 
   // method to join the public lobby
   async joinOrCreateLobby(enterX?: number, enterY?: number) {
-    const { name, texture } = store.getState().user
-    if (name && texture && enterX && enterY) {
-      this.room = await this.client.joinOrCreate(RoomType.LOBBY, {
-        playerName: name,
-        playerTexture: texture,
-        enterX,
-        enterY,
-      })
-    } else {
-      this.room = await this.client.joinOrCreate(RoomType.LOBBY)
+    const { name, texture, videoConnected, loggedIn } = store.getState().user
+    const options = {
+      webRTCId: this.webRTCId,
+      readyToConnect: loggedIn,
+      videoConnected,
+      ...(name && { playerName: name }),
+      ...(texture && { playerTexture: texture }),
+      ...(enterX && { enterX }),
+      ...(enterY && { enterY }),
     }
+    this.room = await this.client.joinOrCreate(RoomType.LOBBY, options)
     this.initialize()
   }
 
   // method to join an office
   async joinOffice(roomNumber: string) {
-    const { name, texture } = store.getState().user
+    const { name, texture, videoConnected, loggedIn } = store.getState().user
     if (roomNumber === RoomType.PUBLIC) {
       this.room = await this.client.joinOrCreate(RoomType.PUBLIC, {
         playerName: name,
         playerTexture: texture,
+        webRTCId: this.webRTCId,
+        readyToConnect: loggedIn,
+        videoConnected,
       })
     } else {
       this.room = await this.client.joinOrCreate(RoomType.OFFICE, {
@@ -99,14 +102,20 @@ class Network {
         autoDispose: false,
         playerName: name,
         playerTexture: texture,
+        webRTCId: this.webRTCId,
+        readyToConnect: loggedIn,
+        videoConnected,
       })
     }
     this.initialize()
   }
 
+  // method to leave current room and remove all event listeners and reset webRTC
   leave() {
     this.room?.leave()
     this.room = null
+    this.mySessionId = null
+    this.webRTC.reset()
     this.events.removeAllListeners()
   }
 
@@ -131,9 +140,7 @@ class Network {
   // set up all network listeners before the game starts
   initialize() {
     if (!this.room) return
-
     this.mySessionId = this.room.sessionId
-    store.dispatch(setSessionId(this.room.sessionId))
 
     // new instance added to the players MapSchema
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
@@ -158,19 +165,19 @@ class Network {
     // an instance removed from the players MapSchema
     this.room.state.players.onRemove = (player: IPlayer, key: string) => {
       this.events.emit(Event.PLAYER_LEFT, key)
-      this.webRTC?.deleteVideoStream(key)
-      this.webRTC?.deleteOnCalledVideoStream(key)
+      this.webRTC?.deleteVideoStream(player.webRTCId)
+      this.webRTC?.deleteOnCalledVideoStream(player.webRTCId)
       store.dispatch(pushPlayerLeftMessage(player.name))
       store.dispatch(removePlayerNameMap(key))
     }
 
     // new instance added to the computers MapSchema
     this.room.state.computers.onAdd = (computer: IComputer, key: string) => {
-      // track changes on every child object's connectedUser
-      computer.connectedUser.onAdd = (item, index) => {
+      // track changes on every child object's connectedWebRTCId
+      computer.connectedWebRTCId.onAdd = (item, index) => {
         this.events.emit(Event.ITEM_USER_ADDED, item, key, ItemType.COMPUTER)
       }
-      computer.connectedUser.onRemove = (item, index) => {
+      computer.connectedWebRTCId.onRemove = (item, index) => {
         this.events.emit(Event.ITEM_USER_REMOVED, item, key, ItemType.COMPUTER)
       }
     }
@@ -208,14 +215,14 @@ class Network {
     })
 
     // when a peer disconnects with myPeer
-    this.room.onMessage(Message.DISCONNECT_STREAM, (clientId: string) => {
-      this.webRTC?.deleteOnCalledVideoStream(clientId)
+    this.room.onMessage(Message.DISCONNECT_STREAM, (webRTCId: string) => {
+      this.webRTC?.deleteOnCalledVideoStream(webRTCId)
     })
 
     // when a computer user stops sharing screen
-    this.room.onMessage(Message.STOP_SCREEN_SHARE, (clientId: string) => {
+    this.room.onMessage(Message.STOP_SCREEN_SHARE, (webRTCId: string) => {
       const computerState = store.getState().computer
-      computerState.shareScreenManager?.onUserLeft(clientId)
+      computerState.shareScreenManager?.onUserLeft(webRTCId)
     })
   }
 
@@ -291,9 +298,9 @@ class Network {
   }
 
   // method to send stream-disconnection signal to Colyseus server
-  playerStreamDisconnect(id: string) {
+  playerStreamDisconnect(id: string, webRTCId: string) {
     this.room?.send(Message.DISCONNECT_STREAM, { clientId: id })
-    this.webRTC?.deleteVideoStream(id)
+    this.webRTC?.deleteVideoStream(webRTCId)
   }
 
   connectToComputer(id: string) {

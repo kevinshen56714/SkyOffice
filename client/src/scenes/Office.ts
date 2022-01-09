@@ -17,12 +17,12 @@ export default class Office extends Scene {
     super('office')
   }
 
-  create(data: ISceneData) {
+  async create(data: ISceneData) {
     this.map = this.make.tilemap({ key: 'tilemap' })
     super.create(data)
 
     if (data.teleportTo) {
-      network.joinOffice(data.teleportTo)
+      await network.joinOffice(data.teleportTo)
     } else {
       console.error('Missing office destination')
     }
