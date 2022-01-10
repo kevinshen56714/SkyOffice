@@ -74,7 +74,7 @@ class Network {
       readyToConnect: loggedIn,
       videoConnected,
       ...(name && { playerName: name }),
-      ...(texture && { playerTexture: texture }),
+      ...(texture && { playerAnim: `${texture}_idle_down` }),
       ...(enterX && { enterX }),
       ...(enterY && { enterY }),
     }
@@ -85,26 +85,23 @@ class Network {
   // method to join an office
   async joinOffice(roomNumber: string) {
     const { name, texture, videoConnected, loggedIn } = store.getState().user
+    const options = {
+      playerName: name,
+      playerAnim: `${texture}_idle_up`,
+      webRTCId: this.webRTCId,
+      readyToConnect: loggedIn,
+      videoConnected,
+    }
     if (roomNumber === RoomType.PUBLIC) {
-      this.room = await this.client.joinOrCreate(RoomType.PUBLIC, {
-        playerName: name,
-        playerTexture: texture,
-        webRTCId: this.webRTCId,
-        readyToConnect: loggedIn,
-        videoConnected,
-      })
+      this.room = await this.client.joinOrCreate(RoomType.PUBLIC, options)
     } else {
       this.room = await this.client.joinOrCreate(RoomType.OFFICE, {
+        ...options,
         name: roomNumber,
         roomNumber,
         description: roomNumber,
         password: null,
         autoDispose: false,
-        playerName: name,
-        playerTexture: texture,
-        webRTCId: this.webRTCId,
-        readyToConnect: loggedIn,
-        videoConnected,
       })
     }
     this.initialize()

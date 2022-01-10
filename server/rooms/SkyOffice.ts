@@ -171,19 +171,11 @@ export class SkyOffice extends Room<OfficeState> {
   }
 
   onJoin(client: Client, options: IRoomData) {
-    const { playerName, playerTexture, enterX, enterY, webRTCId, videoConnected, readyToConnect } =
+    const { playerName, playerAnim, enterX, enterY, webRTCId, videoConnected, readyToConnect } =
       options
     this.state.players.set(
       client.sessionId,
-      new Player(
-        playerName,
-        playerTexture,
-        enterX,
-        enterY,
-        webRTCId,
-        videoConnected,
-        readyToConnect
-      )
+      new Player(playerName, playerAnim, enterX, enterY, webRTCId, videoConnected, readyToConnect)
     )
 
     client.send(Message.SEND_ROOM_DATA, {

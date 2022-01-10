@@ -5,14 +5,8 @@ import network from '../services/Network'
 
 export default class WebRTC {
   private myPeer: Peer
-  peers = new Map<string, Peer.MediaConnection>()
-  onCalledPeers = new Map<
-    string,
-    {
-      call: Peer.MediaConnection
-      video: HTMLVideoElement
-    }
-  >()
+  private peers = new Map<string, Peer.MediaConnection>()
+  private onCalledPeers = new Map<string, Peer.MediaConnection>()
   private videoGrid = document.querySelector('.video-grid')
   private buttonGrid = document.querySelector('.button-grid')
   private myVideo = document.createElement('video')
@@ -49,7 +43,7 @@ export default class WebRTC {
       call.on('stream', (userVideoStream) => {
         this.addVideoStream(video, userVideoStream)
       })
-      // triggered only when the connected peer is destroyed
+      // triggered manually with deleteOnCalledVideoStream()
       call.on('close', () => {
         video.remove()
         this.onCalledPeers.delete(call.peer)
@@ -57,7 +51,7 @@ export default class WebRTC {
       call.on('error', (err) => {
         console.log(err)
       })
-      this.onCalledPeers.set(call.peer, { call, video })
+      this.onCalledPeers.set(call.peer, call)
     })
   }
 
@@ -102,6 +96,7 @@ export default class WebRTC {
         })
         call.on('close', () => {
           video.remove()
+          this.peers.delete(sanitizedId)
         })
         this.peers.set(sanitizedId, call)
       }
@@ -123,7 +118,6 @@ export default class WebRTC {
     if (this.peers.has(sanitizedId)) {
       const peerCall = this.peers.get(sanitizedId)
       peerCall?.close()
-      this.peers.delete(sanitizedId)
     }
   }
 
@@ -132,9 +126,7 @@ export default class WebRTC {
     const sanitizedId = this.replaceInvalidId(webRTCId)
     if (this.onCalledPeers.has(sanitizedId)) {
       const onCalledPeer = this.onCalledPeers.get(sanitizedId)
-      onCalledPeer?.video.remove()
-      onCalledPeer?.call.close()
-      this.onCalledPeers.delete(sanitizedId)
+      onCalledPeer?.close()
     }
   }
 

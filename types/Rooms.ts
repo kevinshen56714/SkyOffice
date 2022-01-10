@@ -1,3 +1,5 @@
+import { IPlayer } from './IOfficeState'
+
 export enum RoomType {
   COLYSEUS_LOBBYROOM = 'colyseus-lobbyroom',
   LOBBY = 'lobby',
@@ -6,13 +8,13 @@ export enum RoomType {
 }
 
 export interface IRoomData {
-  roomNumber: string | null
-  name: string
-  description: string
-  password: string | null
-  autoDispose: boolean
+  roomNumber?: string | null
+  name?: string
+  description?: string
+  password?: string | null
+  autoDispose?: boolean
   playerName?: string
-  playerTexture?: string
+  playerAnim?: string
   enterX?: number
   enterY?: number
   webRTCId?: string

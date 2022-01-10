@@ -11,6 +11,7 @@ import { setRoomJoined } from '../stores/RoomStore'
 export default class Bootstrap extends Phaser.Scene {
   currentScene?: Office | Lobby
   private lobbyReturnPosition?: Phaser.Math.Vector2
+  private preloadComplete = false
 
   constructor() {
     super('bootstrap')
@@ -103,6 +104,8 @@ export default class Bootstrap extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 48,
     })
+
+    this.load.on('complete', () => (this.preloadComplete = true))
   }
 
   create() {
@@ -114,6 +117,7 @@ export default class Bootstrap extends Phaser.Scene {
   }
 
   launchGame() {
+    if (!this.preloadComplete) return
     network.webRTC?.checkPreviousPermission()
     this.scene.launch('lobby', { onLeave: this.handleEnterOffice })
     this.currentScene = this.scene.get('lobby') as Lobby

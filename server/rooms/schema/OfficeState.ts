@@ -18,7 +18,7 @@ export class Player extends Schema implements IPlayer {
 
   constructor(
     playerName?: string,
-    playerTexture?: string,
+    playerAnim?: string,
     enterX?: number,
     enterY?: number,
     webRTCId?: string,
@@ -27,7 +27,7 @@ export class Player extends Schema implements IPlayer {
   ) {
     super()
     if (playerName) this.name = playerName
-    if (playerTexture) this.anim = `${playerTexture}_idle_down`
+    if (playerAnim) this.anim = playerAnim
     if (enterX) this.x = enterX
     if (enterY) this.y = enterY
     if (webRTCId) this.webRTCId = webRTCId

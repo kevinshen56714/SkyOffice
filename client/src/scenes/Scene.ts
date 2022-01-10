@@ -116,7 +116,16 @@ export default class Scene extends Phaser.Scene {
       store.dispatch(setFocused(true))
     })
     this.input.keyboard.on('keydown-ESC', () => store.dispatch(setShowChat(false)))
-    if (!store.getState().user.loggedIn) this.disableKeys()
+
+    // Disable keys when not loggedIn and during the beginning 0.5 seconds
+    // (to prevent rapid entering and leaving scenes)
+    this.disableKeys()
+    if (store.getState().user.loggedIn) {
+      this.time.addEvent({
+        delay: 500,
+        callback: () => this.enableKeys(),
+      })
+    }
   }
 
   disableKeys() {
