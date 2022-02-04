@@ -5,12 +5,13 @@ import { sittingShiftData } from './Player'
 import Player from './Player'
 import Network from '../services/Network'
 import Chair from '../items/Chair'
+import Computer from '../items/Computer'
+import Whiteboard from '../items/Whiteboard'
+
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { pushPlayerJoinedMessage } from '../stores/ChatStore'
 import { ItemType } from '../../../types/Items'
-import Computer from '../items/Computer'
-import Whiteboard from '../items/Whiteboard'
 
 export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
@@ -59,6 +60,10 @@ export default class MyPlayer extends Player {
         case ItemType.WHITEBOARD:
           const whiteboard = item as Whiteboard
           whiteboard.openDialog(network)
+          break
+        case ItemType.VENDINGMACHINE:
+          // hacky and hard-coded, but leaving it as is for now
+          window.open('https://www.buymeacoffee.com/skyoffice', '_blank')
           break
       }
     }

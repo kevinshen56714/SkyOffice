@@ -5,8 +5,8 @@ import { setVideoConnected } from '../stores/UserStore'
 
 export default class WebRTC {
   private myPeer: Peer
-  peers = new Map<string, Peer.MediaConnection>()
-  onCalledVideos = new Map<string, HTMLVideoElement>()
+  private peers = new Map<string, { call: Peer.MediaConnection; video: HTMLVideoElement }>()
+  private onCalledPeers = new Map<string, { call: Peer.MediaConnection; video: HTMLVideoElement }>()
   private videoGrid = document.querySelector('.video-grid')
   private buttonGrid = document.querySelector('.button-grid')
   private myVideo = document.createElement('video')
@@ -21,7 +21,7 @@ export default class WebRTC {
     console.log('sanitizedId:', sanitizedId)
     this.myPeer.on('error', (err) => {
       console.log(err.type)
-      console.log(err)
+      console.error(err)
     })
 
     // mute your own video stream (you don't want to hear yourself)
@@ -39,33 +39,28 @@ export default class WebRTC {
 
   initialize() {
     this.myPeer.on('call', (call) => {
-      call.answer(this.myStream)
-      const video = document.createElement('video')
+      if (!this.onCalledPeers.has(call.peer)) {
+        call.answer(this.myStream)
+        const video = document.createElement('video')
+        this.onCalledPeers.set(call.peer, { call, video })
 
-      call.on('stream', (userVideoStream) => {
-        this.addVideoStream(video, userVideoStream)
-      })
-      // triggered only when the connected peer is destroyed
-      call.on('closed', () => {
-        video.remove()
-        this.onCalledVideos.delete(call.peer)
-      })
-      call.on('error', (err) => {
-        console.log(err)
-      })
-      this.onCalledVideos.set(call.peer, video)
+        call.on('stream', (userVideoStream) => {
+          this.addVideoStream(video, userVideoStream)
+        })
+      }
+      // on close is triggered manually with deleteOnCalledVideoStream()
     })
   }
 
   // check if permission has been granted before
   checkPreviousPermission() {
     const permissionName = 'microphone' as PermissionName
-    navigator.permissions.query({ name: permissionName }).then((result) => {
-      if (result.state === 'granted') this.getUserMedia()
+    navigator.permissions?.query({ name: permissionName }).then((result) => {
+      if (result.state === 'granted') this.getUserMedia(false)
     })
   }
 
-  getUserMedia() {
+  getUserMedia(alertOnError = true) {
     // ask the browser to get user media
     navigator.mediaDevices
       ?.getUserMedia({
@@ -80,26 +75,25 @@ export default class WebRTC {
         this.network.videoConnected()
       })
       .catch((error) => {
-        store.dispatch(setVideoConnected(false))
-        window.alert('No webcam or microphone found, or permission is blocked')
+        if (alertOnError) window.alert('No webcam or microphone found, or permission is blocked')
       })
   }
 
   // method to call a peer
   connectToNewUser(userId: string) {
-    console.log('calling')
     if (this.myStream) {
       const sanitizedId = this.replaceInvalidId(userId)
-      if (!this.onCalledVideos.has(sanitizedId)) {
+      if (!this.peers.has(sanitizedId)) {
+        console.log('calling', sanitizedId)
         const call = this.myPeer.call(sanitizedId, this.myStream)
         const video = document.createElement('video')
+        this.peers.set(sanitizedId, { call, video })
+
         call.on('stream', (userVideoStream) => {
           this.addVideoStream(video, userVideoStream)
         })
-        call.on('close', () => {
-          video.remove()
-        })
-        this.peers.set(sanitizedId, call)
+
+        // on close is triggered manually with deleteVideoStream()
       }
     }
   }
@@ -117,8 +111,9 @@ export default class WebRTC {
   deleteVideoStream(userId: string) {
     const sanitizedId = this.replaceInvalidId(userId)
     if (this.peers.has(sanitizedId)) {
-      const peerCall = this.peers.get(sanitizedId)
-      peerCall?.close()
+      const peer = this.peers.get(sanitizedId)
+      peer?.call.close()
+      peer?.video.remove()
       this.peers.delete(sanitizedId)
     }
   }
@@ -126,10 +121,11 @@ export default class WebRTC {
   // method to remove video stream (when we are the guest of the call)
   deleteOnCalledVideoStream(userId: string) {
     const sanitizedId = this.replaceInvalidId(userId)
-    if (this.onCalledVideos.has(sanitizedId)) {
-      const video = this.onCalledVideos.get(sanitizedId)
-      video?.remove()
-      this.onCalledVideos.delete(sanitizedId)
+    if (this.onCalledPeers.has(sanitizedId)) {
+      const onCalledPeer = this.onCalledPeers.get(sanitizedId)
+      onCalledPeer?.call.close()
+      onCalledPeer?.video.remove()
+      this.onCalledPeers.delete(sanitizedId)
     }
   }
 
