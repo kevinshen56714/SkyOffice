@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="1262">
+<map version="1.5" tiledversion="1.7.0" orientation="orthogonal" renderorder="right-down" width="40" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="1269">
  <editorsettings>
   <export target="map.json" format="json"/>
  </editorsettings>
@@ -12824,6 +12824,9 @@
  <tileset firstgid="4688" name="Basement" tilewidth="32" tileheight="32" tilecount="800" columns="16">
   <image source="../items/Basement.png" width="512" height="1600"/>
  </tileset>
+ <tileset firstgid="5488" name="vendingmachine" tilewidth="48" tileheight="72" tilecount="1" columns="1">
+  <image source="../items/vendingmachine.png" width="48" height="72"/>
+ </tileset>
  <layer id="2" name="Ground" width="40" height="30" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -13065,7 +13068,7 @@
    </properties>
   </object>
  </objectgroup>
- <objectgroup id="5" name="Objects" locked="1">
+ <objectgroup id="5" name="Objects">
   <object id="372" gid="2776" x="704" y="288" width="32" height="32"/>
   <object id="373" gid="2777" x="736" y="288" width="32" height="32"/>
   <object id="374" gid="2792" x="704" y="320" width="32" height="32"/>
@@ -13145,8 +13148,10 @@
   <object id="685" gid="3079" x="1024" y="736" width="32" height="32"/>
   <object id="686" gid="3111" x="1216" y="736" width="32" height="32"/>
   <object id="687" gid="3110" x="1184" y="736" width="32" height="32"/>
+  <object id="1267" gid="2836" x="576" y="160" width="32" height="32"/>
+  <object id="1268" gid="2852" x="576" y="192" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="7" name="ObjectsOnCollide" locked="1">
+ <objectgroup id="7" name="ObjectsOnCollide">
   <object id="418" gid="2613" x="480" y="672" width="32" height="32"/>
   <object id="419" gid="2612" x="448" y="672" width="32" height="32"/>
   <object id="426" gid="2612" x="416" y="672" width="32" height="32"/>
@@ -13268,23 +13273,9 @@
   <object id="382" gid="2814" x="192" y="416" width="32" height="32"/>
   <object id="383" gid="2814" x="320" y="416" width="32" height="32"/>
   <object id="392" gid="2814" x="448" y="416" width="32" height="32"/>
-  <object id="366" gid="2954" x="224" y="151" width="32" height="32"/>
-  <object id="367" gid="2970" x="224" y="183" width="32" height="32"/>
-  <object id="368" gid="2986" x="224" y="215" width="32" height="32"/>
-  <object id="369" gid="2955" x="256" y="151" width="32" height="32"/>
-  <object id="370" gid="2971" x="256" y="183" width="32" height="32"/>
-  <object id="371" gid="2987" x="256" y="215" width="32" height="32"/>
-  <object id="384" gid="2952" x="288" y="151" width="32" height="32"/>
-  <object id="385" gid="2968" x="288" y="183" width="32" height="32"/>
-  <object id="386" gid="2984" x="288" y="215" width="32" height="32"/>
-  <object id="387" gid="2953" x="320" y="151" width="32" height="32"/>
-  <object id="388" gid="2969" x="320" y="183" width="32" height="32"/>
-  <object id="389" gid="2985" x="320" y="215" width="32" height="32"/>
-  <object id="410" gid="2868" x="576" y="217" width="32" height="32"/>
-  <object id="408" gid="2836" x="576" y="153" width="32" height="32"/>
-  <object id="409" gid="2852" x="576" y="185" width="32" height="32"/>
+  <object id="1266" gid="2868" x="576" y="224" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="6" name="GenericObjects" locked="1">
+ <objectgroup id="6" name="GenericObjects">
   <object id="707" gid="4130" x="928" y="64" width="32" height="32"/>
   <object id="708" gid="4131" x="960" y="64" width="32" height="32"/>
   <object id="709" gid="4146" x="928" y="96" width="32" height="32"/>
@@ -13300,18 +13291,12 @@
   <object id="835" gid="3645" x="512" y="160" width="32" height="32"/>
   <object id="836" gid="3661" x="512" y="192" width="32" height="32"/>
  </objectgroup>
- <objectgroup id="8" name="GenericObjectsOnCollide" locked="1">
+ <objectgroup id="8" name="GenericObjectsOnCollide">
   <object id="716" gid="4463" x="736" y="128" width="32" height="32"/>
   <object id="826" gid="4388" x="1216" y="896" width="32" height="32"/>
   <object id="827" gid="4404" x="1216" y="928" width="32" height="32"/>
   <object id="838" gid="4389" x="1152" y="928" width="32" height="32"/>
   <object id="839" gid="4405" x="1184" y="928" width="32" height="32"/>
-  <object id="762" gid="4368" x="384" y="215" width="32" height="32"/>
-  <object id="763" gid="4369" x="416" y="215" width="32" height="32"/>
-  <object id="764" gid="4352" x="384" y="183" width="32" height="32"/>
-  <object id="765" gid="4353" x="416" y="183" width="32" height="32"/>
-  <object id="766" gid="4336" x="384" y="151" width="32" height="32"/>
-  <object id="767" gid="4337" x="416" y="151" width="32" height="32"/>
  </objectgroup>
  <objectgroup id="9" name="Computer" locked="1">
   <object id="875" gid="4680" x="1152" y="544" width="96" height="64"/>
@@ -13320,12 +13305,12 @@
   <object id="878" gid="4681" x="960" y="800" width="96" height="64"/>
   <object id="879" gid="4683" x="1152" y="800" width="96" height="64"/>
  </objectgroup>
- <objectgroup id="10" name="Whiteboard" locked="1">
-  <object id="880" gid="4685" x="512" y="544" width="64" height="64"/>
+ <objectgroup id="10" name="Whiteboard">
+  <object id="880" gid="4685" x="928" y="320" width="64" height="64"/>
   <object id="881" gid="4686" x="832" y="96" width="64" height="64"/>
-  <object id="888" gid="4685" x="928" y="320" width="64" height="64"/>
+  <object id="1263" gid="4687" x="512" y="544" width="64" height="64"/>
  </objectgroup>
- <objectgroup id="13" name="Basement" locked="1">
+ <objectgroup id="13" name="Basement">
   <object id="1192" gid="5037" x="480" y="256" width="32" height="32"/>
   <object id="1194" gid="5055" x="480" y="288" width="32" height="32"/>
   <object id="1195" gid="5053" x="480" y="320" width="32" height="32"/>
@@ -13349,5 +13334,8 @@
   <object id="1240" gid="5126" x="288" y="321" width="32" height="32"/>
   <object id="1241" gid="5127" x="320" y="321" width="32" height="32"/>
   <object id="1242" gid="5105" x="256" y="289" width="32" height="32"/>
+ </objectgroup>
+ <objectgroup id="14" name="VendingMachine" locked="1">
+  <object id="1262" gid="5488" x="378" y="209" width="48" height="72"/>
  </objectgroup>
 </map>
