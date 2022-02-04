@@ -36,16 +36,13 @@ export default class OtherPlayer extends Player {
       !this.connected &&
       this.connectionBufferTime >= 750 &&
       myPlayer.readyToConnect &&
-      this.readyToConnect
+      this.readyToConnect &&
+      myPlayer.videoConnected &&
+      myPlayerId > this.playerId
     ) {
-      if (
-        (myPlayer.videoConnected && !this.videoConnected) ||
-        (myPlayer.videoConnected && this.videoConnected && myPlayerId > this.playerId)
-      ) {
-        webRTC.connectToNewUser(this.playerId)
-        this.connected = true
-        this.connectionBufferTime = 0
-      }
+      webRTC.connectToNewUser(this.playerId)
+      this.connected = true
+      this.connectionBufferTime = 0
     }
   }
 
