@@ -55,7 +55,7 @@ export default class WebRTC {
   // check if permission has been granted before
   checkPreviousPermission() {
     const permissionName = 'microphone' as PermissionName
-    navigator.permissions.query({ name: permissionName }).then((result) => {
+    navigator.permissions?.query({ name: permissionName }).then((result) => {
       if (result.state === 'granted') this.getUserMedia(false)
     })
   }
