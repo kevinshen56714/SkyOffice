@@ -1,5 +1,6 @@
-[build]
-  command = "cd client && yarn build"
+[build]  
+  base = "client"
+  command = "yarn build"
   publish = "client/dist"
 
 # Rule for router history mode
