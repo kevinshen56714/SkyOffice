@@ -77,6 +77,7 @@ const RoomName = styled.div`
   display: flex;
   gap: 10px;
   justify-content: center;
+  align-items: center;
 
   h3 {
     font-size: 24px;

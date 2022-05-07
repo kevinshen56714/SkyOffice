@@ -171,8 +171,8 @@ export default function Chat() {
   const dispatch = useAppDispatch()
   const game = phaserGame.scene.keys.game as Game
 
-  const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
-    setInputValue(event.currentTarget.value)
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

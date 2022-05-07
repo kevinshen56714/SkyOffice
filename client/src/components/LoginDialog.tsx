@@ -8,9 +8,9 @@ import AlertTitle from '@mui/material/AlertTitle'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
 import { Swiper, SwiperSlide } from 'swiper/react'
-import SwiperCore, { Navigation } from 'swiper'
-import 'swiper/swiper.min.css'
-import 'swiper/components/navigation/navigation.min.css'
+import { Navigation } from 'swiper'
+import 'swiper/css'
+import 'swiper/css/navigation'
 
 import Adam from '../assets/login/Adam_login.png'
 import Ash from '../assets/login/Ash_login.png'
@@ -22,8 +22,6 @@ import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
-
-SwiperCore.use([Navigation])
 
 const Wrapper = styled.form`
   position: fixed;
@@ -51,6 +49,7 @@ const RoomName = styled.div`
   display: flex;
   gap: 10px;
   justify-content: center;
+  align-items: center;
 
   h3 {
     font-size: 24px;
@@ -86,7 +85,7 @@ const Left = styled.div`
 
   --swiper-navigation-size: 24px;
 
-  .swiper-container {
+  .swiper {
     width: 160px;
     height: 220px;
     border-radius: 8px;
@@ -182,7 +181,7 @@ export default function LoginDialog() {
         <Left>
           <SubTitle>Select an avatar</SubTitle>
           <Swiper
-            // install Swiper modules
+            modules={[Navigation]}
             navigation
             spaceBetween={0}
             slidesPerView={1}
