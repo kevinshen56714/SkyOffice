@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.0.1",
     "@mui/material": "^5.6.4",
     "@mui/styled-engine-sc": "^5.6.1",
@@ -22,8 +24,7 @@
     "react-redux": "^7.2.5",
     "sass": "^1.42.1",
     "styled-components": "^5.3.5",
-    "swiper": "^8.1.4",
-    "@colyseus/schema": "^1.0.28"
+    "swiper": "^8.1.4"
   },
   "devDependencies": {
     "@types/jest": "^26.0.24",
