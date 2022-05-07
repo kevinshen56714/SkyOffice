@@ -97,7 +97,7 @@ const RoomDescription = styled.div`
   justify-content: center;
 `
 
-const StyledFab = styled(Fab)`
+const StyledFab = styled(Fab)<{ target?: string }>`
   &:hover {
     color: #1ea2df;
   }

@@ -30,7 +30,9 @@ const MessageText = styled.p`
   text-align: center;
 `
 
-const CustomRoomTableContainer = styled(TableContainer)`
+const CustomRoomTableContainer = styled(TableContainer)<{
+  component: React.ElementType
+}>`
   max-height: 500px;
 
   table {
