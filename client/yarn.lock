@@ -243,7 +243,7 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
-"@colyseus/schema@^1.0.22":
+"@colyseus/schema@^1.0.22", "@colyseus/schema@^1.0.34":
   version "1.0.34"
   resolved "https://registry.yarnpkg.com/@colyseus/schema/-/schema-1.0.34.tgz#b20d3590c78c6aaf006daea9b9541abaff13843d"
   integrity sha512-2PfCqu9dJlfbkQsxGi9oM+fAmWpPeMLol6tazRdBxb5mj8QykUzRFMY4pipBlUB2tkQ4qidoRMQqjVHj2HznNg==
@@ -361,6 +361,7 @@
     prop-types "^15.7.2"
 
 "@mui/styled-engine-sc@^5.6.1", "@mui/styled-engine@^5.6.1":
+  name "@mui/styled-engine"
   version "5.6.1"
   resolved "https://registry.yarnpkg.com/@mui/styled-engine-sc/-/styled-engine-sc-5.6.1.tgz#d9505c005eeefa5c7d7ef9c03e63324db889ee09"
   integrity sha512-BMY5Pb8YgOxvvwg9s6mPeDgzha4244/KgRmHvTVPBmvqypbiLPApR6SNyYON+1/3kLHt3TpmxrlRY3jPiZF2QQ==
