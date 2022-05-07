@@ -22,7 +22,8 @@
     "react-redux": "^7.2.5",
     "sass": "^1.42.1",
     "styled-components": "^5.3.5",
-    "swiper": "^8.1.4"
+    "swiper": "^8.1.4",
+    "@colyseus/schema": "^1.0.28"
   },
   "devDependencies": {
     "@types/jest": "^26.0.24",
