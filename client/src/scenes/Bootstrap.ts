@@ -4,29 +4,6 @@ import { BackgroundMode } from '../../../types/BackgroundMode'
 import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
 
-import {
-  CloudDayImg,
-  CloudDaySettings,
-  CloudNightImg,
-  CloudNightSettings,
-  BackDropDayImg,
-  BackDropNightImg,
-  SunMoonImg,
-  MapSettings,
-  FloorAndGroundImg,
-  ChairImg,
-  ComputerImg,
-  WhiteboardImg,
-  VendingMachineImg,
-  OfficeImg,
-  BasementImg,
-  GenericImg,
-  AdamImg,
-  AshImg,
-  LucyImg,
-  NancyImg,
-} from '../assets'
-
 export default class Bootstrap extends Phaser.Scene {
   network!: Network
 
@@ -35,58 +12,66 @@ export default class Bootstrap extends Phaser.Scene {
   }
 
   preload() {
-    this.load.atlas('cloud_day', CloudDayImg, CloudDaySettings)
-    this.load.image('backdrop_day', BackDropDayImg)
-    this.load.atlas('cloud_night', CloudNightImg, CloudNightSettings)
-    this.load.image('backdrop_night', BackDropNightImg)
-    this.load.image('sun_moon', SunMoonImg)
+    this.load.atlas(
+      'cloud_day',
+      'assets/background/cloud_day.png',
+      'assets/background/cloud_day.json'
+    )
+    this.load.image('backdrop_day', 'assets/background/backdrop_day.png')
+    this.load.atlas(
+      'cloud_night',
+      'assets/background/cloud_night.png',
+      'assets/background/cloud_night.json'
+    )
+    this.load.image('backdrop_night', 'assets/background/backdrop_night.png')
+    this.load.image('sun_moon', 'assets/background/sun_moon.png')
 
-    this.load.tilemapTiledJSON('tilemap', MapSettings)
-    this.load.spritesheet('tiles_wall', FloorAndGroundImg, {
+    this.load.tilemapTiledJSON('tilemap', 'assets/map/map.json')
+    this.load.spritesheet('tiles_wall', 'assets/map/FloorAndGround.png', {
       frameWidth: 32,
       frameHeight: 32,
     })
-    this.load.spritesheet('chairs', ChairImg, {
+    this.load.spritesheet('chairs', 'assets/items/chair.png', {
       frameWidth: 32,
       frameHeight: 64,
     })
-    this.load.spritesheet('computers', ComputerImg, {
+    this.load.spritesheet('computers', 'assets/items/computer.png', {
       frameWidth: 96,
       frameHeight: 64,
     })
-    this.load.spritesheet('whiteboards', WhiteboardImg, {
+    this.load.spritesheet('whiteboards', 'assets/items/whiteboard.png', {
       frameWidth: 64,
       frameHeight: 64,
     })
-    this.load.spritesheet('vendingmachines', VendingMachineImg, {
+    this.load.spritesheet('vendingmachines', 'assets/items/vendingmachine.png', {
       frameWidth: 48,
       frameHeight: 72,
     })
-    this.load.spritesheet('office', OfficeImg, {
+    this.load.spritesheet('office', 'assets/items/Modern_Office_Black_Shadow.png', {
       frameWidth: 32,
       frameHeight: 32,
     })
-    this.load.spritesheet('basement', BasementImg, {
+    this.load.spritesheet('basement', 'assets/items/Basement.png', {
       frameWidth: 32,
       frameHeight: 32,
     })
-    this.load.spritesheet('generic', GenericImg, {
+    this.load.spritesheet('generic', 'assets/items/Generic.png', {
       frameWidth: 32,
       frameHeight: 32,
     })
-    this.load.spritesheet('adam', AdamImg, {
+    this.load.spritesheet('adam', 'assets/character/adam.png', {
       frameWidth: 32,
       frameHeight: 48,
     })
-    this.load.spritesheet('ash', AshImg, {
+    this.load.spritesheet('ash', 'assets/character/ash.png', {
       frameWidth: 32,
       frameHeight: 48,
     })
-    this.load.spritesheet('lucy', LucyImg, {
+    this.load.spritesheet('lucy', 'assets/character/lucy.png', {
       frameWidth: 32,
       frameHeight: 48,
     })
-    this.load.spritesheet('nancy', NancyImg, {
+    this.load.spritesheet('nancy', 'assets/character/nancy.png', {
       frameWidth: 32,
       frameHeight: 48,
     })
