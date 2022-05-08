@@ -3,12 +3,9 @@ import Network from '../services/Network'
 import { BackgroundMode } from '../../../types/BackgroundMode'
 import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
-import ChairImg from '../images/items/chair.png'
-import ComputerImg from '../images/items/computer.png'
-import VendingMachineImg from '../images/items/vendingmachine.png'
-import WhiteboardImg from '../images/items/whiteboard.png'
 
 export default class Bootstrap extends Phaser.Scene {
+  private preloadComplete = false
   network!: Network
 
   constructor() {
@@ -34,6 +31,22 @@ export default class Bootstrap extends Phaser.Scene {
     this.load.spritesheet('tiles_wall', 'assets/map/FloorAndGround.png', {
       frameWidth: 32,
       frameHeight: 32,
+    })
+    this.load.spritesheet('chairs', 'assets/items/chair.png', {
+      frameWidth: 32,
+      frameHeight: 64,
+    })
+    this.load.spritesheet('computers', 'assets/items/computer.png', {
+      frameWidth: 96,
+      frameHeight: 64,
+    })
+    this.load.spritesheet('whiteboards', 'assets/items/whiteboard.png', {
+      frameWidth: 64,
+      frameHeight: 64,
+    })
+    this.load.spritesheet('vendingmachines', 'assets/items/vendingmachine.png', {
+      frameWidth: 48,
+      frameHeight: 72,
     })
     this.load.spritesheet('office', 'assets/tileset/Modern_Office_Black_Shadow.png', {
       frameWidth: 32,
@@ -63,21 +76,10 @@ export default class Bootstrap extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 48,
     })
-    this.load.spritesheet('chairs', ChairImg, {
-      frameWidth: 32,
-      frameHeight: 64,
-    })
-    this.load.spritesheet('computers', ComputerImg, {
-      frameWidth: 96,
-      frameHeight: 64,
-    })
-    this.load.spritesheet('whiteboards', WhiteboardImg, {
-      frameWidth: 64,
-      frameHeight: 64,
-    })
-    this.load.spritesheet('vendingmachines', VendingMachineImg, {
-      frameWidth: 48,
-      frameHeight: 72,
+
+    this.load.on('complete', () => {
+      this.preloadComplete = true
+      this.launchBackground(store.getState().user.backgroundMode)
     })
   }
 
@@ -85,15 +87,12 @@ export default class Bootstrap extends Phaser.Scene {
     this.network = new Network()
   }
 
-  create() {
-    this.launchBackground(store.getState().user.backgroundMode)
-  }
-
   private launchBackground(backgroundMode: BackgroundMode) {
     this.scene.launch('background', { backgroundMode })
   }
 
   launchGame() {
+    if (!this.preloadComplete) return
     this.network.webRTC?.checkPreviousPermission()
     this.scene.launch('game', {
       network: this.network,
