@@ -163,6 +163,7 @@ const Message = ({ chatMessage, messageType }) => {
 export default function Chat() {
   const [inputValue, setInputValue] = useState('')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [readyToSubmit, setReadyToSubmit] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const chatMessages = useAppSelector((state) => state.chat.chatMessages)
@@ -185,6 +186,15 @@ export default function Chat() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    // this is added because without this, 2 things happen at the same
+    // time when Enter is pressed, (1) the inputRef gets focus (from
+    // useEffect) and (2) the form gets submitted (right after the input
+    // gets focused)
+    if (!readyToSubmit) {
+      setReadyToSubmit(true)
+      return
+    }
     // move focus back to the game
     inputRef.current?.blur()
 
@@ -257,9 +267,15 @@ export default function Chat() {
                 onKeyDown={handleKeyDown}
                 onChange={handleChange}
                 onFocus={() => {
-                  if (!focused) dispatch(setFocused(true))
+                  if (!focused) {
+                    dispatch(setFocused(true))
+                    setReadyToSubmit(true)
+                  }
                 }}
-                onBlur={() => dispatch(setFocused(false))}
+                onBlur={() => {
+                  dispatch(setFocused(false))
+                  setReadyToSubmit(false)
+                }}
               />
               <IconButton aria-label="emoji" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                 <InsertEmoticonIcon />
