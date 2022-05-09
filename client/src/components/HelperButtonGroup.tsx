@@ -77,6 +77,7 @@ const RoomName = styled.div`
   display: flex;
   gap: 10px;
   justify-content: center;
+  align-items: center;
 
   h3 {
     font-size: 24px;
@@ -96,7 +97,7 @@ const RoomDescription = styled.div`
   justify-content: center;
 `
 
-const StyledFab = styled(Fab)`
+const StyledFab = styled(Fab)<{ target?: string }>`
   &:hover {
     color: #1ea2df;
   }
