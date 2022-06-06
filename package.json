@@ -20,9 +20,6 @@
   },
   "homepage": "https://github.com/kevinshen56714/SkyOffice#readme",
   "devDependencies": {
-    "@types/bcrypt": "^5.0.0",
-    "@types/cors": "^2.8.6",
-    "@types/express": "^4.17.1",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "copyfiles": "^2.4.1",
@@ -30,13 +27,14 @@
     "minimist": ">=1.2.2",
     "rimraf": "^2.7.1",
     "ts-node": "^8.1.0",
-    "ts-node-dev": "^1.0.0-pre.63",
-    "typescript": "^3.8.3"
+    "ts-node-dev": "^1.0.0-pre.63"
   },
   "dependencies": {
-    "@colyseus/arena": "^0.14.9",
     "@colyseus/command": "^0.1.7",
     "@colyseus/monitor": "^0.14.0",
+    "@types/bcrypt": "^5.0.0",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
     "bcrypt": "^5.0.1",
     "colyseus": "^0.14.0",
     "colyseus.js": "^0.14.12",
@@ -44,6 +42,6 @@
     "express": "^4.16.4",
     "phaser": "^3.55.2",
     "regenerator-runtime": "^0.13.7",
-    "tslib": "^2.3.0"
+    "typescript": "^3.8.3"
   }
 }
