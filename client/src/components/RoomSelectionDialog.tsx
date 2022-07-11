@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import logo from '../assets/logo.png'
+import logo from '../images/logo.png'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -48,10 +48,23 @@ const CustomRoomWrapper = styled.div`
   }
 `
 
-const BackButtonWrapper = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
+const TitleWrapper = styled.div`
+  display: grid;
+  width: 100%;
+
+  .back-button {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    align-self: center;
+  }
+
+  h1 {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    align-self: center;
+  }
 `
 
 const Title = styled.h1`
@@ -129,32 +142,32 @@ export default function RoomSelectionDialog() {
         <Wrapper>
           {showCreateRoomForm ? (
             <CustomRoomWrapper>
-              <Title>Create Custom Room</Title>
-              <BackButtonWrapper>
-                <IconButton onClick={() => setShowCreateRoomForm(false)}>
+              <TitleWrapper>
+                <IconButton className="back-button" onClick={() => setShowCreateRoomForm(false)}>
                   <ArrowBackIcon />
                 </IconButton>
-              </BackButtonWrapper>
+                <Title>Create Custom Room</Title>
+              </TitleWrapper>
               <CreateRoomForm />
             </CustomRoomWrapper>
           ) : showCustomRoom ? (
             <CustomRoomWrapper>
-              <Title>
-                Custom Rooms
-                <Tooltip
-                  title="We update the results in realtime, no refresh needed!"
-                  placement="top"
-                >
-                  <IconButton>
-                    <HelpOutlineIcon className="tip" />
-                  </IconButton>
-                </Tooltip>
-              </Title>
-              <BackButtonWrapper>
-                <IconButton onClick={() => setShowCustomRoom(false)}>
+              <TitleWrapper>
+                <IconButton className="back-button" onClick={() => setShowCustomRoom(false)}>
                   <ArrowBackIcon />
                 </IconButton>
-              </BackButtonWrapper>
+                <Title>
+                  Custom Rooms
+                  <Tooltip
+                    title="We update the results in realtime, no refresh needed!"
+                    placement="top"
+                  >
+                    <IconButton>
+                      <HelpOutlineIcon className="tip" />
+                    </IconButton>
+                  </Tooltip>
+                </Title>
+              </TitleWrapper>
               <CustomRoomTable />
               <Button
                 variant="contained"

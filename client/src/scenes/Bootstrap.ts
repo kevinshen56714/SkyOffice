@@ -5,6 +5,7 @@ import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
 
 export default class Bootstrap extends Phaser.Scene {
+  private preloadComplete = false
   network!: Network
 
   constructor() {
@@ -47,15 +48,15 @@ export default class Bootstrap extends Phaser.Scene {
       frameWidth: 48,
       frameHeight: 72,
     })
-    this.load.spritesheet('office', 'assets/items/Modern_Office_Black_Shadow.png', {
+    this.load.spritesheet('office', 'assets/tileset/Modern_Office_Black_Shadow.png', {
       frameWidth: 32,
       frameHeight: 32,
     })
-    this.load.spritesheet('basement', 'assets/items/Basement.png', {
+    this.load.spritesheet('basement', 'assets/tileset/Basement.png', {
       frameWidth: 32,
       frameHeight: 32,
     })
-    this.load.spritesheet('generic', 'assets/items/Generic.png', {
+    this.load.spritesheet('generic', 'assets/tileset/Generic.png', {
       frameWidth: 32,
       frameHeight: 32,
     })
@@ -75,14 +76,15 @@ export default class Bootstrap extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 48,
     })
+
+    this.load.on('complete', () => {
+      this.preloadComplete = true
+      this.launchBackground(store.getState().user.backgroundMode)
+    })
   }
 
   init() {
     this.network = new Network()
-  }
-
-  create() {
-    this.launchBackground(store.getState().user.backgroundMode)
   }
 
   private launchBackground(backgroundMode: BackgroundMode) {
@@ -90,6 +92,7 @@ export default class Bootstrap extends Phaser.Scene {
   }
 
   launchGame() {
+    if (!this.preloadComplete) return
     this.network.webRTC?.checkPreviousPermission()
     this.scene.launch('game', {
       network: this.network,
