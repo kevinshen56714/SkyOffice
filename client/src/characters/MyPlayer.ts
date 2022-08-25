@@ -120,13 +120,18 @@ export default class MyPlayer extends Player {
         const speed = 200
         let vx = 0
         let vy = 0
-        if (cursors.left?.isDown) vx -= speed
-        if (cursors.right?.isDown) vx += speed
-        if (cursors.up?.isDown) {
+        var keyObjW = this.scene.input.keyboard.addKey('W')
+        var keyObjA = this.scene.input.keyboard.addKey('A')
+        var keyObjS = this.scene.input.keyboard.addKey('S')
+        var keyObjD = this.scene.input.keyboard.addKey('D')
+
+        if (cursors.left?.isDown || keyObjA.isDown) vx -= speed
+        if (cursors.right?.isDown || keyObjD.isDown) vx += speed
+        if (cursors.up?.isDown || keyObjW.isDown) {
           vy -= speed
           this.setDepth(this.y) //change player.depth if player.y changes
         }
-        if (cursors.down?.isDown) {
+        if (cursors.down?.isDown || keyObjS.isDown) {
           vy += speed
           this.setDepth(this.y) //change player.depth if player.y changes
         }
