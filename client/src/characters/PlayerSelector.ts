@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 import MyPlayer from './MyPlayer'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import Item from '../items/Item'
-
+import { NavKeys } from '../../../types/KeyboardState'
 export default class PlayerSelector extends Phaser.GameObjects.Zone {
   selectedItem?: Item
 
@@ -12,7 +12,7 @@ export default class PlayerSelector extends Phaser.GameObjects.Zone {
     scene.physics.add.existing(this)
   }
 
-  update(player: MyPlayer, cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
+  update(player: MyPlayer, cursors: NavKeys) {
     if (!cursors) {
       return
     }
