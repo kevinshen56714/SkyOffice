@@ -45,6 +45,7 @@ export default class ShareScreenManager {
   }
 
   startScreenShare() {
+    // @ts-ignore
     navigator.mediaDevices
       ?.getDisplayMedia({
         video: true,
