@@ -627,11 +627,6 @@
     "@types/react" "*"
     csstype "^3.0.2"
 
-"@types/web@^0.0.72":
-  version "0.0.72"
-  resolved "https://registry.yarnpkg.com/@types/web/-/web-0.0.72.tgz#36204abe31be65610056031979cbc8c44585cdca"
-  integrity sha512-8ELWTmT6gpjH+mFCN6jja/pmXBZTOjSvfnBcxwP7xKC9tkqLNVxtQX/o2W0c1VcUR2ZFPoPSNH7YtdZQfHOvmg==
-
 "@types/yargs-parser@*":
   version "21.0.0"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-21.0.0.tgz#0c60e537fa790f5f9472ed2776c2b71ec117351b"
