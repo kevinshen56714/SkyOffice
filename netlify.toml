@@ -1,5 +1,5 @@
 [build]  
-  command = "cd client && yarn && cd ../types && yarn && cd ../client && yarn build"
+  command = "cd types && yarn && cd ../client && yarn && yarn build"
   publish = "client/dist"
 
 # Rule for router history mode
