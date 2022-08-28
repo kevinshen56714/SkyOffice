@@ -38,9 +38,11 @@ const WhiteboardWrapper = styled.div`
   border-radius: 25px;
   overflow: hidden;
   margin-right: 50px;
+
   iframe {
     width: 100%;
     height: 100%;
+    background: #fff;
   }
 `
 

@@ -26,7 +26,7 @@ SkyOffice works on all PC browsers (mobile browsers are currently not supported)
 - [Multifunctional Rooms](#multifunctional-rooms)
 - [Text Message Chat](#text-message-chat-with-real-time-dialog-bubbles)
 - [Custom/Private Rooms](#customprivate-rooms)
-- [Embedded Whiteboards](#embedded-whiteboards)
+- [Embedded Whiteboards](#embedded-whiteboards) (iframe embed of [WBO](https://github.com/lovasoa/whitebophir))
 
 ### Proximity Chat (distance-based interactive system)
 
@@ -97,6 +97,8 @@ yarn && yarn dev
 Big thanks to this great repo - [ourcade/phaser3-typescript-parcel-template](https://github.com/ourcade/phaser3-typescript-parcel-template)
 
 Big thanks to pixel artist - [LimeZu](https://limezu.itch.io/)
+
+Big thanks to open-source whiteboard project - [WBO](https://github.com/lovasoa/whitebophir)
 
 ## License
 
