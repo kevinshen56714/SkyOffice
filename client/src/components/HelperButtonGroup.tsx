@@ -147,7 +147,7 @@ export default function HelperButtonGroup() {
             </IconButton>
             <ul>
               <li>
-                <strong>Arrow keys</strong> to move
+                <strong>W, A, S, D or arrow keys</strong> to move
               </li>
               <li>
                 <strong>E</strong> to sit down (when facing a chair)
