@@ -12810,10 +12810,10 @@
   <image source="../items/chair.png" width="32" height="1472"/>
  </tileset>
  <tileset firstgid="2584" name="Modern_Office_Black_Shadow" tilewidth="32" tileheight="32" tilecount="848" columns="16">
-  <image source="../items/Modern_Office_Black_Shadow.png" width="512" height="1696"/>
+  <image source="../tileset/Modern_Office_Black_Shadow.png" width="512" height="1696"/>
  </tileset>
  <tileset firstgid="3432" name="Generic" tilewidth="32" tileheight="32" tilecount="1248" columns="16">
-  <image source="../items/Generic.png" width="512" height="2496"/>
+  <image source="../tileset/Generic.png" width="512" height="2496"/>
  </tileset>
  <tileset firstgid="4680" name="computer" tilewidth="96" tileheight="64" tilecount="5" columns="5">
   <image source="../items/computer.png" width="480" height="64"/>
@@ -12822,7 +12822,7 @@
   <image source="../items/whiteboard.png" width="64" height="192"/>
  </tileset>
  <tileset firstgid="4688" name="Basement" tilewidth="32" tileheight="32" tilecount="800" columns="16">
-  <image source="../items/Basement.png" width="512" height="1600"/>
+  <image source="../tileset/Basement.png" width="512" height="1600"/>
  </tileset>
  <tileset firstgid="5488" name="vendingmachine" tilewidth="48" tileheight="72" tilecount="1" columns="1">
   <image source="../items/vendingmachine.png" width="48" height="72"/>
