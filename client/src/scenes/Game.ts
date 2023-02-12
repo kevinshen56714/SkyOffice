@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 
-// import { debugDraw } from '../utils/debug'
+import { debugDraw } from '../utils/debug'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
@@ -81,7 +81,9 @@ export default class Game extends Phaser.Scene {
     const groundLayer = this.map.createLayer('Ground', FloorAndGround)
     groundLayer.setCollisionByProperty({ collides: true })
 
-    // debugDraw(groundLayer, this)
+    if (process.env.NODE_ENV === 'development' && this.scene.scene.physics.world.drawDebug) {
+      debugDraw(groundLayer, this)
+    }
 
     this.myPlayer = this.add.myPlayer(705, 500, 'adam', this.network.mySessionId)
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
