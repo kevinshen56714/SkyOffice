@@ -185,9 +185,6 @@ export default class Game extends Phaser.Scene {
     this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
     this.network.onChatMessageAdded(this.handleChatMessageAdded, this)
 
-    this.input.on('pointerdown', this.onDown.bind(this))
-    this.input.on('pointerup', this.onDown.bind(this))
-
     // Register input events
     this.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
       const { worldX, worldY } = pointer
