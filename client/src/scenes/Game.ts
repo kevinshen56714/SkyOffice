@@ -21,6 +21,7 @@ import { ItemType } from '../../../types/Items'
 import store from '../stores'
 import { setFocused, setShowChat } from '../stores/ChatStore'
 import { NavKeys, Keyboard } from '../../../types/KeyboardState'
+import findPath from '../utils/findPath'
 
 export default class Game extends Phaser.Scene {
   network!: Network
@@ -73,16 +74,27 @@ export default class Game extends Phaser.Scene {
       this.network = data.network
     }
 
+    // TODO: Remove this logic, it's just for testing
+    const root = document.getElementById('root')
+    if (root) {
+      root.style.pointerEvents = 'none'
+    }
+
     createCharacterAnims(this.anims)
 
     this.map = this.make.tilemap({ key: 'tilemap' })
-    const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
 
+    const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
     const groundLayer = this.map.createLayer('Ground', FloorAndGround)
     groundLayer.setCollisionByProperty({ collides: true })
 
+    const walls = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
+    const wallLayer = this.map.createLayer('Walls', walls)
+    wallLayer.setCollisionByProperty({ collides: true })
+
     if (process.env.NODE_ENV === 'development' && this.scene.scene.physics.world.drawDebug) {
       debugDraw(groundLayer, this)
+      debugDraw(wallLayer, this)
     }
 
     this.myPlayer = this.add.myPlayer(705, 500, 'adam', this.network.mySessionId)
@@ -144,6 +156,7 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.startFollow(this.myPlayer, true)
 
     this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], groundLayer)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], wallLayer)
     this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], vendingMachines)
 
     this.physics.add.overlap(
@@ -171,6 +184,29 @@ export default class Game extends Phaser.Scene {
     this.network.onItemUserAdded(this.handleItemUserAdded, this)
     this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
     this.network.onChatMessageAdded(this.handleChatMessageAdded, this)
+
+    this.input.on('pointerdown', this.onDown.bind(this))
+    this.input.on('pointerup', this.onDown.bind(this))
+
+    // Register input events
+    this.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
+      const { worldX, worldY } = pointer
+
+      const startVec = groundLayer.worldToTileXY(this.myPlayer.x, this.myPlayer.y)
+      const targetVec = groundLayer.worldToTileXY(worldX, worldY)
+
+      // generate the path
+      const path = findPath(startVec, targetVec, groundLayer, wallLayer)
+      console.log('path', path)
+
+      // give it to the player to use
+      this.myPlayer.moveAlong(path)
+    })
+
+    // remember to clean up on Scene shutdown
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.off(Phaser.Input.Events.POINTER_UP)
+    })
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
