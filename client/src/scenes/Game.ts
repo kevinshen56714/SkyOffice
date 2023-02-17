@@ -35,6 +35,7 @@ export default class Game extends Phaser.Scene {
   private otherPlayerMap = new Map<string, OtherPlayer>()
   computerMap = new Map<string, Computer>()
   private whiteboardMap = new Map<string, Whiteboard>()
+  private groundLayer?: Phaser.Tilemaps.TilemapLayer
 
   constructor() {
     super('game')
@@ -85,15 +86,15 @@ export default class Game extends Phaser.Scene {
     this.map = this.make.tilemap({ key: 'tilemap' })
 
     const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
-    const groundLayer = this.map.createLayer('Ground', FloorAndGround)
-    groundLayer.setCollisionByProperty({ collides: true })
+    this.groundLayer = this.map.createLayer('Ground', FloorAndGround)
+    this.groundLayer.setCollisionByProperty({ collides: true })
 
     const walls = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
     const wallLayer = this.map.createLayer('Walls', walls)
     wallLayer.setCollisionByProperty({ collides: true })
 
     if (process.env.NODE_ENV === 'development' && this.scene.scene.physics.world.drawDebug) {
-      debugDraw(groundLayer, this)
+      debugDraw(this.groundLayer, this)
       debugDraw(wallLayer, this)
     }
 
@@ -155,7 +156,7 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.myPlayer, true)
 
-    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], groundLayer)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], this.groundLayer)
     this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], wallLayer)
     this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], vendingMachines)
 
@@ -187,17 +188,18 @@ export default class Game extends Phaser.Scene {
 
     // Register input events
     this.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
-      const { worldX, worldY } = pointer
+      if (this.groundLayer) {
+        const { worldX, worldY } = pointer
 
-      const startVec = groundLayer.worldToTileXY(this.myPlayer.x, this.myPlayer.y)
-      const targetVec = groundLayer.worldToTileXY(worldX, worldY)
+        const startVec = this.groundLayer.worldToTileXY(this.myPlayer.x, this.myPlayer.y)
+        const targetVec = this.groundLayer.worldToTileXY(worldX, worldY)
 
-      // generate the path
-      const path = findPath(startVec, targetVec, groundLayer, wallLayer)
-      console.log('path', path)
+        // find path from player to click
+        const path = findPath(startVec, targetVec, this.groundLayer, wallLayer)
 
-      // give it to the player to use
-      this.myPlayer.moveAlong(path)
+        // give it to the player to use
+        this.myPlayer.moveAlong(path)
+      }
     })
 
     // remember to clean up on Scene shutdown
@@ -318,7 +320,7 @@ export default class Game extends Phaser.Scene {
 
   update(t: number, dt: number) {
     if (this.myPlayer && this.network) {
-      this.playerSelector.update(this.myPlayer, this.cursors)
+      this.playerSelector.update(this.myPlayer, this.cursors, this.groundLayer)
       this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR, this.network)
     }
   }

@@ -18,7 +18,7 @@ export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
   private chairOnSit?: Chair
   private movePath: Phaser.Math.Vector2[] = []
-  private moveToTarget?: Phaser.Math.Vector2
+  public moveToTarget?: Phaser.Math.Vector2
   constructor(
     scene: Phaser.Scene,
     x: number,

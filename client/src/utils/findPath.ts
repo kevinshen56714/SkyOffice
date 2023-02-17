@@ -15,13 +15,11 @@ const findPath = (
 ) => {
   // no path if select invalid tile
   if (!groundLayer.getTileAt(target.x, target.y)) {
-    console.log('target is a ground')
     return []
   }
 
   // no path if select a wall
   if (wallsLayer.getTileAt(target.x, target.y)) {
-    console.log('target is a wall')
     return []
   }
 
@@ -81,9 +79,6 @@ const findPath = (
   }
 
   const path: Phaser.Math.Vector2[] = []
-
-  console.log({ parentForKey })
-  console.log({ targetKey })
 
   let currentKey = targetKey
   let currentPos = parentForKey[targetKey].position
