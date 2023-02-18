@@ -75,10 +75,11 @@ export default class Game extends Phaser.Scene {
       this.network = data.network
     }
 
-    // TODO: Remove this logic, it's just for testing
+    // TODO: This is a hack to make the game scene render on top of the background scene.
+    // We should find a better way to do this.
     const root = document.getElementById('root')
     if (root) {
-      root.style.pointerEvents = 'none'
+      root.style.order = '5'
     }
 
     createCharacterAnims(this.anims)

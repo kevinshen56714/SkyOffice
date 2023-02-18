@@ -21,13 +21,37 @@
     </script>
 
     <title>SkyOffice</title>
+    <style>
+      #flex {
+        display: flex;
+        flex-direction: column;
+      }
+
+      #root {
+        order: 1;
+      }
+
+      #video-grid {
+        order: 2;
+      }
+
+      #button-grid {
+        order: 3;
+      }
+
+      #phaser-container {
+        order: 4;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <div class="video-grid"></div>
-    <div class="button-grid"></div>
-    <div id="phaser-container"></div>
+    <div id="flex">
+      <div id="root"></div>
+      <div class="video-grid"></div>
+      <div class="button-grid"></div>
+      <div id="phaser-container"></div>
+    </div>
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>
