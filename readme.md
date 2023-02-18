@@ -21,12 +21,20 @@ SkyOffice works on all PC browsers (mobile browsers are currently not supported)
 
 ## Features
 
-- [Proximity Chat](#proximity-chat-distance-based-interactive-system)
-- [Flexible Screen Sharing](#flexible--immediate-screen-sharing)
-- [Multifunctional Rooms](#multifunctional-rooms)
-- [Text Message Chat](#text-message-chat-with-real-time-dialog-bubbles)
-- [Custom/Private Rooms](#customprivate-rooms)
-- [Embedded Whiteboards](#embedded-whiteboards) (iframe embed of [WBO](https://github.com/lovasoa/whitebophir))
+- [SkyOffice  ](#skyoffice--)
+  - [Built with](#built-with)
+  - [Features](#features)
+    - [Proximity Chat (distance-based interactive system)](#proximity-chat-distance-based-interactive-system)
+    - [Multifunctional Rooms](#multifunctional-rooms)
+    - [Flexible \& Immediate Screen Sharing](#flexible--immediate-screen-sharing)
+    - [Text Message Chat (with real time dialog bubbles)](#text-message-chat-with-real-time-dialog-bubbles)
+    - [Embedded Whiteboards](#embedded-whiteboards)
+    - [Custom/Private Rooms](#customprivate-rooms)
+  - [Controls](#controls)
+  - [Prerequisites](#prerequisites)
+  - [Getting Started](#getting-started)
+  - [Credits 🎉](#credits-)
+  - [License](#license)
 
 ### Proximity Chat (distance-based interactive system)
 
@@ -55,6 +63,7 @@ SkyOffice works on all PC browsers (mobile browsers are currently not supported)
 ## Controls
 
 - `W, A, S, D, or arrow keys` to move (video chat will start if you are close to someone else)
+- **(New)**  `Point and click movement`  Click or touch to move to any location
 - `E` to sit down
 - `R` to use computer (for screen sharing)
 - `Enter` to open chat
