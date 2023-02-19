@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 
-// import { debugDraw } from '../utils/debug'
+import { debugDraw } from '../utils/debug'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
@@ -21,6 +21,7 @@ import { ItemType } from '../../../types/Items'
 import store from '../stores'
 import { setFocused, setShowChat } from '../stores/ChatStore'
 import { NavKeys, Keyboard } from '../../../types/KeyboardState'
+import findPath from '../utils/findPath'
 
 export default class Game extends Phaser.Scene {
   network!: Network
@@ -34,6 +35,7 @@ export default class Game extends Phaser.Scene {
   private otherPlayerMap = new Map<string, OtherPlayer>()
   computerMap = new Map<string, Computer>()
   private whiteboardMap = new Map<string, Whiteboard>()
+  private groundLayer?: Phaser.Tilemaps.TilemapLayer
 
   constructor() {
     super('game')
@@ -73,15 +75,29 @@ export default class Game extends Phaser.Scene {
       this.network = data.network
     }
 
+    // TODO: This is a hack to make the game scene render on top of the background scene.
+    // We should find a better way to do this.
+    const root = document.getElementById('root')
+    if (root) {
+      root.style.order = '5'
+    }
+
     createCharacterAnims(this.anims)
 
     this.map = this.make.tilemap({ key: 'tilemap' })
+
     const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
+    this.groundLayer = this.map.createLayer('Ground', FloorAndGround)
+    this.groundLayer.setCollisionByProperty({ collides: true })
 
-    const groundLayer = this.map.createLayer('Ground', FloorAndGround)
-    groundLayer.setCollisionByProperty({ collides: true })
+    const walls = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
+    const wallLayer = this.map.createLayer('Walls', walls)
+    wallLayer.setCollisionByProperty({ collides: true })
 
-    // debugDraw(groundLayer, this)
+    if (process.env.NODE_ENV === 'development' && this.scene.scene.physics.world.drawDebug) {
+      debugDraw(this.groundLayer, this)
+      debugDraw(wallLayer, this)
+    }
 
     this.myPlayer = this.add.myPlayer(705, 500, 'adam', this.network.mySessionId)
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
@@ -141,7 +157,8 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.myPlayer, true)
 
-    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], groundLayer)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], this.groundLayer)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], wallLayer)
     this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], vendingMachines)
 
     this.physics.add.overlap(
@@ -169,6 +186,27 @@ export default class Game extends Phaser.Scene {
     this.network.onItemUserAdded(this.handleItemUserAdded, this)
     this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
     this.network.onChatMessageAdded(this.handleChatMessageAdded, this)
+
+    // Register input events
+    this.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
+      if (this.groundLayer) {
+        const { worldX, worldY } = pointer
+
+        const startVec = this.groundLayer.worldToTileXY(this.myPlayer.x, this.myPlayer.y)
+        const targetVec = this.groundLayer.worldToTileXY(worldX, worldY)
+
+        // find path from player to click
+        const path = findPath(startVec, targetVec, this.groundLayer, wallLayer)
+
+        // give it to the player to use
+        this.myPlayer.moveAlong(path)
+      }
+    })
+
+    // remember to clean up on Scene shutdown
+    this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.off(Phaser.Input.Events.POINTER_UP)
+    })
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {
@@ -283,7 +321,7 @@ export default class Game extends Phaser.Scene {
 
   update(t: number, dt: number) {
     if (this.myPlayer && this.network) {
-      this.playerSelector.update(this.myPlayer, this.cursors)
+      this.playerSelector.update(this.myPlayer, this.cursors, this.groundLayer)
       this.myPlayer.update(this.playerSelector, this.cursors, this.keyE, this.keyR, this.network)
     }
   }

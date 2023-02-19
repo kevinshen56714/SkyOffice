@@ -22,6 +22,15 @@ const config: Phaser.Types.Core.GameConfig = {
   },
   autoFocus: true,
   scene: [Bootstrap, Background, Game],
+  dom: {
+    createContainer: true,
+    behindCanvas: true,
+  },
+  callbacks: {
+    postBoot: (game: Phaser.Game) => {
+      game.domContainer.style.pointerEvents = 'none'
+    },
+  },
 }
 
 const phaserGame = new Phaser.Game(config)

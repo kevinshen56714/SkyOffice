@@ -6,6 +6,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 *,
@@ -14,10 +17,16 @@ body {
   box-sizing: inherit;
 }
 
+#root {
+  order: 1;
+}
+
 #phaser-container {
   canvas {
     display: block;
   }
+  order: 4;
+  overflow: auto;
 }
 
 .video-grid {
@@ -30,6 +39,7 @@ body {
   right: 10px;
   max-height: calc(100% - 100px);
   overflow-y: auto;
+  order: 2;
 }
 
 .video-grid video {
@@ -47,6 +57,7 @@ body {
   position: absolute;
   top: 5px;
   right: 10px;
+  order: 3;
 }
 
 * {

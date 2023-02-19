@@ -12,7 +12,6 @@ import Chat from './components/Chat'
 import HelperButtonGroup from './components/HelperButtonGroup'
 
 const Backdrop = styled.div`
-  position: absolute;
   height: 100%;
   width: 100%;
 `

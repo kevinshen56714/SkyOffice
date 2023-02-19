@@ -11,6 +11,11 @@ import App from './App'
 import store from './stores'
 
 const container = document.getElementById('root')
+window.addEventListener("keydown", function(e) {
+  if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+      e.preventDefault();
+  }
+}, false);
 const root = createRoot(container!)
 root.render(
   <React.StrictMode>

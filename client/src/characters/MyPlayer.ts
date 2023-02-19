@@ -17,6 +17,8 @@ import { NavKeys } from '../../../types/KeyboardState'
 export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
   private chairOnSit?: Chair
+  private movePath: Phaser.Math.Vector2[] = []
+  public moveToTarget?: Phaser.Math.Vector2
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -39,6 +41,19 @@ export default class MyPlayer extends Player {
     this.playerTexture = texture
     this.anims.play(`${this.playerTexture}_idle_down`, true)
     phaserEvents.emit(Event.MY_PLAYER_TEXTURE_CHANGE, this.x, this.y, this.anims.currentAnim.key)
+  }
+
+  moveAlong(path: Phaser.Math.Vector2[]) {
+    if (!path || path.length <= 0) {
+      return
+    }
+
+    this.movePath = path
+    this.moveTo(this.movePath.shift()!)
+  }
+
+  moveTo(target: Phaser.Math.Vector2) {
+    this.moveToTarget = target
   }
 
   update(
@@ -121,6 +136,35 @@ export default class MyPlayer extends Player {
         const speed = 200
         let vx = 0
         let vy = 0
+
+        if (this.moveToTarget) {
+          vx = this.moveToTarget.x - this.x
+          vy = this.moveToTarget.y - this.y
+          if (Math.abs(vx) < 5) {
+            vx = 0
+          }
+          if (Math.abs(vy) < 5) {
+            vy = 0
+          }
+          if (vx === 0 && vy === 0) {
+            if (this.movePath.length > 0) {
+              this.moveTo(this.movePath.shift()!)
+              return
+            }
+            this.moveToTarget = undefined
+          }
+          if (vx > 0) vx += speed
+          if (vx < 0) vx -= speed
+          if (vy > 0) {
+            vy += speed
+            this.setDepth(this.y) //change player.depth if player.y changes
+          }
+          if (vy < 0) {
+            vy -= speed
+            this.setDepth(this.y) //change player.depth if player.y changes
+          }
+        }
+
         if (cursors.left?.isDown || cursors.A?.isDown) vx -= speed
         if (cursors.right?.isDown || cursors.D?.isDown) vx += speed
         if (cursors.up?.isDown || cursors.W?.isDown) {
