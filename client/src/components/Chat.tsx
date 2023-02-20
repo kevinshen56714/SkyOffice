@@ -20,12 +20,12 @@ import { MessageType, setFocused, setShowChat } from '../stores/ChatStore'
 
 const Backdrop = styled.div`
   position: fixed;
-  bottom: 0;
+  bottom: 60px;
   left: 0;
   height: 400px;
   width: 500px;
   max-height: 50%;
-  max-width: 50%;
+  max-width: 100%;
 `
 
 const Wrapper = styled.div`

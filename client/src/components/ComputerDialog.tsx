@@ -32,8 +32,8 @@ const Wrapper = styled.div`
 
   .close {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 0px;
+    right: 0px;
   }
 `
 
