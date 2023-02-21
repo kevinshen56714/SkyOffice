@@ -13,7 +13,7 @@ import store from '../stores'
 import { pushPlayerJoinedMessage } from '../stores/ChatStore'
 import { ItemType } from '../../../types/Items'
 import { NavKeys } from '../../../types/KeyboardState'
-import { JoystickMovement } from '../components/MobileVirtualJoystick'
+import { JoystickMovement } from '../components/Joystick'
 
 export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body

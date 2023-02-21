@@ -1,22 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import styled from 'styled-components'
-import 'emoji-mart/css/emoji-mart.css'
 import JoystickItem from './Joystick'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
 
-import { useAppDispatch, useAppSelector } from '../hooks'
-
-export interface JoystickMovement {
-  isMoving: boolean
-  direction: {
-    left: boolean
-    right: boolean
-    up: boolean
-    down: boolean
-  }
-}
+import { useAppSelector } from '../hooks'
+import { JoystickMovement } from './Joystick'
 
 const Backdrop = styled.div`
   position: fixed;
@@ -38,20 +28,30 @@ const JoystickWrapper = styled.div`
   margin-top: auto;
   align-self: flex-end;
 `
+export const smallScreenSize = 650 // minimum width for small screen
+
+function useWindowSize() {
+  const [size, setSize] = useState([0, 0])
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight])
+    }
+    window.addEventListener('resize', updateSize)
+    updateSize()
+    return () => window.removeEventListener('resize', updateSize)
+  }, [])
+  return size
+}
+
+const isSmallScreen = () => {
+  const [width] = useWindowSize()
+  return width <= smallScreenSize
+}
 
 export default function MobileVirtualJoystick() {
-  const inputRef = useRef<HTMLInputElement>(null)
-
   const showJoystick = useAppSelector((state) => state.user.showJoystick)
-  const focused = useAppSelector((state) => state.chat.focused)
   const showChat = useAppSelector((state) => state.chat.showChat)
   const game = phaserGame.scene.keys.game as Game
-
-  useEffect(() => {
-    if (focused) {
-      inputRef.current?.focus()
-    }
-  }, [focused])
 
   useEffect(() => {}, [showJoystick, showChat])
 
@@ -62,7 +62,7 @@ export default function MobileVirtualJoystick() {
   return (
     <Backdrop>
       <Wrapper>
-        {(!showChat || window.innerWidth > 650) && showJoystick && (
+        {!(showChat && isSmallScreen) && showJoystick && (
           <JoystickWrapper>
             <JoystickItem onDirectionChange={handleMovement}></JoystickItem>
           </JoystickWrapper>
