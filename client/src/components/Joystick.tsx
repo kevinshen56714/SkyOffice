@@ -2,12 +2,7 @@ import { Joystick } from 'react-joystick-component'
 
 export interface JoystickMovement {
   isMoving: boolean
-  direction: {
-    left: boolean
-    right: boolean
-    up: boolean
-    down: boolean
-  }
+  direction: Direction
 }
 
 type Direction = {
