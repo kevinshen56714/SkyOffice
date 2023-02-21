@@ -5,31 +5,24 @@ export interface JoystickMovement {
   direction: Direction
 }
 
-type Direction = {
+interface Direction {
   left: boolean
   right: boolean
   up: boolean
   down: boolean
 }
 
-type Props = {
+interface Props {
   onDirectionChange: (arg: JoystickMovement) => void
 }
 
-const angleToDirections = (angle: number, out?: Partial<Direction> | boolean): Direction => {
-  const outObj: Direction = {
+const angleToDirections = (angle: number): Direction => {
+  let outObj: Direction = {
     left: false,
     right: false,
     up: false,
     down: false,
-    ...(typeof out === 'object' ? out : {}),
   }
-
-  outObj.left = false
-  outObj.right = false
-  outObj.up = false
-  outObj.down = false
-
   angle = (angle + 360) % 360
 
   if (angle > 22.5 && angle <= 67.5) {
@@ -82,7 +75,7 @@ const JoystickItem = (props: Props) => {
         var deltaY = y2 - y1 // distance between joystick and center
         var rad = Math.atan2(deltaY, deltaX) // In radians
         var deg = (rad * 180) / Math.PI // In degrees
-        var direction = angleToDirections(deg, true) // Convert degrees to direction
+        var direction = angleToDirections(deg) // Convert degrees to direction
         props.onDirectionChange({ isMoving: true, direction })
       }}
     />

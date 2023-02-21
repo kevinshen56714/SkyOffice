@@ -28,29 +28,24 @@ const JoystickWrapper = styled.div`
   margin-top: auto;
   align-self: flex-end;
 `
-export const smallScreenSize = 650 // minimum width for small screen
+export const minimumScreenWidthSize = 650 //px
 
-function useWindowSize() {
-  const [size, setSize] = useState([0, 0])
-  useLayoutEffect(() => {
-    function updateSize() {
-      setSize([window.innerWidth, window.innerHeight])
-    }
-    window.addEventListener('resize', updateSize)
-    updateSize()
-    return () => window.removeEventListener('resize', updateSize)
+const isSmallScreen = (smallScreenSize: number) => {
+  const [width, setWidth] = useState(window.innerWidth)
+
+  useEffect(() => {
+    const handleResize = () => setWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [])
-  return size
-}
 
-const isSmallScreen = () => {
-  const [width] = useWindowSize()
   return width <= smallScreenSize
 }
 
 export default function MobileVirtualJoystick() {
   const showJoystick = useAppSelector((state) => state.user.showJoystick)
   const showChat = useAppSelector((state) => state.chat.showChat)
+  const hasSmallScreen = isSmallScreen(minimumScreenWidthSize)
   const game = phaserGame.scene.keys.game as Game
 
   useEffect(() => {}, [showJoystick, showChat])
@@ -62,7 +57,7 @@ export default function MobileVirtualJoystick() {
   return (
     <Backdrop>
       <Wrapper>
-        {!(showChat && isSmallScreen) && showJoystick && (
+        {!(showChat && hasSmallScreen) && showJoystick && (
           <JoystickWrapper>
             <JoystickItem onDirectionChange={handleMovement}></JoystickItem>
           </JoystickWrapper>
