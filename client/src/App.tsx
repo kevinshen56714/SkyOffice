@@ -10,6 +10,7 @@ import WhiteboardDialog from './components/WhiteboardDialog'
 import VideoConnectionDialog from './components/VideoConnectionDialog'
 import Chat from './components/Chat'
 import HelperButtonGroup from './components/HelperButtonGroup'
+import MobileVirtualJoystick from './components/MobileVirtualJoystick'
 
 const Backdrop = styled.div`
   position: absolute;
@@ -39,6 +40,7 @@ function App() {
           <Chat />
           {/* Render VideoConnectionDialog if user is not connected to a webcam. */}
           {!videoConnected && <VideoConnectionDialog />}
+          <MobileVirtualJoystick />
         </>
       )
     }

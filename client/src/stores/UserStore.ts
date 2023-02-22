@@ -18,6 +18,7 @@ export const userSlice = createSlice({
     videoConnected: false,
     loggedIn: false,
     playerNameMap: new Map<string, string>(),
+    showJoystick: window.innerWidth < 650,
   },
   reducers: {
     toggleBackgroundMode: (state) => {
@@ -43,6 +44,9 @@ export const userSlice = createSlice({
     removePlayerNameMap: (state, action: PayloadAction<string>) => {
       state.playerNameMap.delete(sanitizeId(action.payload))
     },
+    setShowJoystick: (state, action: PayloadAction<boolean>) => {
+      state.showJoystick = action.payload
+    },
   },
 })
 
@@ -53,6 +57,7 @@ export const {
   setLoggedIn,
   setPlayerNameMap,
   removePlayerNameMap,
+  setShowJoystick,
 } = userSlice.actions
 
 export default userSlice.reducer

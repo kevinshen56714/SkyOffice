@@ -24,13 +24,23 @@ export default class PlayerSelector extends Phaser.GameObjects.Zone {
 
     // update player selection box position so that it's always in front of the player
     const { x, y } = player
-    if (cursors.left?.isDown || cursors.A?.isDown) {
+    let joystickLeft = false
+    let joystickRight = false
+    let joystickUp = false
+    let joystickDown = false
+    if (player.joystickMovement?.isMoving) {
+      joystickLeft = player.joystickMovement?.direction.left
+      joystickRight = player.joystickMovement?.direction.right
+      joystickUp = player.joystickMovement?.direction.up
+      joystickDown = player.joystickMovement?.direction.down
+    }
+    if (cursors.left?.isDown || cursors.A?.isDown || joystickLeft) {
       this.setPosition(x - 32, y)
-    } else if (cursors.right?.isDown || cursors.D?.isDown) {
+    } else if (cursors.right?.isDown || cursors.D?.isDown || joystickRight) {
       this.setPosition(x + 32, y)
-    } else if (cursors.up?.isDown || cursors.W?.isDown) {
+    } else if (cursors.up?.isDown || cursors.W?.isDown || joystickUp) {
       this.setPosition(x, y - 32)
-    } else if (cursors.down?.isDown || cursors.S?.isDown) {
+    } else if (cursors.down?.isDown || cursors.S?.isDown || joystickDown) {
       this.setPosition(x, y + 32)
     }
 
