@@ -16,6 +16,9 @@ const Backdrop = styled.div`
   position: absolute;
   height: 100%;
   width: 100%;
+  @media (max-height: 380px) {
+    overflow: scroll;
+  }
 `
 
 function App() {

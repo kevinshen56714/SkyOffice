@@ -29,9 +29,10 @@ const Backdrop = styled.div`
 `
 
 const Wrapper = styled.div`
+  min-width: 350px;
   background: #222639;
   border-radius: 16px;
-  padding: 36px 60px;
+  padding: 36px 16px;
   box-shadow: 0px 0px 5px #0000006f;
 `
 
@@ -46,22 +47,23 @@ const CustomRoomWrapper = styled.div`
   .tip {
     font-size: 18px;
   }
+  @media (max-height: 380px) {
+    gap: 0px;
+  }
 `
 
 const TitleWrapper = styled.div`
-  display: grid;
+  display: flex;
   width: 100%;
 
   .back-button {
-    grid-column: 1;
     grid-row: 1;
     justify-self: start;
     align-self: center;
   }
 
   h1 {
-    grid-column: 1;
-    grid-row: 1;
+    flex: auto;
     justify-self: center;
     align-self: center;
   }
@@ -77,7 +79,6 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin: 20px 0;
   align-items: center;
   justify-content: center;
 
