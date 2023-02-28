@@ -19,6 +19,7 @@ export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
   private chairOnSit?: Chair
   public joystickMovement?: JoystickMovement
+  private joystickKey?: string
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -29,6 +30,9 @@ export default class MyPlayer extends Player {
   ) {
     super(scene, x, y, texture, id, frame)
     this.playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
+    phaserEvents.on(Event.JOYSTICK_KEY_DOWN, (key: string) => {
+      this.joystickKey = key
+    })
   }
 
   setPlayerName(name: string) {
@@ -58,7 +62,8 @@ export default class MyPlayer extends Player {
 
     const item = playerSelector.selectedItem
 
-    if (Phaser.Input.Keyboard.JustDown(keyR)) {
+    if (Phaser.Input.Keyboard.JustDown(keyR) || this.joystickKey === 'R') {
+      this.joystickKey = undefined
       switch (item?.itemType) {
         case ItemType.COMPUTER:
           const computer = item as Computer
@@ -78,7 +83,11 @@ export default class MyPlayer extends Player {
     switch (this.playerBehavior) {
       case PlayerBehavior.IDLE:
         // if press E in front of selected chair
-        if (Phaser.Input.Keyboard.JustDown(keyE) && item?.itemType === ItemType.CHAIR) {
+        if (
+          Phaser.Input.Keyboard.JustDown(keyE) ||
+          (this.joystickKey === 'E' && item?.itemType === ItemType.CHAIR)
+        ) {
+          this.joystickKey = undefined
           const chairItem = item as Chair
           /**
            * move player to the chair and play sit animation
@@ -182,7 +191,8 @@ export default class MyPlayer extends Player {
 
       case PlayerBehavior.SITTING:
         // back to idle if player press E while sitting
-        if (Phaser.Input.Keyboard.JustDown(keyE)) {
+        if (Phaser.Input.Keyboard.JustDown(keyE) || this.joystickKey === 'E') {
+          this.joystickKey = undefined
           const parts = this.anims.currentAnim.key.split('_')
           parts[1] = 'idle'
           this.play(parts.join('_'), true)
@@ -194,6 +204,7 @@ export default class MyPlayer extends Player {
         }
         break
     }
+    this.joystickKey = undefined
   }
 }
 

@@ -11,6 +11,9 @@ export default class Chair extends Item {
   }
 
   onOverlapDialog() {
+    // TODO: handle here button joystick?
+    // Set store show E button
+
     this.setDialogBox('Press E to sit')
   }
 }

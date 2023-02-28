@@ -8,6 +8,13 @@ import Game from '../scenes/Game'
 import { useAppSelector } from '../hooks'
 import { JoystickMovement } from './Joystick'
 import { isSmallScreenWidth } from '../utils'
+import { Fab } from '@mui/material'
+import { phaserEvents, Event } from '../events/EventCenter'
+
+const enum JoystickActiveKeys {
+  E = 'E',
+  R = 'R',
+}
 
 const Backdrop = styled.div`
   position: fixed;
@@ -27,8 +34,24 @@ const Wrapper = styled.div`
 
 const JoystickWrapper = styled.div`
   margin-top: auto;
-  align-self: flex-end;
+  align-self: center;
 `
+
+// Buttons //
+
+const ButtonsWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 25px;
+  margin-bottom: 24px;
+`
+
+const StyledFab = styled(Fab)<{ target?: string }>`
+  &:active {
+    color: #1ea2df;
+  }
+`
+
 export default function MobileVirtualJoystick() {
   const showJoystick = useAppSelector((state) => state.user.showJoystick)
   const showChat = useAppSelector((state) => state.chat.showChat)
@@ -41,15 +64,35 @@ export default function MobileVirtualJoystick() {
     game.myPlayer?.handleJoystickMovement(movement)
   }
 
+  const handleKeyPressed = (keyPressed: JoystickActiveKeys) => {
+    phaserEvents.emit(Event.JOYSTICK_KEY_DOWN, keyPressed)
+  }
+
   return (
     <Backdrop>
-      <Wrapper>
-        {!(showChat && hasSmallScreen) && showJoystick && (
+      {!(showChat && hasSmallScreen) && showJoystick && (
+        <Wrapper>
+          <ButtonsWrapper>
+            <StyledFab
+              color="secondary"
+              size="medium"
+              onClick={() => handleKeyPressed(JoystickActiveKeys.E)}
+            >
+              E
+            </StyledFab>
+            <StyledFab
+              color="secondary"
+              size="medium"
+              onClick={() => handleKeyPressed(JoystickActiveKeys.R)}
+            >
+              R
+            </StyledFab>
+          </ButtonsWrapper>
           <JoystickWrapper>
             <JoystickItem onDirectionChange={handleMovement}></JoystickItem>
           </JoystickWrapper>
-        )}
-      </Wrapper>
+        </Wrapper>
+      )}
     </Backdrop>
   )
 }
