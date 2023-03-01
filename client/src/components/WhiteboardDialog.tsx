@@ -7,13 +7,9 @@ import { useAppSelector, useAppDispatch } from '../hooks'
 import { closeWhiteboardDialog } from '../stores/WhiteboardStore'
 
 const Backdrop = styled.div`
-  position: fixed;
+  position: relative;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  padding: 16px 180px 16px 16px;
   width: 100%;
   height: 100%;
 `
