@@ -24,7 +24,7 @@ import { setShowJoystick } from '../stores/JoystickStore'
 
 const Backdrop = styled.div`
   position: fixed;
-  display: flex;
+  // display: flex;
   gap: 10px;
   bottom: 16px;
   right: 16px;
@@ -44,10 +44,12 @@ const Wrapper = styled.div`
   background: #222639;
   box-shadow: 0px 0px 5px #0000006f;
   border-radius: 16px;
-  padding: 15px 35px 15px 15px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: baseline;
+  margin-bottom: 16px;
+  margin-left: 16px;
 
   .close {
     position: absolute;
@@ -63,6 +65,7 @@ const Wrapper = styled.div`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 10px;
+  justify-content: end;
 `
 
 const Title = styled.h3`
@@ -120,13 +123,6 @@ export default function HelperButtonGroup() {
   return (
     <Backdrop>
       <div className="wrapper-group">
-        {roomJoined && (
-          <Tooltip title={showJoystick ? 'Disable virtual joystick' : 'Enable virtual joystick'}>
-            <StyledFab size="small" onClick={() => dispatch(setShowJoystick(!showJoystick))}>
-              {showJoystick ? <VideogameAssetOffIcon /> : <VideogameAssetIcon />}
-            </StyledFab>
-          </Tooltip>
-        )}
         {showRoomInfo && (
           <Wrapper>
             <IconButton className="close" onClick={() => setShowRoomInfo(false)} size="small">
@@ -183,6 +179,11 @@ export default function HelperButtonGroup() {
       <ButtonGroup>
         {roomJoined && (
           <>
+            <Tooltip title={showJoystick ? 'Disable virtual joystick' : 'Enable virtual joystick'}>
+              <StyledFab size="small" onClick={() => dispatch(setShowJoystick(!showJoystick))}>
+                {showJoystick ? <VideogameAssetOffIcon /> : <VideogameAssetIcon />}
+              </StyledFab>
+            </Tooltip>
             <Tooltip title="Room Info">
               <StyledFab
                 size="small"
