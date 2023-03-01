@@ -85,8 +85,8 @@ export default class MyPlayer extends Player {
       case PlayerBehavior.IDLE:
         // if press E in front of selected chair
         if (
-          Phaser.Input.Keyboard.JustDown(keyE) ||
-          (this.joystickKey === 'E' && item?.itemType === ItemType.CHAIR)
+          (Phaser.Input.Keyboard.JustDown(keyE) || this.joystickKey === 'E') &&
+          item?.itemType === ItemType.CHAIR
         ) {
           this.joystickKey = undefined
           const chairItem = item as Chair
