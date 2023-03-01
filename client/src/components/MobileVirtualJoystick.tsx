@@ -22,6 +22,7 @@ const Backdrop = styled.div`
   right: 32px;
   max-height: 50%;
   max-width: 100%;
+  z-index: 99999;
 `
 
 const Wrapper = styled.div`

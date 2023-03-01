@@ -10,13 +10,11 @@ import { closeComputerDialog } from '../stores/ComputerStore'
 import Video from './Video'
 
 const Backdrop = styled.div`
-  position: fixed;
+  position: relative;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  padding: 16px 180px 16px 16px;
 `
 const Wrapper = styled.div`
   width: 100%;
@@ -28,23 +26,25 @@ const Wrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  box-shadow: 0px 0px 5px #0000006f;
+  min-width: max-content;
 
   .close {
     position: absolute;
     top: 0px;
     right: 0px;
+    z-index: 9999;
   }
 `
 
 const VideoGrid = styled.div`
   flex: 1;
-  min-height: 0;
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(40%, 1fr));
+  border-radius: 25px;
+  overflow: hidden;
+  margin-right: 25px;
 
   .video-container {
+    width: 100%;
+    height: 100%;
     position: relative;
     background: black;
     border-radius: 8px;
