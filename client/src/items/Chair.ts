@@ -1,4 +1,6 @@
 import { ItemType } from '../../../types/Items'
+import store from '../stores'
+import { setShowButtonE } from '../stores/JoystickStore'
 import Item from './Item'
 
 export default class Chair extends Item {
@@ -11,9 +13,7 @@ export default class Chair extends Item {
   }
 
   onOverlapDialog() {
-    // TODO: handle here button joystick?
-    // Set store show E button
-
+    store.dispatch(setShowButtonE(true))
     this.setDialogBox('Press E to sit')
   }
 }

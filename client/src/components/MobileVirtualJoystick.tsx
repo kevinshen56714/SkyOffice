@@ -53,8 +53,10 @@ const StyledFab = styled(Fab)<{ target?: string }>`
 `
 
 export default function MobileVirtualJoystick() {
-  const showJoystick = useAppSelector((state) => state.user.showJoystick)
+  const showJoystick = useAppSelector((state) => state.joystick.showJoystick)
   const showChat = useAppSelector((state) => state.chat.showChat)
+  const showButtonE = useAppSelector((state) => state.joystick.showButtonE)
+  const showButtonR = useAppSelector((state) => state.joystick.showButtonR)
   const hasSmallScreen = isSmallScreenWidth(650)
   const game = phaserGame.scene.keys.game as Game
 
@@ -73,20 +75,24 @@ export default function MobileVirtualJoystick() {
       {!(showChat && hasSmallScreen) && showJoystick && (
         <Wrapper>
           <ButtonsWrapper>
-            <StyledFab
-              color="secondary"
-              size="medium"
-              onClick={() => handleKeyPressed(JoystickActiveKeys.E)}
-            >
-              E
-            </StyledFab>
-            <StyledFab
-              color="secondary"
-              size="medium"
-              onClick={() => handleKeyPressed(JoystickActiveKeys.R)}
-            >
-              R
-            </StyledFab>
+            {showButtonE && (
+              <StyledFab
+                color="secondary"
+                size="medium"
+                onClick={() => handleKeyPressed(JoystickActiveKeys.E)}
+              >
+                E
+              </StyledFab>
+            )}
+            {showButtonR && (
+              <StyledFab
+                color="secondary"
+                size="medium"
+                onClick={() => handleKeyPressed(JoystickActiveKeys.R)}
+              >
+                R
+              </StyledFab>
+            )}
           </ButtonsWrapper>
           <JoystickWrapper>
             <JoystickItem onDirectionChange={handleMovement}></JoystickItem>

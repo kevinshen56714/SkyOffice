@@ -17,9 +17,10 @@ import VideogameAssetIcon from '@mui/icons-material/VideogameAsset'
 import VideogameAssetOffIcon from '@mui/icons-material/VideogameAssetOff'
 
 import { BackgroundMode } from '../../../types/BackgroundMode'
-import { setShowJoystick, toggleBackgroundMode } from '../stores/UserStore'
+import { toggleBackgroundMode } from '../stores/UserStore'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { getAvatarString, getColorByString } from '../util'
+import { setShowJoystick } from '../stores/JoystickStore'
 
 const Backdrop = styled.div`
   position: fixed;
@@ -108,7 +109,7 @@ const StyledFab = styled(Fab)<{ target?: string }>`
 export default function HelperButtonGroup() {
   const [showControlGuide, setShowControlGuide] = useState(false)
   const [showRoomInfo, setShowRoomInfo] = useState(false)
-  const showJoystick = useAppSelector((state) => state.user.showJoystick)
+  const showJoystick = useAppSelector((state) => state.joystick.showJoystick)
   const backgroundMode = useAppSelector((state) => state.user.backgroundMode)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
   const roomId = useAppSelector((state) => state.room.roomId)
