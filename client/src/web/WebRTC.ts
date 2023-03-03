@@ -65,7 +65,7 @@ export default class WebRTC {
     navigator.mediaDevices
       ?.getUserMedia({
         video: true,
-        audio: true,
+        audio: false,
       })
       .then((stream) => {
         this.myStream = stream
@@ -101,6 +101,7 @@ export default class WebRTC {
   // method to add new video stream to videoGrid div
   addVideoStream(video: HTMLVideoElement, stream: MediaStream) {
     video.srcObject = stream
+    video.playsInline = true
     video.addEventListener('loadedmetadata', () => {
       video.play()
     })
