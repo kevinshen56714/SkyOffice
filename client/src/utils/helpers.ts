@@ -1,9 +1,11 @@
-export function openInNewTab(url: string) {
-  //window.open(url); // This not work on iOS Safari
+export function openURL(url: string) {
+  const canOpenNewTab = window.open(url, '_blank')
 
-  // This is a hack to open a new tab on iOS Safari
-  const link = document.createElement('a')
-  link.setAttribute('href', url)
-  link?.setAttribute('target', '_blank') // This only works on iOS Safari if all are https
-  link.click()
+  // if the browser blocks the new tab, open the url in the current tab
+  // this is the case for Safari on iOS
+  if (!canOpenNewTab) {
+    let a = document.createElement('a')
+    a.href = url
+    a.click()
+  }
 }

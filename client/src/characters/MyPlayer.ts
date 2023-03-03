@@ -14,7 +14,7 @@ import { pushPlayerJoinedMessage } from '../stores/ChatStore'
 import { ItemType } from '../../../types/Items'
 import { NavKeys } from '../../../types/KeyboardState'
 import { JoystickMovement } from '../components/Joystick'
-import { openInNewTab } from '../utils'
+import { openURL } from '../utils'
 
 export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
@@ -72,7 +72,7 @@ export default class MyPlayer extends Player {
         case ItemType.VENDINGMACHINE:
           // hacky and hard-coded, but leaving it as is for now
           const url = 'https://www.buymeacoffee.com/skyoffice'
-          openInNewTab(url)
+          openURL(url)
           break
       }
     }
