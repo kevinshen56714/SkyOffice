@@ -1,6 +1,6 @@
 import Phaser from 'phaser'
 
-// import { debugDraw } from '../utils/debug'
+// import { debugDraw } from '../utils'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
