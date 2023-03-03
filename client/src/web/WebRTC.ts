@@ -65,7 +65,7 @@ export default class WebRTC {
     navigator.mediaDevices
       ?.getUserMedia({
         video: true,
-        audio: false,
+        audio: true,
       })
       .then((stream) => {
         this.myStream = stream
