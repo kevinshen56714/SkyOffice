@@ -12,4 +12,4 @@ COPY /server/lib/server ./server
 COPY /client/dist ./server/public
 
 EXPOSE 2567
-CMD [ "node", "server/index.js" ]
+ENTRYPOINT [ "/usr/src/app/server/index.js" ]
