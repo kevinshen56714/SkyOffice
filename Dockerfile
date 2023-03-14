@@ -11,5 +11,6 @@ COPY /server/lib/types ./types
 COPY /server/lib/server ./server
 COPY /client/dist ./server/public
 
+WORKDIR /usr/src/app/server
 EXPOSE 2567
-ENTRYPOINT [ "/usr/src/app/server/index.js" ]
+CMD [ "node", "server/index.js" ]
