@@ -1,17 +1,23 @@
 node {
-    def app
+    docker.image('node:18').inside {
+        stage('Clone repository') {
+            checkout scm
+        }
 
-    stage('Clone repository') {
-        checkout scm
-    }
+        stage('Build Server') {
+            steps {
+                sh 'yarn'
+                sh 'yarn heroku-postbuild'
+            }
+        }
 
-    stage('Build image') {
-        app = docker.build("st3v0rr/SkyOffice", "--no-cache --pull .")
-    }
-
-    stage('Push image') {
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app.push("latest")
+        stage('Build Client') {
+            steps {
+                dir('client') {
+                    sh 'yarn'
+                    sh 'yarn build'
+                }
+            }
         }
     }
 }
