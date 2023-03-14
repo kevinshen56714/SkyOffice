@@ -13,4 +13,4 @@ COPY /client/dist ./server/public
 
 WORKDIR /usr/src/app/server
 EXPOSE 2567
-CMD [ "node", "server/index.js" ]
+CMD [ "node", "index.js" ]
