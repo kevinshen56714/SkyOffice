@@ -5,18 +5,14 @@ node {
         }
 
         stage('Build Server') {
-            steps {
-                sh 'yarn'
-                sh 'yarn heroku-postbuild'
-            }
+            sh 'yarn'
+            sh 'yarn heroku-postbuild'
         }
 
         stage('Build Client') {
-            steps {
-                dir('client') {
-                    sh 'yarn'
-                    sh 'yarn build'
-                }
+            dir('client') {
+                sh 'yarn'
+                sh 'yarn build'
             }
         }
     }
