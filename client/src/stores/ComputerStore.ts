@@ -13,7 +13,7 @@ interface ComputerState {
     string,
     {
       stream: MediaStream
-      call: Peer.MediaConnection
+      call: any
     }
   >
   shareScreenManager: null | ShareScreenManager
@@ -63,7 +63,7 @@ export const computerSlice = createSlice({
     },
     addVideoStream: (
       state,
-      action: PayloadAction<{ id: string; call: Peer.MediaConnection; stream: MediaStream }>
+      action: PayloadAction<{ id: string; call: any; stream: MediaStream }>
     ) => {
       state.peerStreams.set(sanitizeId(action.payload.id), {
         call: action.payload.call,

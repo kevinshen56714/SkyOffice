@@ -99,7 +99,7 @@ export default class Network {
     this.webRTC = new WebRTC(this.mySessionId, this)
 
     // new instance added to the players MapSchema
-    this.room.state.players.onAdd = (player: IPlayer, key: string) => {
+    this.room.state.players.onAdd = (player: any, key: string) => {
       if (key === this.mySessionId) return
 
       // track changes on every child object inside the players MapSchema
