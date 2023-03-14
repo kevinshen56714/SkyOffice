@@ -16,4 +16,14 @@ node {
             }
         }
     }
+
+    stage('Build image') {
+        app = docker.build("st3v0rr/skyoffice", "--no-cache --pull .")
+    }
+
+    stage('Push image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+            app.push("latest")
+        }
+    }
 }
