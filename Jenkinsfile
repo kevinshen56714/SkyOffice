@@ -6,7 +6,7 @@ node {
 
         stage('Build Server') {
             sh 'yarn'
-            sh 'yarn heroku-postbuild'
+            sh 'yarn build'
         }
 
         stage('Build Client') {
