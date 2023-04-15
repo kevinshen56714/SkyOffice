@@ -15,6 +15,7 @@ import { ItemType } from '../../../types/Items'
 import { NavKeys } from '../../../types/KeyboardState'
 import { JoystickMovement } from '../components/Joystick'
 import { setShowButtonE } from '../stores/JoystickStore'
+import { openURL } from '../utils/helpers'
 
 export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
@@ -76,7 +77,8 @@ export default class MyPlayer extends Player {
           break
         case ItemType.VENDINGMACHINE:
           // hacky and hard-coded, but leaving it as is for now
-          window.open('https://www.buymeacoffee.com/skyoffice', '_blank')
+          const url = 'https://www.buymeacoffee.com/skyoffice'
+          openURL(url)
           break
       }
     }
