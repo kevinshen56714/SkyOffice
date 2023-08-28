@@ -2962,6 +2962,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "prettier@npm:3.0.2"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 118b59ddb6c80abe2315ab6d0f4dd1b253be5cfdb20622fa5b65bb1573dcd362e6dd3dcf2711dd3ebfe64aecf7bdc75de8a69dc2422dcd35bdde7610586b677a
+  languageName: node
+  linkType: hard
+
 "process-nextick-args@npm:~2.0.0":
   version: 2.0.1
   resolution: "process-nextick-args@npm:2.0.1"
@@ -3437,6 +3446,7 @@ __metadata:
     express: ^4.16.4
     minimist: ">=1.2.2"
     phaser: ^3.55.2
+    prettier: ^3.0.2
     regenerator-runtime: ^0.13.7
     rimraf: ^2.7.1
     ts-node: ^8.1.0
