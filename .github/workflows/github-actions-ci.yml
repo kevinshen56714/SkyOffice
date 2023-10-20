@@ -1,0 +1,19 @@
+name: GitHub Actions CI
+run-name: ${{ github.actor }} is running CI 🚀
+on: [push]
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install Server Dependencies and Build
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - run: yarn
+      - run: yarn build
+      - run: yarn --cwd ${PWD}/client
+      - run: yarn --cwd ${PWD}/client build
