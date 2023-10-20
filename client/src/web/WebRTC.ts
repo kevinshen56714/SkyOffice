@@ -25,8 +25,13 @@ export default class WebRTC {
       if (result.state === 'granted') store.dispatch(setCameraPermissionGranted(true))
     })
     this.getUserDevices()
-    const sanitizedId = this.replaceInvalidId(userId)
-    this.myPeer = new Peer(sanitizedId)
+    const sanitizedId = this.replaceInvalidId(userId, )
+    this.myPeer = new Peer(sanitizedId, {
+      host: "cloud.steve4u.de",
+      port: 9000,
+      path: "/skyoffice",
+      key: "1234567890"
+    })
     this.network = network
     console.log('userId:', userId)
     console.log('sanitizedId:', sanitizedId)

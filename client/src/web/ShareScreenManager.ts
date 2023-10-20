@@ -10,7 +10,12 @@ export default class ShareScreenManager {
 
   constructor(private userId: string) {
     const sanatizedId = this.makeId(userId)
-    this.myPeer = new Peer(sanatizedId)
+    this.myPeer = new Peer(sanatizedId, {
+      host: "cloud.steve4u.de",
+      port: 9000,
+      path: "/skyoffice",
+      key: "1234567890"
+    })
     this.myPeer.on('error', (err) => {
       console.error('ShareScreenWebRTC', err)
     })
