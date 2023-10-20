@@ -1,5 +1,7 @@
 FROM node:18
 
-RUN npm i peer -g
+COPY . .
 
-CMD ["/bash", "-c", "peerjs", "--port", "${PORT:-9000}", "--key", "${SECRET}", "--path", "${PATH:-/skyoffice}"]
+RUN npm i
+
+CMD ["node", "index.js"]

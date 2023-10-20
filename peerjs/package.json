@@ -1,0 +1,7 @@
+{
+  "name": "peerjs",
+  "packageManager": "yarn@3.4.1",
+  "dependencies": {
+    "peer": "^1.0.1"
+  }
+}

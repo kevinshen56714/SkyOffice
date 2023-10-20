@@ -7,6 +7,7 @@
 
 # dependencies
 /node_modules
+/peerjs/node_modules
 /.pnp
 .pnp.js
 
