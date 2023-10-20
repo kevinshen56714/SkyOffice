@@ -14,13 +14,13 @@ import MyPlayer from '../characters/MyPlayer'
 import OtherPlayer from '../characters/OtherPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
 import Network from '../services/Network'
-import { IPlayer } from '../../../types/IOfficeState'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import { ItemType } from '../../../types/Items'
 
 import store from '../stores'
 import { setFocused, setShowChat } from '../stores/ChatStore'
 import { NavKeys, Keyboard } from '../../../types/KeyboardState'
+import { Player } from '../../../server/rooms/schema/OfficeState'
 
 export default class Game extends Phaser.Scene {
   network!: Network
@@ -222,7 +222,7 @@ export default class Game extends Phaser.Scene {
   }
 
   // function to add new player to the otherPlayer group
-  private handlePlayerJoined(newPlayer: IPlayer, id: string) {
+  private handlePlayerJoined(newPlayer: Player, id: string) {
     const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, 'adam', id, newPlayer.name)
     this.otherPlayers.add(otherPlayer)
     this.otherPlayerMap.set(id, otherPlayer)

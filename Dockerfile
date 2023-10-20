@@ -1,16 +1,21 @@
 FROM node:18
-# Create app directory
-WORKDIR /usr/src/app
+# Create app build directory
+WORKDIR /usr/src/skyoffice/build
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json .
-COPY node_modules ./server/node_modules
-COPY /server/lib/types ./types
-COPY /server/lib/server ./server
-COPY /client/dist ./server/public
+COPY ./ ./
 
-WORKDIR /usr/src/app/server
+RUN yarn &&\
+    yarn build
+WORKDIR /usr/src/skyoffice/build/client
+RUN yarn &&\
+    yarn build
+
+WORKDIR /
+RUN cp -R /usr/src/skyoffice/build/server/lib /opt/skyoffice &&\
+    mv /usr/src/skyoffice/build/node_modules /opt/skyoffice/server &&\
+    cp -R /usr/src/skyoffice/build/client/dist /opt/skyoffice/server/public &&\
+    rm -rf /usr/src/skyoffice
+
+WORKDIR /opt/skyoffice/server
 EXPOSE 2567
 CMD [ "node", "index.js" ]

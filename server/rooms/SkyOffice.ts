@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt'
+import { genSalt, hash, compare } from 'bcrypt'
 import { Room, Client, ServerError } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
 import { Player, OfficeState, Computer, Whiteboard } from './schema/OfficeState'
@@ -31,8 +31,8 @@ export class SkyOffice extends Room<OfficeState> {
 
     let hasPassword = false
     if (password) {
-      const salt = await bcrypt.genSalt(10)
-      this.password = await bcrypt.hash(password, salt)
+      const salt = await genSalt(10)
+      this.password = await hash(password, salt)
       hasPassword = true
     }
     this.setMetadata({ name, description, hasPassword })
@@ -157,7 +157,7 @@ export class SkyOffice extends Room<OfficeState> {
 
   async onAuth(client: Client, options: { password: string | null }) {
     if (this.password) {
-      const validPassword = await bcrypt.compare(options.password, this.password)
+      const validPassword = await compare(options.password, this.password)
       if (!validPassword) {
         throw new ServerError(403, 'Password is incorrect!')
       }

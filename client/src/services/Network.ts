@@ -1,5 +1,5 @@
 import { Client, Room } from 'colyseus.js'
-import { IComputer, IOfficeState, IPlayer, IWhiteboard } from '../../../types/IOfficeState'
+import { IOfficeState } from '../../../types/IOfficeState'
 import { Message } from '../../../types/Messages'
 import { IRoomData, RoomType } from '../../../types/Rooms'
 import { ItemType } from '../../../types/Items'
@@ -20,6 +20,7 @@ import {
   pushPlayerLeftMessage,
 } from '../stores/ChatStore'
 import { setWhiteboardUrls } from '../stores/WhiteboardStore'
+import { Computer, Player, Whiteboard } from '../../../server/rooms/schema/OfficeState'
 
 export default class Network {
   private client: Client
@@ -119,7 +120,7 @@ export default class Network {
     }
 
     // an instance removed from the players MapSchema
-    this.room.state.players.onRemove = (player: IPlayer, key: string) => {
+    this.room.state.players.onRemove = (player: Player, key: string) => {
       phaserEvents.emit(Event.PLAYER_LEFT, key)
       this.webRTC?.deleteVideoStream(key)
       this.webRTC?.deleteOnCalledVideoStream(key)
@@ -128,7 +129,7 @@ export default class Network {
     }
 
     // new instance added to the computers MapSchema
-    this.room.state.computers.onAdd = (computer: IComputer, key: string) => {
+    this.room.state.computers.onAdd = (computer: Computer, key: string) => {
       // track changes on every child object's connectedUser
       computer.connectedUser.onAdd = (item, index) => {
         phaserEvents.emit(Event.ITEM_USER_ADDED, item, key, ItemType.COMPUTER)
@@ -139,7 +140,7 @@ export default class Network {
     }
 
     // new instance added to the whiteboards MapSchema
-    this.room.state.whiteboards.onAdd = (whiteboard: IWhiteboard, key: string) => {
+    this.room.state.whiteboards.onAdd = (whiteboard: Whiteboard, key: string) => {
       store.dispatch(
         setWhiteboardUrls({
           whiteboardId: key,
@@ -204,7 +205,7 @@ export default class Network {
   }
 
   // method to register event listener and call back function when a player joined
-  onPlayerJoined(callback: (Player: IPlayer, key: string) => void, context?: any) {
+  onPlayerJoined(callback: (player: Player, key: string) => void, context?: any) {
     phaserEvents.on(Event.PLAYER_JOINED, callback, context)
   }
 

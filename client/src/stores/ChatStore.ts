@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { IChatMessage } from '../../../types/IOfficeState'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
+import { ChatMessage } from '../../../server/rooms/schema/OfficeState'
 
 export enum MessageType {
   PLAYER_JOINED,
@@ -12,12 +12,12 @@ export enum MessageType {
 export const chatSlice = createSlice({
   name: 'chat',
   initialState: {
-    chatMessages: new Array<{ messageType: MessageType; chatMessage: IChatMessage }>(),
+    chatMessages: new Array<{ messageType: MessageType; chatMessage: ChatMessage }>(),
     focused: false,
     showChat: true,
   },
   reducers: {
-    pushChatMessage: (state, action: PayloadAction<IChatMessage>) => {
+    pushChatMessage: (state, action: PayloadAction<ChatMessage>) => {
       state.chatMessages.push({
         messageType: MessageType.REGULAR_MESSAGE,
         chatMessage: action.payload,
@@ -30,7 +30,7 @@ export const chatSlice = createSlice({
           createdAt: new Date().getTime(),
           author: action.payload,
           content: 'joined the lobby',
-        } as IChatMessage,
+        } as ChatMessage,
       })
     },
     pushPlayerLeftMessage: (state, action: PayloadAction<string>) => {
@@ -40,7 +40,7 @@ export const chatSlice = createSlice({
           createdAt: new Date().getTime(),
           author: action.payload,
           content: 'left the lobby',
-        } as IChatMessage,
+        } as ChatMessage,
       })
     },
     setFocused: (state, action: PayloadAction<boolean>) => {
