@@ -1,7 +1,11 @@
 import Peer from 'peerjs'
 import Network from '../services/Network'
 import store from '../stores'
-import { setVideoConnected } from '../stores/UserStore'
+import {
+  setCameraPermissionGranted,
+  setDevices,
+  setMicrophonePermissionGranted,
+} from '../stores/UserStore'
 
 export default class WebRTC {
   private myPeer: Peer
@@ -14,6 +18,13 @@ export default class WebRTC {
   private network: Network
 
   constructor(userId: string, network: Network) {
+    navigator.permissions?.query({ name: 'microphone' as PermissionName }).then((result) => {
+      if (result.state === 'granted') store.dispatch(setMicrophonePermissionGranted(true))
+    })
+    navigator.permissions?.query({ name: 'camera' as PermissionName }).then((result) => {
+      if (result.state === 'granted') store.dispatch(setCameraPermissionGranted(true))
+    })
+    this.getUserDevices()
     const sanitizedId = this.replaceInvalidId(userId)
     this.myPeer = new Peer(sanitizedId)
     this.network = network
@@ -44,42 +55,76 @@ export default class WebRTC {
         this.onCalledPeers.set(call.peer, { call, video })
 
         call.on('stream', (userVideoStream) => {
-          this.addVideoStream(video, userVideoStream)
+          this.addVideoStream(video, userVideoStream, 'default')
         })
       }
       // on close is triggered manually with deleteOnCalledVideoStream()
     })
   }
 
-  // check if permission has been granted before
-  checkPreviousPermission() {
-    const permissionName = 'microphone' as PermissionName
-    navigator.permissions?.query({ name: permissionName }).then((result) => {
-      if (result.state === 'granted') this.getUserMedia(false)
-    })
-  }
-
-  getUserMedia(alertOnError = true) {
-    // ask the browser to get user media
+  getInitialPermission() {
     navigator.mediaDevices
       ?.getUserMedia({
         video: true,
         audio: true,
       })
       .then((stream) => {
-        this.myStream = stream
-        this.addVideoStream(this.myVideo, this.myStream)
-        this.setUpButtons()
-        store.dispatch(setVideoConnected(true))
+        store.dispatch(setMicrophonePermissionGranted(true))
+        store.dispatch(setCameraPermissionGranted(true))
+        this.getUserDevices()
         this.network.videoConnected()
       })
-      .catch((error) => {
-        if (alertOnError) window.alert('No webcam or microphone found, or permission is blocked')
-      })
+  }
+
+  getUserDevices() {
+    navigator.mediaDevices.enumerateDevices().then((deviceInfos) => {
+      const foundDevices: any[] = []
+      for (let i = 0; i !== deviceInfos.length; ++i) {
+        const deviceInfo = deviceInfos[i]
+        const device = {
+          id: deviceInfo.deviceId,
+          kind: deviceInfo.kind,
+          label: deviceInfo.label,
+        }
+        foundDevices.push(device)
+      }
+      store.dispatch(setDevices(foundDevices))
+    })
+  }
+
+  getUserMedia(alertOnError = true) {
+    const state = store.getState()
+    if (
+      state.user.videoDeviceId !== '' &&
+      state.user.audioInputDeviceId !== '' &&
+      state.user.audioOutputDeviceId !== ''
+    ) {
+      const constraints = {
+        audio: {
+          deviceId: state.user.audioInputDeviceId
+            ? { exact: state.user.audioInputDeviceId }
+            : undefined,
+        },
+        video: {
+          deviceId: state.user.videoDeviceId ? { exact: state.user.videoDeviceId } : undefined,
+        },
+      }
+      navigator.mediaDevices
+        ?.getUserMedia(constraints)
+        .then((stream) => {
+          this.myStream = stream
+          this.addVideoStream(this.myVideo, this.myStream, state.user.audioOutputDeviceId)
+          //this.setUpButtons()
+        })
+        .catch((error) => {
+          if (alertOnError) window.alert('No webcam or microphone found, or permission is blocked')
+        })
+    }
   }
 
   // method to call a peer
   connectToNewUser(userId: string) {
+    const state = store.getState()
     if (this.myStream) {
       const sanitizedId = this.replaceInvalidId(userId)
       if (!this.peers.has(sanitizedId)) {
@@ -89,7 +134,7 @@ export default class WebRTC {
         this.peers.set(sanitizedId, { call, video })
 
         call.on('stream', (userVideoStream) => {
-          this.addVideoStream(video, userVideoStream)
+          this.addVideoStream(video, userVideoStream, state.user.audioOutputDeviceId)
         })
 
         // on close is triggered manually with deleteVideoStream()
@@ -97,9 +142,26 @@ export default class WebRTC {
     }
   }
 
+  // Attach audio output device to video element using device/sink ID.
+  attachAudioOutputToVideoElement(element, audioDevice) {
+    if (typeof element.sinkId !== 'undefined') {
+      element
+        .setSinkId(audioDevice)
+        .then(() => {
+          console.log(`Success, audio output device attached: ${audioDevice}`)
+        })
+        .catch((error) => {
+          console.error('Error attaching audio output device ', error)
+        })
+    } else {
+      console.warn('Browser does not support output device selection.')
+    }
+  }
+
   // method to add new video stream to videoGrid div
-  addVideoStream(video: HTMLVideoElement, stream: MediaStream) {
+  addVideoStream(video: HTMLVideoElement, stream: MediaStream, audioDevice: string) {
     video.srcObject = stream
+    this.attachAudioOutputToVideoElement(video, audioDevice)
     video.playsInline = true
     video.addEventListener('loadedmetadata', () => {
       video.play()

@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import Select from '@mui/material/Select'
 import Avatar from '@mui/material/Avatar'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
@@ -17,11 +18,17 @@ import Ash from '../images/login/Ash_login.png'
 import Lucy from '../images/login/Lucy_login.png'
 import Nancy from '../images/login/Nancy_login.png'
 import { useAppSelector, useAppDispatch } from '../hooks'
-import { setLoggedIn } from '../stores/UserStore'
+import {
+  setAudioInputDeviceId,
+  setAudioOutputDeviceId,
+  setLoggedIn,
+  setVideoDeviceId,
+} from '../stores/UserStore'
 import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
+import { FormControl, FormHelperText, InputLabel, MenuItem } from '@mui/material'
 
 const Wrapper = styled.form`
   position: fixed;
@@ -31,7 +38,7 @@ const Wrapper = styled.form`
   background: #222639;
   border-radius: 16px;
   padding: 36px 60px;
-  box-shadow: 0px 0px 5px #0000006f;
+  box-shadow: 0px 0px 10px #0000006f;
 `
 
 const Title = styled.p`
@@ -42,7 +49,6 @@ const Title = styled.p`
 `
 
 const RoomName = styled.div`
-  max-width: 500px;
   max-height: 120px;
   overflow-wrap: anywhere;
   overflow-y: auto;
@@ -58,7 +64,6 @@ const RoomName = styled.div`
 `
 
 const RoomDescription = styled.div`
-  max-width: 500px;
   max-height: 150px;
   overflow-wrap: anywhere;
   overflow-y: auto;
@@ -81,14 +86,14 @@ const Content = styled.div`
 `
 
 const Left = styled.div`
-  margin-right: 48px;
+  margin-right: 100px;
 
   --swiper-navigation-size: 24px;
 
   .swiper {
-    width: 160px;
+    width: 180px;
     height: 220px;
-    border-radius: 8px;
+    border-radius: 16px;
     overflow: hidden;
   }
 
@@ -110,7 +115,7 @@ const Left = styled.div`
 `
 
 const Right = styled.div`
-  width: 300px;
+  width: 350px;
 `
 
 const Bottom = styled.div`
@@ -119,12 +124,17 @@ const Bottom = styled.div`
   justify-content: center;
 `
 
-const Warning = styled.div`
+const Block = styled.div`
   margin-top: 30px;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 3px;
+`
+
+const SmallBlock = styled.div`
+  margin-top: 10px;
+  position: relative;
 `
 
 const avatars = [
@@ -144,18 +154,47 @@ export default function LoginDialog() {
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
   const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
+  const [videoInputFieldEmpty, setVideoInputFieldEmpty] = useState<boolean>(false)
+  const [audioInputFieldEmpty, setAudioInputFieldEmpty] = useState<boolean>(false)
+  const [audioOutputFieldEmpty, setAudioOutputFieldEmpty] = useState<boolean>(false)
   const dispatch = useAppDispatch()
-  const videoConnected = useAppSelector((state) => state.user.videoConnected)
+  const devices = useAppSelector((state) => state.user.devices)
+  const microphonePermissionGranted = useAppSelector(
+    (state) => state.user.microphonePermissionGranted
+  )
+  const cameraPermissionGranted = useAppSelector((state) => state.user.cameraPermissionGranted)
+  const videoDeviceId = useAppSelector((state) => state.user.videoDeviceId)
+  const audioInputDeviceId = useAppSelector((state) => state.user.audioInputDeviceId)
+  const audioOutputDeviceId = useAppSelector((state) => state.user.audioOutputDeviceId)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
   const game = phaserGame.scene.keys.game as Game
 
+  const devicePermissionsGranted = microphonePermissionGranted && cameraPermissionGranted
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (name === '') {
-      setNameFieldEmpty(true)
+    if (
+      name === '' ||
+      videoDeviceId === '' ||
+      audioInputDeviceId === '' ||
+      audioOutputDeviceId === ''
+    ) {
+      if (name === '') {
+        setNameFieldEmpty(true)
+      }
+      if (videoDeviceId === '') {
+        setVideoInputFieldEmpty(true)
+      }
+      if (audioInputDeviceId === '') {
+        setAudioInputFieldEmpty(true)
+      }
+      if (audioOutputDeviceId === '') {
+        setAudioOutputFieldEmpty(true)
+      }
     } else if (roomJoined) {
+      game.network.webRTC?.setUpButtons()
       console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
       game.registerKeys()
       game.myPlayer.setPlayerName(name)
@@ -166,79 +205,154 @@ export default function LoginDialog() {
   }
 
   return (
-    <Wrapper onSubmit={handleSubmit}>
-      <Title>Joining</Title>
-      <RoomName>
-        <Avatar style={{ background: getColorByString(roomName) }}>
-          {getAvatarString(roomName)}
-        </Avatar>
-        <h3>{roomName}</h3>
-      </RoomName>
-      <RoomDescription>
-        <ArrowRightIcon /> {roomDescription}
-      </RoomDescription>
-      <Content>
-        <Left>
-          <SubTitle>Select an avatar</SubTitle>
-          <Swiper
-            modules={[Navigation]}
-            navigation
-            spaceBetween={0}
-            slidesPerView={1}
-            onSlideChange={(swiper) => {
-              setAvatarIndex(swiper.activeIndex)
-            }}
-          >
-            {avatars.map((avatar) => (
-              <SwiperSlide key={avatar.name}>
-                <img src={avatar.img} alt={avatar.name} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </Left>
-        <Right>
-          <TextField
-            autoFocus
-            fullWidth
-            label="Name"
-            variant="outlined"
-            color="secondary"
-            error={nameFieldEmpty}
-            helperText={nameFieldEmpty && 'Name is required'}
-            onInput={(e) => {
-              setName((e.target as HTMLInputElement).value)
-            }}
-          />
-          {!videoConnected && (
-            <Warning>
-              <Alert variant="outlined" severity="warning">
-                <AlertTitle>Warning</AlertTitle>
-                No webcam/mic connected - <strong>connect one for best experience!</strong>
-              </Alert>
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={() => {
-                  game.network.webRTC?.getUserMedia()
-                }}
-              >
-                Connect Webcam
-              </Button>
-            </Warning>
-          )}
+    <>
+      <Wrapper onSubmit={handleSubmit}>
+        <Title>Joining</Title>
+        <RoomName>
+          <Avatar style={{ background: getColorByString(roomName) }}>
+            {getAvatarString(roomName)}
+          </Avatar>
+          <h3>{roomName}</h3>
+        </RoomName>
+        <RoomDescription>
+          <ArrowRightIcon /> {roomDescription}
+        </RoomDescription>
+        <Content>
+          <Left>
+            <SubTitle>Select an avatar</SubTitle>
+            <Swiper
+              modules={[Navigation]}
+              navigation
+              spaceBetween={0}
+              slidesPerView={1}
+              onSlideChange={(swiper) => {
+                setAvatarIndex(swiper.activeIndex)
+              }}
+            >
+              {avatars.map((avatar) => (
+                <SwiperSlide key={avatar.name}>
+                  <img src={avatar.img} alt={avatar.name} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </Left>
+          <Right>
+            <TextField
+              autoFocus
+              fullWidth
+              label="Name"
+              variant="outlined"
+              color="secondary"
+              error={nameFieldEmpty}
+              helperText={nameFieldEmpty && 'Name is required'}
+              onInput={(e) => {
+                setName((e.target as HTMLInputElement).value)
+              }}
+            />
+            {!devicePermissionsGranted && (
+              <Block>
+                <Alert variant="outlined" severity="warning">
+                  <AlertTitle>Warning</AlertTitle>
+                  No webcam/mic connected - <strong>please connect one for best experience!</strong>
+                </Alert>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => {
+                    game.network.webRTC?.getInitialPermission()
+                  }}
+                >
+                  Connect Webcam
+                </Button>
+              </Block>
+            )}
 
-          {videoConnected && (
-            <Warning>
-              <Alert variant="outlined">Webcam connected!</Alert>
-            </Warning>
-          )}
-        </Right>
-      </Content>
-      <Bottom>
-        <Button variant="contained" color="secondary" size="large" type="submit">
-          Join
-        </Button>
-      </Bottom>
-    </Wrapper>
+            {devicePermissionsGranted && (
+              <Block>
+                <FormControl fullWidth error={videoInputFieldEmpty}>
+                  <InputLabel id="login-dialog-video-input-label">Video Input</InputLabel>
+                  <Select
+                    labelId="login-dialog-video-input-label"
+                    label="Video Input"
+                    color="secondary"
+                    value={videoDeviceId}
+                    onChange={(e) => {
+                      dispatch(setVideoDeviceId(e.target.value))
+                      game.network.webRTC?.getUserMedia()
+                    }}
+                  >
+                    {devices
+                      .filter((d) => d.kind === 'videoinput')
+                      .map((d) => (
+                        <MenuItem key={d.id} value={d.id}>
+                          {d.label}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  {videoInputFieldEmpty && (
+                    <FormHelperText>Selected video input device is required.</FormHelperText>
+                  )}
+                </FormControl>
+                <SmallBlock />
+                <FormControl fullWidth error={audioInputFieldEmpty}>
+                  <InputLabel id="login-dialog-audio-input-label">Audio Input</InputLabel>
+                  <Select
+                    labelId="login-dialog-audio-input-label"
+                    label="Audio Input"
+                    color="secondary"
+                    value={audioInputDeviceId}
+                    onChange={(e) => {
+                      dispatch(setAudioInputDeviceId(e.target.value))
+                      game.network.webRTC?.getUserMedia()
+                    }}
+                  >
+                    {devices
+                      .filter((d) => d.kind === 'audioinput')
+                      .map((d) => (
+                        <MenuItem key={d.id} value={d.id}>
+                          {d.label}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  {audioInputFieldEmpty && (
+                    <FormHelperText>Selected audio input device is required.</FormHelperText>
+                  )}
+                </FormControl>
+                <SmallBlock />
+                <FormControl fullWidth error={audioOutputFieldEmpty}>
+                  <InputLabel id="login-dialog-audio-output-label">Audio Output</InputLabel>
+                  <Select
+                    labelId="login-dialog-audio-output-label"
+                    label="Audio Output"
+                    color="secondary"
+                    value={audioOutputDeviceId}
+                    onChange={(e) => {
+                      dispatch(setAudioOutputDeviceId(e.target.value))
+                      game.network.webRTC?.getUserMedia()
+                    }}
+                  >
+                    {devices
+                      .filter((d) => d.kind === 'audiooutput')
+                      .map((d) => (
+                        <MenuItem key={d.id} value={d.id}>
+                          {d.label}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  {audioOutputFieldEmpty && (
+                    <FormHelperText>Selected audio output device is required.</FormHelperText>
+                  )}
+                </FormControl>
+              </Block>
+            )}
+          </Right>
+        </Content>
+        <Bottom>
+          <Button variant="contained" color="secondary" size="large" type="submit">
+            Join
+          </Button>
+        </Bottom>
+      </Wrapper>
+    </>
   )
 }
