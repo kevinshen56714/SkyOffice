@@ -59,6 +59,6 @@ function getRoomId() {
     return result
   } else {
     console.log('roomId exists, remaking another one.')
-    getRoomId()
+    return getRoomId()
   }
 }
