@@ -9,6 +9,7 @@ import ShareIcon from '@mui/icons-material/Share'
 import LightModeIcon from '@mui/icons-material/LightMode'
 import DarkModeIcon from '@mui/icons-material/DarkMode'
 import CloseIcon from '@mui/icons-material/Close'
+import MenuOpen from '@mui/icons-material/MenuOpen'
 import LightbulbIcon from '@mui/icons-material/Lightbulb'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import GitHubIcon from '@mui/icons-material/GitHub'
@@ -17,23 +18,32 @@ import VideogameAssetIcon from '@mui/icons-material/VideogameAsset'
 import VideogameAssetOffIcon from '@mui/icons-material/VideogameAssetOff'
 
 import { BackgroundMode } from '../../../types/BackgroundMode'
-import { setShowJoystick, toggleBackgroundMode } from '../stores/UserStore'
+import { setShowHelperButtons, toggleBackgroundMode } from '../stores/UserStore'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { getAvatarString, getColorByString } from '../util'
+import { setShowJoystick } from '../stores/JoystickStore'
 
 const Backdrop = styled.div`
   position: fixed;
-  display: flex;
   gap: 10px;
   bottom: 16px;
   right: 16px;
   align-items: flex-end;
+  z-index: 9999999;
 
   .wrapper-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
+`
+
+const HelpersButtons = styled.div<{ show: boolean }>`
+  display: flex;
+  gap: 10px;
+  transition: all 0.5s ease-out;
+  transform: ${({ show }) => (show ? 'translateY(0)' : 'translateY(100%)')};
+  opacity: ${({ show }) => (show ? 1 : 0)};
 `
 
 const Wrapper = styled.div`
@@ -43,10 +53,12 @@ const Wrapper = styled.div`
   background: #222639;
   box-shadow: 0px 0px 5px #0000006f;
   border-radius: 16px;
-  padding: 15px 35px 15px 15px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: baseline;
+  margin-bottom: 16px;
+  margin-left: 16px;
 
   .close {
     position: absolute;
@@ -62,6 +74,7 @@ const Wrapper = styled.div`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 10px;
+  justify-content: end;
 `
 
 const Title = styled.h3`
@@ -108,24 +121,18 @@ const StyledFab = styled(Fab)<{ target?: string }>`
 export default function HelperButtonGroup() {
   const [showControlGuide, setShowControlGuide] = useState(false)
   const [showRoomInfo, setShowRoomInfo] = useState(false)
-  const showJoystick = useAppSelector((state) => state.user.showJoystick)
+  const showJoystick = useAppSelector((state) => state.joystick.showJoystick)
   const backgroundMode = useAppSelector((state) => state.user.backgroundMode)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
   const roomId = useAppSelector((state) => state.room.roomId)
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
+  const showHelperButtons = useAppSelector((state) => state.user.showHelperButtons)
   const dispatch = useAppDispatch()
 
   return (
     <Backdrop>
       <div className="wrapper-group">
-        {roomJoined && (
-          <Tooltip title={showJoystick ? 'Disable virtual joystick' : 'Enable virtual joystick'}>
-            <StyledFab size="small" onClick={() => dispatch(setShowJoystick(!showJoystick))}>
-              {showJoystick ? <VideogameAssetOffIcon /> : <VideogameAssetIcon />}
-            </StyledFab>
-          </Tooltip>
-        )}
         {showRoomInfo && (
           <Wrapper>
             <IconButton className="close" onClick={() => setShowRoomInfo(false)} size="small">
@@ -180,50 +187,64 @@ export default function HelperButtonGroup() {
         )}
       </div>
       <ButtonGroup>
-        {roomJoined && (
-          <>
-            <Tooltip title="Room Info">
-              <StyledFab
-                size="small"
-                onClick={() => {
-                  setShowRoomInfo(!showRoomInfo)
-                  setShowControlGuide(false)
-                }}
+        <HelpersButtons show={showHelperButtons}>
+          {roomJoined && (
+            <>
+              <Tooltip
+                title={showJoystick ? 'Disable virtual joystick' : 'Enable virtual joystick'}
               >
-                <ShareIcon />
-              </StyledFab>
-            </Tooltip>
-            <Tooltip title="Control Guide">
-              <StyledFab
-                size="small"
-                onClick={() => {
-                  setShowControlGuide(!showControlGuide)
-                  setShowRoomInfo(false)
-                }}
-              >
-                <HelpOutlineIcon />
-              </StyledFab>
-            </Tooltip>
-          </>
-        )}
-        <Tooltip title="Visit Our GitHub">
-          <StyledFab
-            size="small"
-            href="https://github.com/kevinshen56714/SkyOffice"
-            target="_blank"
-          >
-            <GitHubIcon />
-          </StyledFab>
-        </Tooltip>
-        <Tooltip title="Follow Us on Twitter">
-          <StyledFab size="small" href="https://twitter.com/SkyOfficeApp" target="_blank">
-            <TwitterIcon />
-          </StyledFab>
-        </Tooltip>
-        <Tooltip title="Switch Background Theme">
-          <StyledFab size="small" onClick={() => dispatch(toggleBackgroundMode())}>
-            {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
-          </StyledFab>
+                <StyledFab size="small" onClick={() => dispatch(setShowJoystick(!showJoystick))}>
+                  {showJoystick ? <VideogameAssetOffIcon /> : <VideogameAssetIcon />}
+                </StyledFab>
+              </Tooltip>
+              <Tooltip title="Room Info">
+                <StyledFab
+                  size="small"
+                  onClick={() => {
+                    setShowRoomInfo(!showRoomInfo)
+                    setShowControlGuide(false)
+                  }}
+                >
+                  <ShareIcon />
+                </StyledFab>
+              </Tooltip>
+              <Tooltip title="Control Guide">
+                <StyledFab
+                  size="small"
+                  onClick={() => {
+                    setShowControlGuide(!showControlGuide)
+                    setShowRoomInfo(false)
+                  }}
+                >
+                  <HelpOutlineIcon />
+                </StyledFab>
+              </Tooltip>
+            </>
+          )}
+          <Tooltip title="Visit Our GitHub">
+            <StyledFab
+              size="small"
+              href="https://github.com/kevinshen56714/SkyOffice"
+              target="_blank"
+            >
+              <GitHubIcon />
+            </StyledFab>
+          </Tooltip>
+          <Tooltip title="Follow Us on Twitter">
+            <StyledFab size="small" href="https://twitter.com/SkyOfficeApp" target="_blank">
+              <TwitterIcon />
+            </StyledFab>
+          </Tooltip>
+          <Tooltip title="Switch Background Theme">
+            <StyledFab size="small" onClick={() => dispatch(toggleBackgroundMode())}>
+              {backgroundMode === BackgroundMode.DAY ? <DarkModeIcon /> : <LightModeIcon />}
+            </StyledFab>
+          </Tooltip>
+        </HelpersButtons>
+        <Tooltip title={showHelperButtons ? 'Hide helper buttons' : 'Show helpe buttons'}>
+          <Fab size="small" onClick={() => dispatch(setShowHelperButtons(!showHelperButtons))}>
+            {showHelperButtons ? <CloseIcon color="error" /> : <MenuOpen color="primary" />}
+          </Fab>
         </Tooltip>
       </ButtonGroup>
     </Backdrop>

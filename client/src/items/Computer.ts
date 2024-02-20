@@ -3,6 +3,7 @@ import store from '../stores'
 import Item from './Item'
 import Network from '../services/Network'
 import { openComputerDialog } from '../stores/ComputerStore'
+import { setShowButtonR } from '../stores/JoystickStore'
 
 export default class Computer extends Item {
   id?: string
@@ -26,6 +27,7 @@ export default class Computer extends Item {
   }
 
   onOverlapDialog() {
+    store.dispatch(setShowButtonR(true))
     if (this.currentUsers.size === 0) {
       this.setDialogBox('Press R to use computer')
     } else {

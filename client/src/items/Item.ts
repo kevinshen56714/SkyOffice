@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import { ItemType } from '../../../types/Items'
+import store from '../stores'
+import { setShowButtonE, setShowButtonR } from '../stores/JoystickStore'
 
 export default class Item extends Phaser.Physics.Arcade.Sprite {
   private dialogBox!: Phaser.GameObjects.Container
@@ -42,6 +44,19 @@ export default class Item extends Phaser.Physics.Arcade.Sprite {
   // remove everything in the dialog box container
   clearDialogBox() {
     this.dialogBox.removeAll(true)
+    switch (this.itemType) {
+      case ItemType.CHAIR:
+        store.dispatch(setShowButtonE(false))
+        break
+      case ItemType.WHITEBOARD:
+      case ItemType.COMPUTER:
+      case ItemType.VENDINGMACHINE:
+        store.dispatch(setShowButtonR(false))
+      default:
+        store.dispatch(setShowButtonE(false))
+        store.dispatch(setShowButtonR(false))
+        break
+    }
   }
 
   // add text into status box container

@@ -19,9 +19,17 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import LockIcon from '@mui/icons-material/Lock'
 import { useAppSelector } from '../hooks'
 import { getAvatarString, getColorByString } from '../util'
+import { isSmallScreenWidth } from '../utils'
 
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
+import {
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemSecondaryAction,
+  ListItemText,
+} from '@mui/material'
 
 const MessageText = styled.p`
   margin: 10px;
@@ -33,7 +41,7 @@ const MessageText = styled.p`
 const CustomRoomTableContainer = styled(TableContainer)<{
   component: React.ElementType
 }>`
-  max-height: 500px;
+  max-height: 325px; // TODO - make this dynamic
 
   table {
     min-width: 650px;
@@ -85,6 +93,88 @@ const PasswordDialog = styled(Dialog)`
   }
 `
 
+const ListWrapper = styled(List)`
+
+padding-top: 0px;
+padding-bottom: 0px;
+
+  .MuiListItem-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    &:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #3f3f3f;
+  }
+
+  .avatar{
+    align-self: start;
+    padding: 8px
+  }
+
+  .list-item {
+    text-align: justify;
+    padding: 0;
+  }
+
+  .secondary-action-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: unset;
+    transform: unset;
+    margin-bottom: 16px;
+
+    .extra-info {
+      display: flex;
+      flex-direction: row;
+      margin-top: 16px;
+      padding: 16px;
+      flex: 1;
+      gap: 3px;
+      font-size: 12px;
+      color: #aaa;
+      place-content: space-between;
+
+      .id-room {
+        font-size: 12px;
+        color: #aaa;
+      }
+  
+      .clients {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 12px;
+        color: white;
+      }
+    }
+
+    .MuiButton-root {
+      height: 48px;
+      flex: 0.5;
+  }
+
+  .join-wrapper {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+
+  .people-icon {
+    color: white;
+    font-size: 18px;
+  }
+
+  .lock-icon {
+    font-size: 18px;
+  }
+
+`
+
 export const CustomRoomTable = () => {
   const [password, setPassword] = useState('')
   const [selectedRoom, setSelectedRoom] = useState('')
@@ -121,70 +211,126 @@ export const CustomRoomTable = () => {
     setShowPasswordError(false)
   }
 
+  const hasSmallScreen = isSmallScreenWidth(750)
+
   return availableRooms.length === 0 ? (
     <MessageText>There are no custom rooms now, create one or join the public lobby.</MessageText>
   ) : (
     <>
       <CustomRoomTableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell></TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Description</TableCell>
-              <TableCell>ID</TableCell>
-              <TableCell align="center">
-                <PeopleAltIcon />
-              </TableCell>
-              <TableCell align="right"></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+        {hasSmallScreen ? (
+          <List>
             {availableRooms.map((room) => {
               const { roomId, metadata, clients } = room
               const { name, description, hasPassword } = metadata
               return (
-                <TableRowWrapper key={roomId}>
-                  <TableCell>
-                    <Avatar className="avatar" style={{ background: getColorByString(name) }}>
-                      {getAvatarString(name)}
-                    </Avatar>
-                  </TableCell>
-                  <TableCell>
-                    <div className="name">{name}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="description">{description}</div>
-                  </TableCell>
-                  <TableCell>{roomId}</TableCell>
-                  <TableCell align="center">{clients}</TableCell>
-                  <TableCell align="center">
-                    <Tooltip title={hasPassword ? 'Password required' : ''}>
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => {
-                          if (hasPassword) {
-                            setShowPasswordDialog(true)
-                            setSelectedRoom(roomId)
-                          } else {
-                            handleJoinClick(roomId, null)
-                          }
-                        }}
-                      >
-                        <div className="join-wrapper">
-                          {hasPassword && <LockIcon className="lock-icon" />}
-                          Join
+                <ListWrapper key={roomId}>
+                  <ListItem key={`item-${roomId}`} className="list-item">
+                    <ListItemAvatar className="avatar">
+                      <Avatar style={{ background: getColorByString(name) }}>
+                        {getAvatarString(name)}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={name} secondary={description} />
+                    <ListItemSecondaryAction className="secondary-action-content">
+                      <div className="extra-info">
+                        <div className="id-room">
+                          <span style={{ fontWeight: 'bold', color: 'white' }}>ID: </span>
+                          {roomId}
                         </div>
-                      </Button>
-                    </Tooltip>
-                  </TableCell>
-                </TableRowWrapper>
+                        <div className="clients">
+                          <PeopleAltIcon className="people-icon" />
+                          {clients}
+                        </div>
+                      </div>
+                      <Tooltip title={hasPassword ? 'Password required' : ''}>
+                        <Button
+                          className="join-button"
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => {
+                            if (hasPassword) {
+                              setShowPasswordDialog(true)
+                              setSelectedRoom(roomId)
+                            } else {
+                              handleJoinClick(roomId, null)
+                            }
+                          }}
+                        >
+                          <div className="join-wrapper">
+                            {hasPassword && <LockIcon className="lock-icon" />}
+                            Join
+                          </div>
+                        </Button>
+                      </Tooltip>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                </ListWrapper>
               )
             })}
-          </TableBody>
-        </Table>
+          </List>
+        ) : (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell></TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>ID</TableCell>
+                <TableCell align="center">
+                  <PeopleAltIcon />
+                </TableCell>
+                <TableCell align="right"></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {availableRooms.map((room) => {
+                const { roomId, metadata, clients } = room
+                const { name, description, hasPassword } = metadata
+                return (
+                  <TableRowWrapper key={roomId}>
+                    <TableCell>
+                      <Avatar className="avatar" style={{ background: getColorByString(name) }}>
+                        {getAvatarString(name)}
+                      </Avatar>
+                    </TableCell>
+                    <TableCell>
+                      <div className="name">{name}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="description">{description}</div>
+                    </TableCell>
+                    <TableCell>{roomId}</TableCell>
+                    <TableCell align="center">{clients}</TableCell>
+                    <TableCell align="center">
+                      <Tooltip title={hasPassword ? 'Password required' : ''}>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => {
+                            if (hasPassword) {
+                              setShowPasswordDialog(true)
+                              setSelectedRoom(roomId)
+                            } else {
+                              handleJoinClick(roomId, null)
+                            }
+                          }}
+                        >
+                          <div className="join-wrapper">
+                            {hasPassword && <LockIcon className="lock-icon" />}
+                            Join
+                          </div>
+                        </Button>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRowWrapper>
+                )
+              })}
+            </TableBody>
+          </Table>
+        )}
       </CustomRoomTableContainer>
+
       <PasswordDialog open={showPasswordDialog} onClose={resetPasswordDialog}>
         <form onSubmit={handlePasswordSubmit}>
           <DialogContent className="dialog-content">
