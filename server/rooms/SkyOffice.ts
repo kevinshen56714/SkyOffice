@@ -155,15 +155,7 @@ export class SkyOffice extends Room<OfficeState> {
     })
   }
 
-  async onAuth(client: Client, options: { password: string | null }) {
-    if (this.password) {
-      const validPassword = await bcrypt.compare(options.password, this.password)
-      if (!validPassword) {
-        throw new ServerError(403, 'Password is incorrect!')
-      }
-    }
-    return true
-  }
+
 
   onJoin(client: Client, options: any) {
     this.state.players.set(client.sessionId, new Player())

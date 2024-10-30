@@ -19,7 +19,7 @@
     "colyseus.js": "^0.14.13",
     "emoji-mart": "^3.0.1",
     "peerjs": "^1.3.2",
-    "phaser": "^3.55.2",
+    "phaser": "^3.86.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-joystick-component": "^6.0.0",
