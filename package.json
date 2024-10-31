@@ -42,6 +42,7 @@
     "express": "^4.16.4",
     "phaser": "^3.55.2",
     "regenerator-runtime": "^0.13.7",
+    "sanitize-html": "^2.13.1",
     "typescript": "^4.8.2"
   }
 }

@@ -50,6 +50,15 @@ export default class Game extends Phaser.Scene {
     this.keyR = this.input.keyboard.addKey('R')
     this.input.keyboard.disableGlobalCapture()
     this.input.keyboard.on('keydown-ENTER', (event) => {
+      this.cursors.left.reset()
+      this.cursors.right.reset()
+      this.cursors.up.reset()
+      this.cursors.down.reset()
+      if (this.cursors.A) this.cursors.A.reset()
+      if (this.cursors.D) this.cursors.D.reset()
+      if (this.cursors.W) this.cursors.W.reset()
+      if (this.cursors.S) this.cursors.S.reset()
+  
       store.dispatch(setShowChat(true))
       store.dispatch(setFocused(true))
     })
