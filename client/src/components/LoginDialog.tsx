@@ -22,6 +22,7 @@ import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
+import { isSmallScreenHeight } from '../utils'
 
 const Wrapper = styled.form`
   position: fixed;
@@ -30,12 +31,12 @@ const Wrapper = styled.form`
   transform: translate(-50%, -50%);
   background: #222639;
   border-radius: 16px;
-  padding: 36px 60px;
+  padding: 16px 60px;
   box-shadow: 0px 0px 5px #0000006f;
 `
 
 const Title = styled.p`
-  margin: 5px;
+  margin: 0px;
   font-size: 20px;
   color: #c2c2c2;
   text-align: center;
@@ -44,6 +45,7 @@ const Title = styled.p`
 const RoomName = styled.div`
   max-width: 500px;
   max-height: 120px;
+
   overflow-wrap: anywhere;
   overflow-y: auto;
   display: flex;
@@ -54,6 +56,9 @@ const RoomName = styled.div`
   h3 {
     font-size: 24px;
     color: #eee;
+    @media (max-height: 750px) {
+      max-height: 60px;
+    }
   }
 `
 
@@ -77,11 +82,11 @@ const SubTitle = styled.h3`
 
 const Content = styled.div`
   display: flex;
-  margin: 36px 0;
+  margin: 16px 0;
 `
 
 const Left = styled.div`
-  margin-right: 48px;
+  margin-right: 28px;
 
   --swiper-navigation-size: 24px;
 
@@ -110,7 +115,7 @@ const Left = styled.div`
 `
 
 const Right = styled.div`
-  width: 300px;
+  max-width: 300px;
 `
 
 const Bottom = styled.div`
@@ -120,7 +125,7 @@ const Bottom = styled.div`
 `
 
 const Warning = styled.div`
-  margin-top: 30px;
+  margin-top: 16px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -165,18 +170,22 @@ export default function LoginDialog() {
     }
   }
 
+  const hasSmallScreenHeight = isSmallScreenHeight(750)
+
   return (
     <Wrapper onSubmit={handleSubmit}>
-      <Title>Joining</Title>
+      {!hasSmallScreenHeight && <Title>Joining</Title>}
       <RoomName>
         <Avatar style={{ background: getColorByString(roomName) }}>
           {getAvatarString(roomName)}
         </Avatar>
         <h3>{roomName}</h3>
       </RoomName>
-      <RoomDescription>
-        <ArrowRightIcon /> {roomDescription}
-      </RoomDescription>
+      {!hasSmallScreenHeight && (
+        <RoomDescription>
+          <ArrowRightIcon /> {roomDescription}
+        </RoomDescription>
+      )}
       <Content>
         <Left>
           <SubTitle>Select an avatar</SubTitle>

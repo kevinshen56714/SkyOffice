@@ -3,6 +3,7 @@ import store from '../stores'
 import Item from './Item'
 import Network from '../services/Network'
 import { openWhiteboardDialog } from '../stores/WhiteboardStore'
+import { setShowButtonR } from '../stores/JoystickStore'
 
 export default class Whiteboard extends Item {
   id?: string
@@ -26,6 +27,7 @@ export default class Whiteboard extends Item {
   }
 
   onOverlapDialog() {
+    store.dispatch(setShowButtonR(true))
     if (this.currentUsers.size === 0) {
       this.setDialogBox('Press R to use whiteboard')
     } else {

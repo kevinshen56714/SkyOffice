@@ -1,4 +1,6 @@
 import { ItemType } from '../../../types/Items'
+import store from '../stores'
+import { setShowButtonR } from '../stores/JoystickStore'
 import Item from './Item'
 
 export default class VendingMachine extends Item {
@@ -9,6 +11,7 @@ export default class VendingMachine extends Item {
   }
 
   onOverlapDialog() {
+    store.dispatch(setShowButtonR(true))
     this.setDialogBox('Press R to buy a coffee :)')
   }
 }
