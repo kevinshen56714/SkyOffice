@@ -14,4 +14,7 @@ export enum Event {
   ITEM_USER_ADDED = 'item-user-added',
   ITEM_USER_REMOVED = 'item-user-removed',
   UPDATE_DIALOG_BUBBLE = 'update-dialog-bubble',
+  ITEM_ADDED = 'item-added',
+  ITEM_REMOVED = 'item-removed',
+  JOINED_ROOM = 'joined-room',
 }

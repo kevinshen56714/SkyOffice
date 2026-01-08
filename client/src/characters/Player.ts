@@ -53,6 +53,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       .setOrigin(0.5)
     this.playerContainer.add(this.playerName)
 
+    // Make other players clickable
+    this.setupPlayerClickEvents()
+
     this.scene.physics.world.enable(this.playerContainer)
     const playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
     const collisionScale = [0.5, 0.2]
@@ -103,5 +106,53 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   private clearDialogBubble() {
     clearTimeout(this.timeoutID)
     this.playerDialogBubble.removeAll(true)
+  }
+
+  /**
+   * Set up click events for other players
+   */
+  private setupPlayerClickEvents() {
+    // Make player container clickable
+    this.playerContainer.setInteractive({
+      hitArea: new Phaser.Geom.Rectangle(-16, -16, 32, 32),
+      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+      cursor: 'pointer'
+    })
+
+    this.playerContainer.on('pointerdown', () => {
+      console.log(`👤 [Player] ${this.playerName.text} (${this.playerId}) clicked!`)
+      this.openOtherPlayerStatusModal()
+    })
+
+    // Make player sprite itself clickable as well
+    this.setInteractive({
+      hitArea: new Phaser.Geom.Rectangle(-20, -30, 40, 60),
+      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+      cursor: 'pointer'
+    })
+
+    this.on('pointerdown', () => {
+      console.log(`👤 [Player] ${this.playerName.text} (${this.playerId}) sprite clicked!`)
+      this.openOtherPlayerStatusModal()
+    })
+
+    // Hover effect
+    this.on('pointerover', () => {
+      this.setTint(0xcccccc) // Make slightly darker
+    })
+
+    this.on('pointerout', () => {
+      this.clearTint() // Return to original color
+    })
+  }
+
+  /**
+   * Open status modal for other players
+   */
+  private openOtherPlayerStatusModal() {
+    console.log(`🚀 [Player] Opening status modal for ${this.playerName.text} (${this.playerId})`)
+    window.dispatchEvent(new CustomEvent('openPlayerStatusModal', {
+      detail: { playerId: this.playerId }
+    }))
   }
 }

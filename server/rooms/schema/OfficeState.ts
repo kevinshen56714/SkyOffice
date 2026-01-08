@@ -5,7 +5,18 @@ import {
   IComputer,
   IWhiteboard,
   IChatMessage,
+  IPlayerAppearance,
+  WorkStatus,
+  ClothingType,
+  AccessoryType,
 } from '../../../types/IOfficeState'
+
+import { MeetingRoomState } from './MeetingRoomState'
+
+export class PlayerAppearance extends Schema implements IPlayerAppearance {
+  @type('string') clothing: ClothingType = 'business'
+  @type('string') accessory: AccessoryType = 'none'
+}
 
 export class Player extends Schema implements IPlayer {
   @type('string') name = ''
@@ -14,6 +25,11 @@ export class Player extends Schema implements IPlayer {
   @type('string') anim = 'adam_idle_down'
   @type('boolean') readyToConnect = false
   @type('boolean') videoConnected = false
+  @type('string') workStatus: WorkStatus = 'off-duty'
+  @type('number') workStartTime = 0
+  @type('number') lastBreakTime = 0
+  @type('number') fatigueLevel = 0
+  @type(PlayerAppearance) appearance = new PlayerAppearance()
 }
 
 export class Computer extends Schema implements IComputer {
@@ -43,6 +59,9 @@ export class OfficeState extends Schema implements IOfficeState {
 
   @type([ChatMessage])
   chatMessages = new ArraySchema<ChatMessage>()
+
+  @type(MeetingRoomState)
+  meetingRoomState = new MeetingRoomState()
 }
 
 export const whiteboardRoomIds = new Set<string>()

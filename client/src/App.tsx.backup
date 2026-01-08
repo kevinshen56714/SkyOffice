@@ -1,0 +1,131 @@
+import React from 'react'
+import styled from 'styled-components'
+
+import { useAppSelector, useAppDispatch } from './hooks'
+
+import RoomSelectionDialog from './components/RoomSelectionDialog'
+import LoginDialog from './components/LoginDialog'
+import ComputerDialog from './components/ComputerDialog'
+import WhiteboardDialog from './components/WhiteboardDialog'
+import VideoConnectionDialog from './components/VideoConnectionDialog'
+import Chat from './components/Chat'
+import HelperButtonGroup from './components/HelperButtonGroup'
+import MobileVirtualJoystick from './components/MobileVirtualJoystick'
+import MeetingRoomManager from './components/MeetingRoomManager'
+import MeetingRoomChat from './components/MeetingRoomChat'
+import WorkStatusPanel from './components/WorkStatusPanel'
+import PlayerStatusModal from './components/PlayerStatusModal'
+import { useEffect, useState } from 'react'
+import { toggleDevMode } from './stores/DevModeStore'
+import { canSendMessages } from './utils/meetingRoomPermissions'
+
+const Backdrop = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+`
+function App() {
+    const loggedIn = useAppSelector((state) => state.user.loggedIn)
+    const computerDialogOpen = useAppSelector((state) => state.computer.computerDialogOpen)
+    const whiteboardDialogOpen = useAppSelector((state) => state.whiteboard.whiteboardDialogOpen)
+    const videoConnected = useAppSelector((state) => state.user.videoConnected)
+    const roomJoined = useAppSelector((state) => state.room.roomJoined)
+    const isDevMode = useAppSelector((state) => state.devMode.isDevMode)
+    const currentMeetingRoomId = useAppSelector((state) => state.chat.currentMeetingRoomId)
+    const meetingRooms = useAppSelector((state) => state.meetingRoom.meetingRooms)
+    const sessionId = useAppSelector((state) => state.user.sessionId)
+    const dispatch = useAppDispatch()
+
+    // プレイヤーステータスモーダルの状態
+    const [playerStatusModalOpen, setPlayerStatusModalOpen] = useState(false)
+    const [selectedPlayerId, setSelectedPlayerId] = useState<string | undefined>(undefined)
+
+    const currentRoom = currentMeetingRoomId ? meetingRooms.find(r => r.id === currentMeetingRoomId) : null
+    const userCanSendMessages = currentRoom ? canSendMessages(sessionId, currentRoom) : false
+
+
+    let ui: JSX.Element
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.ctrlKey && event.key === 'i') {
+                event.preventDefault()
+                dispatch(toggleDevMode())
+            }
+            // Sキーでプレイヤーステータスモーダルを開く機能を無効化
+            // if (event.key === 's' || event.key === 'S') {
+            //     if (!playerStatusModalOpen) {
+            //         console.log('🔤 [App] S key pressed, opening player status modal')
+            //         setSelectedPlayerId(undefined)
+            //         setPlayerStatusModalOpen(true)
+            //     }
+            // }
+        }
+        
+        const handleOpenPlayerStatusModal = (event: CustomEvent) => {
+            console.log('🎯 [App] Received openPlayerStatusModal event:', event.detail)
+            setSelectedPlayerId(event.detail?.playerId)
+            setPlayerStatusModalOpen(true)
+        }
+        
+        window.addEventListener('keydown', handleKeyDown)
+        window.addEventListener('openPlayerStatusModal', handleOpenPlayerStatusModal as EventListener)
+        
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+            window.removeEventListener('openPlayerStatusModal', handleOpenPlayerStatusModal as EventListener)
+        }
+    }, [dispatch])
+    if (loggedIn) {
+        if (computerDialogOpen) {
+            /* Render ComputerDialog if user is using a computer. */
+            ui = <ComputerDialog />
+        } else if (whiteboardDialogOpen) {
+            /* Render WhiteboardDialog if user is using a whiteboard. */
+            ui = <WhiteboardDialog />
+        } else {
+            ui = (
+                /* Render Chat or VideoConnectionDialog if no dialogs are opened. */
+                <>
+                    <Chat />
+                    {/* Render VideoConnectionDialog if user is not connected to a webcam. */}
+                    {!videoConnected && <VideoConnectionDialog />}
+                    <MobileVirtualJoystick />
+                    {isDevMode && <MeetingRoomManager />}
+                    {currentMeetingRoomId && currentRoom && (
+                        <MeetingRoomChat 
+                            meetingRoomId={currentMeetingRoomId}
+                            roomName={currentRoom.name || 'Unknown Room'}
+                            canSendMessages={userCanSendMessages}
+                        />
+                    )}
+                    <WorkStatusPanel compact />
+                </>
+            )
+        }
+    } else if (roomJoined) {
+        /* Render LoginDialog if not logged in but selected a room. */
+        ui = <LoginDialog />
+    } else {
+        /* Render RoomSelectionDialog if yet selected a room. */
+        ui = <RoomSelectionDialog />
+    }
+
+    return (
+        <Backdrop>
+            {ui}
+            {/* Render HelperButtonGroup if no dialogs are opened. */}
+            {!computerDialogOpen && !whiteboardDialogOpen && <HelperButtonGroup />}
+            {/* Player Status Modal */}
+            <PlayerStatusModal
+                open={playerStatusModalOpen}
+                onClose={() => {
+                    setPlayerStatusModalOpen(false)
+                    setSelectedPlayerId(undefined)
+                }}
+                playerId={selectedPlayerId}
+            />
+        </Backdrop>
+    )
+}
+
+export default App

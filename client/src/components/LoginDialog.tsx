@@ -159,7 +159,8 @@ export default function LoginDialog() {
       console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
       game.registerKeys()
       game.myPlayer.setPlayerName(name)
-      game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+      // Set base avatar using new avatar group system
+      game.myPlayer.setBaseAvatar(avatars[avatarIndex].name as any)
       game.network.readyToConnect()
       dispatch(setLoggedIn(true))
     }

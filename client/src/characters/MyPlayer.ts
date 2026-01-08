@@ -11,7 +11,9 @@ import Whiteboard from '../items/Whiteboard'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { pushPlayerJoinedMessage } from '../stores/ChatStore'
+import { setBaseAvatar } from '../stores/WorkStore'
 import { ItemType } from '../../../types/Items'
+import { BaseAvatarType } from '../types/AvatarTypes'
 import { NavKeys } from '../../../types/KeyboardState'
 import { JoystickMovement } from '../components/Joystick'
 import { openURL } from '../utils/helpers'
@@ -20,6 +22,9 @@ export default class MyPlayer extends Player {
   private playContainerBody: Phaser.Physics.Arcade.Body
   private chairOnSit?: Chair
   public joystickMovement?: JoystickMovement
+  public currentMeetingRoomId?: string | null = null
+  public prevX: number = 0
+  public prevY: number = 0
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -30,6 +35,57 @@ export default class MyPlayer extends Player {
   ) {
     super(scene, x, y, texture, id, frame)
     this.playContainerBody = this.playerContainer.body as Phaser.Physics.Arcade.Body
+    this.currentMeetingRoomId = null
+    
+    // 自分のキャラクターをクリック可能にする - 複数の方法を試す
+    console.log('🔧 [MyPlayer] Setting up interactive events for player')
+    
+    // 方法1: playerContainerをインタラクティブに
+    if (this.playerContainer) {
+      this.playerContainer.setInteractive({ 
+        hitArea: new Phaser.Geom.Rectangle(-16, -16, 32, 32), 
+        hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+        cursor: 'pointer'
+      })
+      
+      this.playerContainer.on('pointerdown', () => {
+        console.log('👤 [MyPlayer] Container clicked!')
+        this.openStatusModal()
+      })
+    }
+    
+    // 方法2: スプライト自体をインタラクティブに（より大きなエリア）
+    this.setInteractive({ 
+      hitArea: new Phaser.Geom.Rectangle(-20, -30, 40, 60), 
+      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+      cursor: 'pointer'
+    })
+    
+    this.on('pointerdown', (pointer: any) => {
+      console.log('👤 [MyPlayer] Sprite body clicked!', { x: pointer.x, y: pointer.y })
+      this.openStatusModal()
+    }, this)
+    
+    this.on('pointerover', () => {
+      console.log('🎯 [MyPlayer] Hovering over sprite')
+    })
+    
+    this.on('pointerout', () => {
+      console.log('🎯 [MyPlayer] Left sprite area')
+    })
+    
+    // 方法3: ダブルクリック検知
+    let clickCount = 0
+    this.on('pointerup', () => {
+      clickCount++
+      setTimeout(() => {
+        if (clickCount === 2) {
+          console.log('👤 [MyPlayer] Double clicked!')
+          this.openStatusModal()
+        }
+        clickCount = 0
+      }, 300)
+    })
   }
 
   setPlayerName(name: string) {
@@ -42,6 +98,38 @@ export default class MyPlayer extends Player {
     this.playerTexture = texture
     this.anims.play(`${this.playerTexture}_idle_down`, true)
     phaserEvents.emit(Event.MY_PLAYER_TEXTURE_CHANGE, this.x, this.y, this.anims.currentAnim.key)
+  }
+
+  /**
+   * Set base avatar character and update WorkStore
+   */
+  setBaseAvatar(baseAvatar: BaseAvatarType) {
+    console.log(`🎭 [MyPlayer] Setting base avatar to ${baseAvatar}`)
+    store.dispatch(setBaseAvatar(baseAvatar))
+    
+    // Get the updated avatar sprite from WorkStore
+    const workState = store.getState().work
+    this.setPlayerTexture(workState.currentAvatarSprite)
+  }
+
+  /**
+   * Update avatar based on current work state (called when work status changes)
+   */
+  updateAvatarFromWorkState() {
+    const workState = store.getState().work
+    const newSprite = workState.currentAvatarSprite
+    
+    if (newSprite !== this.playerTexture) {
+      console.log(`🔄 [MyPlayer] Updating avatar from ${this.playerTexture} to ${newSprite}`)
+      this.setPlayerTexture(newSprite)
+    }
+  }
+
+  openStatusModal() {
+    console.log('🚀 [MyPlayer] Opening status modal')
+    window.dispatchEvent(new CustomEvent('openPlayerStatusModal', { 
+      detail: { playerId: undefined } 
+    }))
   }
 
   handleJoystickMovement(movement: JoystickMovement) {

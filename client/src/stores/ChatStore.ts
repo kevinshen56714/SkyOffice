@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { IChatMessage } from '../../../types/IOfficeState'
+import { IChatMessage, IMeetingRoomChatMessage } from '../../../types/IOfficeState'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
 
@@ -9,10 +9,19 @@ export enum MessageType {
   REGULAR_MESSAGE,
 }
 
+export enum MeetingRoomMessageType {
+  REGULAR_MESSAGE,
+  USER_JOINED,
+  USER_LEFT,
+  PERMISSION_CHANGED,
+}
+
 export const chatSlice = createSlice({
   name: 'chat',
   initialState: {
     chatMessages: new Array<{ messageType: MessageType; chatMessage: IChatMessage }>(),
+    meetingRoomChatMessages: {} as Record<string, Array<{ messageType: MeetingRoomMessageType; chatMessage: IMeetingRoomChatMessage }>>,
+    currentMeetingRoomId: null as string | null,
     focused: false,
     showChat: true,
   },
@@ -51,6 +60,68 @@ export const chatSlice = createSlice({
     setShowChat: (state, action: PayloadAction<boolean>) => {
       state.showChat = action.payload
     },
+    pushMeetingRoomChatMessage: (state, action: PayloadAction<{ meetingRoomId: string; message: IMeetingRoomChatMessage }>) => {
+      const { meetingRoomId, message } = action.payload
+      console.log('📥 [ChatStore] Received meeting room message:', {
+        roomId: meetingRoomId,
+        author: message.author,
+        content: message.content,
+        timestamp: new Date(message.createdAt).toLocaleTimeString()
+      })
+      if (!state.meetingRoomChatMessages[meetingRoomId]) {
+        state.meetingRoomChatMessages[meetingRoomId] = []
+      }
+      state.meetingRoomChatMessages[meetingRoomId].push({
+        messageType: MeetingRoomMessageType.REGULAR_MESSAGE,
+        chatMessage: message,
+      })
+    },
+    setMeetingRoomChatHistory: (state, action: PayloadAction<{ meetingRoomId: string; messages: IMeetingRoomChatMessage[] }>) => {
+      const { meetingRoomId, messages } = action.payload
+      console.log('📚 [ChatStore] Setting chat history for room:', {
+        roomId: meetingRoomId,
+        messageCount: messages.length
+      })
+      state.meetingRoomChatMessages[meetingRoomId] = messages.map(msg => ({
+        messageType: MeetingRoomMessageType.REGULAR_MESSAGE,
+        chatMessage: msg,
+      }))
+    },
+    setCurrentMeetingRoomId: (state, action: PayloadAction<string | null>) => {
+      state.currentMeetingRoomId = action.payload
+    },
+    pushMeetingRoomUserJoinedMessage: (state, action: PayloadAction<{ meetingRoomId: string; userName: string }>) => {
+      const { meetingRoomId, userName } = action.payload
+      if (!state.meetingRoomChatMessages[meetingRoomId]) {
+        state.meetingRoomChatMessages[meetingRoomId] = []
+      }
+      state.meetingRoomChatMessages[meetingRoomId].push({
+        messageType: MeetingRoomMessageType.USER_JOINED,
+        chatMessage: {
+          author: userName,
+          content: 'joined the meeting room',
+          createdAt: Date.now(),
+          meetingRoomId,
+          messageId: `join_${Date.now()}_${Math.random()}`,
+        } as IMeetingRoomChatMessage,
+      })
+    },
+    pushMeetingRoomUserLeftMessage: (state, action: PayloadAction<{ meetingRoomId: string; userName: string }>) => {
+      const { meetingRoomId, userName } = action.payload
+      if (!state.meetingRoomChatMessages[meetingRoomId]) {
+        state.meetingRoomChatMessages[meetingRoomId] = []
+      }
+      state.meetingRoomChatMessages[meetingRoomId].push({
+        messageType: MeetingRoomMessageType.USER_LEFT,
+        chatMessage: {
+          author: userName,
+          content: 'left the meeting room',
+          createdAt: Date.now(),
+          meetingRoomId,
+          messageId: `leave_${Date.now()}_${Math.random()}`,
+        } as IMeetingRoomChatMessage,
+      })
+    },
   },
 })
 
@@ -60,6 +131,11 @@ export const {
   pushPlayerLeftMessage,
   setFocused,
   setShowChat,
+  pushMeetingRoomChatMessage,
+  setMeetingRoomChatHistory,
+  setCurrentMeetingRoomId,
+  pushMeetingRoomUserJoinedMessage,
+  pushMeetingRoomUserLeftMessage,
 } = chatSlice.actions
 
 export default chatSlice.reducer

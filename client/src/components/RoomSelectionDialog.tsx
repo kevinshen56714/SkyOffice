@@ -18,7 +18,7 @@ import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
 
 const Backdrop = styled.div`
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -26,6 +26,7 @@ const Backdrop = styled.div`
   flex-direction: column;
   gap: 60px;
   align-items: center;
+  z-index: 1000;
 `
 
 const Wrapper = styled.div`
