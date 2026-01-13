@@ -1,3 +1,4 @@
+// OtherPlayer.ts
 import Phaser from 'phaser'
 import Player from './Player'
 import MyPlayer from './MyPlayer'
@@ -32,18 +33,45 @@ export default class OtherPlayer extends Player {
   makeCall(myPlayer: MyPlayer, webRTC: WebRTC) {
     this.myPlayer = myPlayer
     const myPlayerId = myPlayer.playerId
+
+    const isInSameRoom = this.isInSameRoom(myPlayer);
+    const isInHallway = this.isInHallway();
+    const myPlayerIsInHallway = myPlayer.isInHallway();
+
     if (
       !this.connected &&
       this.connectionBufferTime >= 750 &&
       myPlayer.readyToConnect &&
       this.readyToConnect &&
       myPlayer.videoConnected &&
-      myPlayerId > this.playerId
+      myPlayerId > this.playerId &&
+      ((isInSameRoom && !isInHallway && !myPlayerIsInHallway) || (isInHallway && myPlayerIsInHallway))
     ) {
       webRTC.connectToNewUser(this.playerId)
       this.connected = true
       this.connectionBufferTime = 0
     }
+  }
+
+  private isInSameRoom(myPlayer: MyPlayer): boolean {
+    // بررسی کنید که آیا هر دو بازیکن در یک اتاق هستند یا خیر
+    const roomId = this.getRoomId(this.x, this.y);
+    const myPlayerRoomId = this.getRoomId(myPlayer.x, myPlayer.y);
+    return roomId === myPlayerRoomId;
+  }
+
+  private isInHallway(): boolean {
+    // بررسی کنید که آیا این بازیکن در راهرو است یا خیر
+    return this.getRoomId(this.x, this.y) === 'hallway';
+  }
+
+  private getRoomId(x: number, y: number): string {
+    // شناسایی اتاق بر اساس موقعیت x و y
+    if (x < 400 && y < 400) return 'room1';
+    if (x >= 400 && y < 400) return 'room2';
+    if (x < 400 && y >= 400) return 'room3';
+    if (x >= 400 && y >= 400) return 'room4';
+    return 'hallway';
   }
 
   updateOtherPlayer(field: string, value: number | string | boolean) {
@@ -96,8 +124,6 @@ export default class OtherPlayer extends Player {
   preUpdate(t: number, dt: number) {
     super.preUpdate(t, dt)
 
-    // if Phaser has not updated the canvas (when the game tab is not active) for more than 1 sec
-    // directly snap player to their current locations
     if (this.lastUpdateTimestamp && t - this.lastUpdateTimestamp > 750) {
       this.lastUpdateTimestamp = t
       this.x = this.targetPosition[0]
@@ -108,24 +134,22 @@ export default class OtherPlayer extends Player {
     }
 
     this.lastUpdateTimestamp = t
-    this.setDepth(this.y) // change player.depth based on player.y
+    this.setDepth(this.y)
     const animParts = this.anims.currentAnim.key.split('_')
     const animState = animParts[1]
     if (animState === 'sit') {
       const animDir = animParts[2]
       const sittingShift = sittingShiftData[animDir]
       if (sittingShift) {
-        // set hardcoded depth (differs between directions) if player sits down
         this.setDepth(this.depth + sittingShiftData[animDir][2])
       }
     }
 
-    const speed = 200 // speed is in unit of pixels per second
-    const delta = (speed / 1000) * dt // minimum distance that a player can move in a frame (dt is in unit of ms)
+    const speed = 200 
+    const delta = (speed / 1000) * dt 
     let dx = this.targetPosition[0] - this.x
     let dy = this.targetPosition[1] - this.y
 
-    // if the player is close enough to the target position, directly snap the player to that position
     if (Math.abs(dx) < delta) {
       this.x = this.targetPosition[0]
       this.playerContainer.x = this.targetPosition[0]
@@ -137,7 +161,6 @@ export default class OtherPlayer extends Player {
       dy = 0
     }
 
-    // if the player is still far from target position, impose a constant velocity towards it
     let vx = 0
     let vy = 0
     if (dx > 0) vx += speed
@@ -145,15 +168,11 @@ export default class OtherPlayer extends Player {
     if (dy > 0) vy += speed
     else if (dy < 0) vy -= speed
 
-    // update character velocity
     this.setVelocity(vx, vy)
     this.body.velocity.setLength(speed)
-    // also update playerNameContainer velocity
     this.playContainerBody.setVelocity(vx, vy)
     this.playContainerBody.velocity.setLength(speed)
 
-    // while currently connected with myPlayer
-    // if myPlayer and the otherPlayer stop overlapping, delete video stream
     this.connectionBufferTime += dt
     if (
       this.connected &&
