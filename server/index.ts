@@ -1,4 +1,5 @@
 import http from 'http'
+import path from 'path'
 import express from 'express'
 import cors from 'cors'
 import { Server, LobbyRoom } from 'colyseus'
@@ -14,7 +15,10 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
-// app.use(express.static('dist'))
+
+const staticDir =
+  process.env.CLIENT_DIST_DIR || path.resolve(__dirname, '..', '..', '..', 'client', 'dist')
+app.use(express.static(staticDir))
 
 const server = http.createServer(app)
 const gameServer = new Server({
@@ -41,6 +45,12 @@ gameServer.define(RoomType.CUSTOM, SkyOffice).enableRealtimeListing()
 
 // register colyseus monitor AFTER registering your room handlers
 app.use('/colyseus', monitor())
+
+// SPA fallback — send index.html for any non-API, non-asset route
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/colyseus') || req.path.startsWith('/matchmake')) return next()
+  res.sendFile(path.join(staticDir, 'index.html'))
+})
 
 gameServer.listen(port)
 console.log(`Listening on ws://localhost:${port}`)
