@@ -1,0 +1,16 @@
+.git
+.gitignore
+node_modules
+**/node_modules
+client/dist
+server/lib
+types/lib
+.vscode
+.idea
+*.log
+Dockerfile
+.dockerignore
+README.md
+readme.md
+netlify.toml
+Procfile
