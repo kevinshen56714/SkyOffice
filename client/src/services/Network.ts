@@ -71,6 +71,17 @@ export default class Network {
     this.initialize()
   }
 
+  /**
+   * Join this user's workspace room (INTEGRATION.md §1). The backend identity bridge runs in the
+   * server's onAuth: the JWT is verified and the desk membership checked, so the spawn point,
+   * avatar, and name all come from the user's Desk — nothing is typed in a login dialog.
+   * filterBy(workspaceId) on the server makes a workspace always share one room.
+   */
+  async joinWorkspace(workspaceId: number, token: string) {
+    this.room = await this.client.joinOrCreate(RoomType.WORKSPACE, { workspaceId, token })
+    this.initialize()
+  }
+
   // method to join a custom room
   async joinCustomById(roomId: string, password: string | null) {
     this.room = await this.client.joinById(roomId, { password })

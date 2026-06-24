@@ -17,11 +17,16 @@ export class Player extends Schema implements IPlayer {
 }
 
 export class Computer extends Schema implements IComputer {
+  // Backend MapObject.id, so the client can match a tile-object to its persisted object (§2).
+  @type('string') id = ''
   @type({ set: 'string' }) connectedUser = new SetSchema<string>()
 }
 
 export class Whiteboard extends Schema implements IWhiteboard {
-  @type('string') roomId = getRoomId()
+  @type('string') id = ''
+  // roomId is the persisted MapObject.roomId loaded from the backend (no longer a random value),
+  // so a whiteboard rejoin lands on the same shared document.
+  @type('string') roomId = ''
   @type({ set: 'string' }) connectedUser = new SetSchema<string>()
 }
 

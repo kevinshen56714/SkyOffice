@@ -1,11 +1,9 @@
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
-import { Server, LobbyRoom } from 'colyseus'
+import { Server } from 'colyseus'
 import { monitor } from '@colyseus/monitor'
 import { RoomType } from '../types/Rooms'
-
-// import socialRoutes from "@colyseus/social/express"
 
 import { SkyOffice } from './rooms/SkyOffice'
 
@@ -14,30 +12,16 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
-// app.use(express.static('dist'))
 
 const server = http.createServer(app)
 const gameServer = new Server({
   server,
 })
 
-// register room handlers
-gameServer.define(RoomType.LOBBY, LobbyRoom)
-gameServer.define(RoomType.PUBLIC, SkyOffice, {
-  name: 'Public Lobby',
-  description: 'For making friends and familiarizing yourself with the controls',
-  password: null,
-  autoDispose: false,
-})
-gameServer.define(RoomType.CUSTOM, SkyOffice).enableRealtimeListing()
-
-/**
- * Register @colyseus/social routes
- *
- * - uncomment if you want to use default authentication (https://docs.colyseus.io/server/authentication/)
- * - also uncomment the import statement
- */
-// app.use("/", socialRoutes);
+// One room per workspace (INTEGRATION.md §0.1): filtering by workspaceId makes every client of a
+// workspace land in the same room. The room is created on first join and configured entirely from
+// the backend's session-config — there is no LOBBY / public / custom room-picker any more.
+gameServer.define(RoomType.WORKSPACE, SkyOffice).filterBy(['workspaceId'])
 
 // register colyseus monitor AFTER registering your room handlers
 app.use('/colyseus', monitor())

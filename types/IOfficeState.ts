@@ -10,10 +10,12 @@ export interface IPlayer extends Schema {
 }
 
 export interface IComputer extends Schema {
+  id: string
   connectedUser: SetSchema<string>
 }
 
 export interface IWhiteboard extends Schema {
+  id: string
   roomId: string
   connectedUser: SetSchema<string>
 }
