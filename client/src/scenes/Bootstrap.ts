@@ -6,11 +6,13 @@ import { setRoomJoined } from '../stores/RoomStore'
 import { pushChatMessage } from '../stores/ChatStore'
 import { TOKEN, WORKSPACE_ID, getLayout, getMapObjects, getMyDesk } from '../services/Api'
 import { initChat } from '../services/ChatService'
+import VoiceService from '../services/VoiceService'
 import { IChatMessage } from '../../../types/IOfficeState'
 
 export default class Bootstrap extends Phaser.Scene {
   private preloadComplete = false
   network!: Network
+  private voice = new VoiceService()
 
   constructor() {
     super('bootstrap')
@@ -112,6 +114,11 @@ export default class Bootstrap extends Phaser.Scene {
     this.network.webRTC?.checkPreviousPermission()
     this.scene.launch('game', { network: this.network, layout, mapObjects, desk })
     store.dispatch(setRoomJoined(true))
+
+    // Start proximity/zone voice signaling (non-blocking; room-service drives channel switches).
+    this.voice
+      .connect(WORKSPACE_ID, desk.userId)
+      .catch((err) => console.error('failed to start voice', err))
 
     // Load persisted chat history (non-blocking; live chat still arrives over Colyseus).
     initChat(WORKSPACE_ID, desk.userId)
