@@ -3,6 +3,7 @@ import Network from '../services/Network'
 import { BackgroundMode } from '../../../types/BackgroundMode'
 import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
+import { TOKEN, WORKSPACE_ID, getLayout, getMapObjects, getMyDesk } from '../services/Api'
 
 export default class Bootstrap extends Phaser.Scene {
   private preloadComplete = false
@@ -27,7 +28,8 @@ export default class Bootstrap extends Phaser.Scene {
     this.load.image('backdrop_night', 'assets/background/backdrop_night.png')
     this.load.image('sun_moon', 'assets/background/sun_moon.png')
 
-    this.load.tilemapTiledJSON('tilemap', 'assets/map/map.json')
+    // The tilemap is no longer a bundled asset — it is built at runtime from the backend layout
+    // (INTEGRATION.md §3). Tileset images are loaded on demand by the Game scene.
     this.load.spritesheet('tiles_wall', 'assets/map/FloorAndGround.png', {
       frameWidth: 32,
       frameHeight: 32,
@@ -91,15 +93,27 @@ export default class Bootstrap extends Phaser.Scene {
     this.scene.launch('background', { backgroundMode })
   }
 
-  launchGame() {
-    if (!this.preloadComplete) return
+  /**
+   * Enter the user's workspace (INTEGRATION.md §1, §3): join the workspace Colyseus room with the
+   * JWT, fetch the floorplan + interactive objects + the caller's desk, then launch the game with
+   * everything it needs to build the map and spawn. Rejects so the caller can show an error.
+   */
+  async launchWorkspace() {
+    await this.whenPreloadComplete()
+    await this.network.joinWorkspace(WORKSPACE_ID, TOKEN)
+    const [layout, mapObjects, desk] = await Promise.all([
+      getLayout(WORKSPACE_ID),
+      getMapObjects(WORKSPACE_ID),
+      getMyDesk(WORKSPACE_ID),
+    ])
     this.network.webRTC?.checkPreviousPermission()
-    this.scene.launch('game', {
-      network: this.network,
-    })
-
-    // update Redux state
+    this.scene.launch('game', { network: this.network, layout, mapObjects, desk })
     store.dispatch(setRoomJoined(true))
+  }
+
+  private whenPreloadComplete(): Promise<void> {
+    if (this.preloadComplete) return Promise.resolve()
+    return new Promise((resolve) => this.load.once('complete', () => resolve()))
   }
 
   changeBackgroundMode(backgroundMode: BackgroundMode) {
