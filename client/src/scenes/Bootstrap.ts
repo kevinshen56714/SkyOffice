@@ -3,7 +3,10 @@ import Network from '../services/Network'
 import { BackgroundMode } from '../../../types/BackgroundMode'
 import store from '../stores'
 import { setRoomJoined } from '../stores/RoomStore'
+import { pushChatMessage } from '../stores/ChatStore'
 import { TOKEN, WORKSPACE_ID, getLayout, getMapObjects, getMyDesk } from '../services/Api'
+import { initChat } from '../services/ChatService'
+import { IChatMessage } from '../../../types/IOfficeState'
 
 export default class Bootstrap extends Phaser.Scene {
   private preloadComplete = false
@@ -109,6 +112,21 @@ export default class Bootstrap extends Phaser.Scene {
     this.network.webRTC?.checkPreviousPermission()
     this.scene.launch('game', { network: this.network, layout, mapObjects, desk })
     store.dispatch(setRoomJoined(true))
+
+    // Load persisted chat history (non-blocking; live chat still arrives over Colyseus).
+    initChat(WORKSPACE_ID, desk.userId)
+      .then((history) =>
+        history.forEach((m) =>
+          store.dispatch(
+            pushChatMessage({
+              author: `${m.senderId}`,
+              content: m.content,
+              createdAt: new Date(m.createdAt).getTime(),
+            } as unknown as IChatMessage)
+          )
+        )
+      )
+      .catch((err) => console.error('failed to load chat history', err))
   }
 
   private whenPreloadComplete(): Promise<void> {

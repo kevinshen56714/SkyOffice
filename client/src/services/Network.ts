@@ -4,6 +4,7 @@ import { Message } from '../../../types/Messages'
 import { IRoomData, RoomType } from '../../../types/Rooms'
 import { ItemType } from '../../../types/Items'
 import WebRTC from '../web/WebRTC'
+import { persistChatMessage } from './ChatService'
 import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
@@ -292,5 +293,7 @@ export default class Network {
 
   addChatMessage(content: string) {
     this.room?.send(Message.ADD_CHAT_MESSAGE, { content: content })
+    // Colyseus broadcasts live; chat-service persists (INTEGRATION.md §5).
+    persistChatMessage(content)
   }
 }
