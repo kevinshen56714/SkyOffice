@@ -214,12 +214,8 @@ export class SkyOffice extends Room<OfficeState> {
       positionX: auth.spawnX,
       positionY: auth.spawnY,
     })
-
-    client.send(Message.SEND_ROOM_DATA, {
-      id: this.roomId,
-      name: this.name,
-      workspaceId: this.workspaceId,
-    })
+    // The fork gets workspace/room info from REST, so it registers no SEND_ROOM_DATA handler;
+    // sending it just logged "onMessage() not registered for type" on every join.
   }
 
   onLeave(client: Client, _consented: boolean) {
