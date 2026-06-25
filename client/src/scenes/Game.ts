@@ -188,6 +188,7 @@ export default class Game extends Phaser.Scene {
 
   // function to add new player to the otherPlayer group
   private handlePlayerJoined(newPlayer: IPlayer, id: string) {
+    if (this.otherPlayerMap.has(id)) return // idempotent: onAdd and the initial onChange can both fire
     // Their avatar comes from their anim key (e.g. "lucy_idle_down"); default to adam.
     const texture = newPlayer.anim?.split('_')[0] || 'adam'
     const otherPlayer = this.add.otherPlayer(newPlayer.x, newPlayer.y, texture, id, newPlayer.name)

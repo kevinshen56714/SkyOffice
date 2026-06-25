@@ -113,6 +113,17 @@ export default class Network {
     this.room.state.players.onAdd = (player: IPlayer, key: string) => {
       if (key === this.mySessionId) return
 
+      // The fork sets each player's name/avatar at join time on the server, so create their sprite
+      // on add. Colyseus fires onChange for the fields of players ALREADY in the room (during the
+      // initial state decode) but NOT for the add-time fields of players that join LATER — so
+      // deferring sprite creation to a name-change made late joiners invisible to everyone already
+      // in the room. handlePlayerJoined is idempotent, so a later onChange won't duplicate them.
+      if (player.name) {
+        phaserEvents.emit(Event.PLAYER_JOINED, player, key)
+        store.dispatch(setPlayerNameMap({ id: key, name: player.name }))
+        store.dispatch(pushPlayerJoinedMessage(player.name))
+      }
+
       // track changes on every child object inside the players MapSchema
       player.onChange = (changes) => {
         changes.forEach((change) => {
