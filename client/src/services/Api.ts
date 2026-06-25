@@ -112,8 +112,17 @@ export interface MyDesk {
 }
 
 /** The full floorplan: tiles, tilesets, zones, spawn points (INTEGRATION.md §3, D2). */
-export function getLayout(workspaceId: number): Promise<Layout> {
-  return apiGet<Layout>(`/api/workspace/${workspaceId}/layout`)
+export async function getLayout(workspaceId: number): Promise<Layout> {
+  const layout = await apiGet<Layout>(`/api/workspace/${workspaceId}/layout`)
+  // The backend serialises each layer's gid array as a JSON string; Phaser's tilemap needs a real
+  // number[]. Without this the string is consumed char-by-char as gids and the floor renders as
+  // garbage (the ASCII codes of "[412, 412, ...]").
+  for (const layer of layout.layers) {
+    if (typeof (layer.data as unknown) === 'string') {
+      layer.data = JSON.parse(layer.data as unknown as string)
+    }
+  }
+  return layout
 }
 
 /** Interactive objects — computers and whiteboards — with positions and stable roomIds. */
