@@ -9,7 +9,6 @@ import { phaserEvents, Event } from '../events/EventCenter'
 import store from '../stores'
 import { setSessionId, setPlayerNameMap, removePlayerNameMap } from '../stores/UserStore'
 import {
-  setLobbyJoined,
   setJoinedRoomData,
   setAvailableRooms,
   addAvailableRooms,
@@ -37,9 +36,9 @@ export default class Network {
         ? import.meta.env.VITE_SERVER_URL
         : `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
-    this.joinLobbyRoom().then(() => {
-      store.dispatch(setLobbyJoined(true))
-    })
+    // The fork drops the room picker and drops users straight into their workspace, so we do not
+    // join Colyseus' LobbyRoom (the forked server only defines the WORKSPACE room — joining a
+    // 'lobby' it never registers would just throw). joinWorkspace() is called from Bootstrap.
 
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
     phaserEvents.on(Event.MY_PLAYER_TEXTURE_CHANGE, this.updatePlayer, this)
