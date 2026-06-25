@@ -82,6 +82,21 @@ export default class Network {
     this.initialize()
   }
 
+  /**
+   * Emit PLAYER_JOINED for everyone already in the room. initialize() runs at join time — before
+   * the Game scene mounts its PLAYER_JOINED listener — so onAdd for players already present fires
+   * into the void, and the late joiner never sees them. The Game scene calls this once its
+   * listeners are wired; handlePlayerJoined is idempotent, so this can't duplicate sprites.
+   */
+  syncExistingPlayers() {
+    if (!this.room) return
+    this.room.state.players.forEach((player, key) => {
+      if (key !== this.mySessionId && player.name) {
+        phaserEvents.emit(Event.PLAYER_JOINED, player, key)
+      }
+    })
+  }
+
   // method to join a custom room
   async joinCustomById(roomId: string, password: string | null) {
     this.room = await this.client.joinById(roomId, { password })
