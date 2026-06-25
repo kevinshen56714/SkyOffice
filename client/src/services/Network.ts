@@ -104,7 +104,7 @@ export default class Network {
   initialize() {
     if (!this.room) return
 
-    this.lobby.leave()
+    this.lobby?.leave() // the workspace fork never joins the lobby; guard for that
     this.mySessionId = this.room.sessionId
     store.dispatch(setSessionId(this.room.sessionId))
     this.webRTC = new WebRTC(this.mySessionId, this)
