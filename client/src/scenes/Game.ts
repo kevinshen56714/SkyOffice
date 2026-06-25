@@ -4,16 +4,17 @@ import Phaser from 'phaser'
 import { createCharacterAnims } from '../anims/CharacterAnims'
 
 import Item from '../items/Item'
+import Chair from '../items/Chair'
 import Computer from '../items/Computer'
 import Whiteboard from '../items/Whiteboard'
+import VendingMachine from '../items/VendingMachine'
 import '../characters/MyPlayer'
 import '../characters/OtherPlayer'
 import MyPlayer from '../characters/MyPlayer'
 import OtherPlayer from '../characters/OtherPlayer'
 import PlayerSelector from '../characters/PlayerSelector'
 import Network from '../services/Network'
-import { Layout, MapObject, MyDesk } from '../services/Api'
-import { buildTilemap, queueTilesetLoads } from '../services/mapBuilder'
+import { MyDesk } from '../services/Api'
 import { IPlayer } from '../../../types/IOfficeState'
 import { PlayerBehavior } from '../../../types/PlayerBehavior'
 import { ItemType } from '../../../types/Items'
@@ -35,8 +36,6 @@ export default class Game extends Phaser.Scene {
   private otherPlayerMap = new Map<string, OtherPlayer>()
   computerMap = new Map<string, Computer>()
   private whiteboardMap = new Map<string, Whiteboard>()
-  private layout!: Layout
-  private mapObjects!: MapObject[]
   private desk!: MyDesk
 
   constructor() {
@@ -70,73 +69,86 @@ export default class Game extends Phaser.Scene {
     this.input.keyboard.enabled = true
   }
 
-  create(data: { network: Network; layout: Layout; mapObjects: MapObject[]; desk: MyDesk }) {
+  create(data: { network: Network; desk: MyDesk }) {
     if (!data.network) {
       throw new Error('server instance missing')
     }
     this.network = data.network
-    this.layout = data.layout
-    this.mapObjects = data.mapObjects
     this.desk = data.desk
 
     createCharacterAnims(this.anims)
-
-    // The tilemap is built at runtime from the backend layout (INTEGRATION.md §3). Tileset images
-    // must be present before make.tilemap, so queue any that aren't loaded yet, then build.
-    queueTilesetLoads(this, this.layout)
-    if (this.load.list.size === 0) {
-      this.buildScene()
-    } else {
-      this.load.once(Phaser.Loader.Events.COMPLETE, () => this.buildScene())
-      this.load.start()
-    }
+    // The furnished office (walls, rooms, furniture) comes from the bundled Tiled map; the backend
+    // still drives identity (the desk), multiplayer, chat and proximity voice. The map and all its
+    // tileset images are preloaded in Bootstrap, so the scene can be assembled directly.
+    this.buildScene()
   }
 
   private buildScene() {
-    const { collisionLayers } = buildTilemap(this, this.layout)
+    this.map = this.make.tilemap({ key: 'tilemap' })
+    const FloorAndGround = this.map.addTilesetImage('FloorAndGround', 'tiles_wall')
+    const groundLayer = this.map.createLayer('Ground', FloorAndGround)
+    groundLayer.setCollisionByProperty({ collides: true })
 
-    // Spawn from the user's desk: position, avatar, and name all come from the backend.
+    // Identity (name + avatar) comes from the user's desk; everyone enters at the office lobby.
     const avatar = this.desk.avatarCharacter.toLowerCase()
-    this.myPlayer = this.add.myPlayer(
-      this.desk.positionX,
-      this.desk.positionY,
-      avatar,
-      this.network.mySessionId
-    )
+    this.myPlayer = this.add.myPlayer(705, 500, avatar, this.network.mySessionId)
     this.playerSelector = new PlayerSelector(this, 0, 0, 16, 16)
 
-    // Place computers/whiteboards from the persisted MapObjects, keyed by their backend id so the
-    // Colyseus state (also keyed by id) drives connected users and the whiteboard roomId.
+    // Chairs from the Tiled object layer.
+    const chairs = this.physics.add.staticGroup({ classType: Chair })
+    const chairLayer = this.map.getObjectLayer('Chair')
+    chairLayer.objects.forEach((chairObj) => {
+      const item = this.addObjectFromTiled(chairs, chairObj, 'chairs', 'chair') as Chair
+      item.itemDirection = chairObj.properties[0].value
+    })
+
+    // Computers (interactive screen-share spots).
     const computers = this.physics.add.staticGroup({ classType: Computer })
+    const computerLayer = this.map.getObjectLayer('Computer')
+    computerLayer.objects.forEach((obj, i) => {
+      const item = this.addObjectFromTiled(computers, obj, 'computers', 'computer') as Computer
+      item.setDepth(item.y + item.height * 0.27)
+      const id = `${i}`
+      item.id = id
+      this.computerMap.set(id, item)
+    })
+
+    // Whiteboards (interactive shared boards).
     const whiteboards = this.physics.add.staticGroup({ classType: Whiteboard })
-    this.mapObjects
-      .filter((obj) => obj.isActive)
-      .forEach((obj) => {
-        const id = `${obj.id}`
-        if (obj.type === 'COMPUTER') {
-          const item = computers.get(obj.positionX, obj.positionY, 'computers') as Computer
-          item.id = id
-          item.setDepth(item.y + item.height * 0.27)
-          this.computerMap.set(id, item)
-        } else if (obj.type === 'WHITEBOARD') {
-          const item = whiteboards.get(obj.positionX, obj.positionY, 'whiteboards') as Whiteboard
-          item.id = id
-          this.whiteboardMap.set(id, item)
-        }
-      })
+    const whiteboardLayer = this.map.getObjectLayer('Whiteboard')
+    whiteboardLayer.objects.forEach((obj, i) => {
+      const item = this.addObjectFromTiled(whiteboards, obj, 'whiteboards', 'whiteboard') as Whiteboard
+      const id = `${i}`
+      item.id = id
+      this.whiteboardMap.set(id, item)
+    })
+
+    // Vending machines.
+    const vendingMachines = this.physics.add.staticGroup({ classType: VendingMachine })
+    const vendingMachineLayer = this.map.getObjectLayer('VendingMachine')
+    vendingMachineLayer.objects.forEach((obj) => {
+      this.addObjectFromTiled(vendingMachines, obj, 'vendingmachines', 'vendingmachine')
+    })
+
+    // Walls (the rooms) and the rest of the furniture/decoration.
+    this.addGroupFromTiled('Wall', 'tiles_wall', 'FloorAndGround', false)
+    this.addGroupFromTiled('Objects', 'office', 'Modern_Office_Black_Shadow', false)
+    this.addGroupFromTiled('ObjectsOnCollide', 'office', 'Modern_Office_Black_Shadow', true)
+    this.addGroupFromTiled('GenericObjects', 'generic', 'Generic', false)
+    this.addGroupFromTiled('GenericObjectsOnCollide', 'generic', 'Generic', true)
+    this.addGroupFromTiled('Basement', 'basement', 'Basement', true)
 
     this.otherPlayers = this.physics.add.group({ classType: OtherPlayer })
 
     this.cameras.main.zoom = 1.5
     this.cameras.main.startFollow(this.myPlayer, true)
 
-    for (const layer of collisionLayers) {
-      this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], layer)
-    }
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], groundLayer)
+    this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], vendingMachines)
 
     this.physics.add.overlap(
       this.playerSelector,
-      [computers, whiteboards],
+      [chairs, computers, whiteboards, vendingMachines],
       this.handleItemSelectorOverlap,
       undefined,
       this
@@ -160,6 +172,10 @@ export default class Game extends Phaser.Scene {
     this.network.onItemUserRemoved(this.handleItemUserRemoved, this)
     this.network.onChatMessageAdded(this.handleChatMessageAdded, this)
 
+    // Render players already in the room: their onAdd fired during join, before the listeners above
+    // existed, so the late joiner would otherwise never see anyone already present.
+    this.network.syncExistingPlayers()
+
     // Desk-driven identity replaces the typed login dialog: set name/avatar, wire input, signal
     // readiness to the server, then reveal the in-game UI.
     this.registerKeys()
@@ -167,6 +183,39 @@ export default class Game extends Phaser.Scene {
     this.myPlayer.setPlayerTexture(avatar)
     this.network.readyToConnect()
     store.dispatch(setLoggedIn(true))
+  }
+
+  private addObjectFromTiled(
+    group: Phaser.Physics.Arcade.StaticGroup,
+    object: Phaser.Types.Tilemaps.TiledObject,
+    key: string,
+    tilesetName: string
+  ) {
+    const actualX = object.x! + object.width! * 0.5
+    const actualY = object.y! - object.height! * 0.5
+    const obj = group
+      .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
+      .setDepth(actualY)
+    return obj
+  }
+
+  private addGroupFromTiled(
+    objectLayerName: string,
+    key: string,
+    tilesetName: string,
+    collidable: boolean
+  ) {
+    const group = this.physics.add.staticGroup()
+    const objectLayer = this.map.getObjectLayer(objectLayerName)
+    objectLayer.objects.forEach((object) => {
+      const actualX = object.x! + object.width! * 0.5
+      const actualY = object.y! - object.height! * 0.5
+      group
+        .get(actualX, actualY, key, object.gid! - this.map.getTileset(tilesetName).firstgid)
+        .setDepth(actualY)
+    })
+    if (this.myPlayer && collidable)
+      this.physics.add.collider([this.myPlayer, this.myPlayer.playerContainer], group)
   }
 
   private handleItemSelectorOverlap(playerSelector, selectionItem) {

@@ -84,6 +84,10 @@ export default class Bootstrap extends Phaser.Scene {
       frameHeight: 48,
     })
 
+    // The furnished office map (walls, rooms, furniture). The backend layout drives identity and
+    // multiplayer; the rich office visuals come from this bundled Tiled map.
+    this.load.tilemapTiledJSON('tilemap', 'assets/map/map.json')
+
     this.load.on('complete', () => {
       this.preloadComplete = true
       this.launchBackground(store.getState().user.backgroundMode)
