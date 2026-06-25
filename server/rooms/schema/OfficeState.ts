@@ -54,7 +54,7 @@ export const whiteboardRoomIds = new Set<string>()
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 const charactersLength = characters.length
 
-function getRoomId(): string {
+export function getRoomId(): string {
   let result = ''
   for (let i = 0; i < 12; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength))

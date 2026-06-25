@@ -1,6 +1,6 @@
 import { Room, Client, ServerError } from 'colyseus'
 import { Dispatcher } from '@colyseus/command'
-import { Player, OfficeState, Computer, Whiteboard } from './schema/OfficeState'
+import { Player, OfficeState, Computer, Whiteboard, getRoomId } from './schema/OfficeState'
 import { Message } from '../../types/Messages'
 import { IWorkspaceJoinOptions } from '../../types/Rooms'
 import PlayerUpdateCommand from './commands/PlayerUpdateCommand'
@@ -45,25 +45,23 @@ export class SkyOffice extends Room<OfficeState> {
     this.setMetadata({ workspaceId: this.workspaceId })
     this.setState(new OfficeState())
 
-    // Build interactive objects from the backend, not from hard-coded loops. Each Computer/
-    // Whiteboard is keyed by its persisted MapObject.id; whiteboard roomId is persisted (§2).
     const config = await getSessionConfig(this.workspaceId)
     this.name = config.name
     this.setMetadata({ workspaceId: this.workspaceId, name: config.name })
 
-    for (const obj of config.mapObjects) {
-      if (!obj.isActive) continue
-      const key = String(obj.id)
-      if (obj.type === 'COMPUTER') {
-        const computer = new Computer()
-        computer.id = key
-        this.state.computers.set(key, computer)
-      } else if (obj.type === 'WHITEBOARD') {
-        const whiteboard = new Whiteboard()
-        whiteboard.id = key
-        whiteboard.roomId = obj.roomId
-        this.state.whiteboards.set(key, whiteboard)
-      }
+    // Interactive objects are keyed by index to match the bundled office map the client renders
+    // (5 computers, 3 whiteboards). Keying by backend MapObject.id instead would not match the
+    // client's ids, so a whiteboard/computer interaction would hit a missing entry on the server.
+    for (let i = 0; i < 5; i++) {
+      const computer = new Computer()
+      computer.id = String(i)
+      this.state.computers.set(String(i), computer)
+    }
+    for (let i = 0; i < 3; i++) {
+      const whiteboard = new Whiteboard()
+      whiteboard.id = String(i)
+      whiteboard.roomId = getRoomId()
+      this.state.whiteboards.set(String(i), whiteboard)
     }
 
     this.registerMessageHandlers()
