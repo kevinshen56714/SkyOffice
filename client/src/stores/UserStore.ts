@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { sanitizeId } from '../util'
+import { toPeerId } from '../util'
 import { BackgroundMode } from '../../../types/BackgroundMode'
 
 import phaserGame from '../PhaserGame'
@@ -39,10 +39,10 @@ export const userSlice = createSlice({
       state.loggedIn = action.payload
     },
     setPlayerNameMap: (state, action: PayloadAction<{ id: string; name: string }>) => {
-      state.playerNameMap.set(sanitizeId(action.payload.id), action.payload.name)
+      state.playerNameMap.set(toPeerId(action.payload.id), action.payload.name)
     },
     removePlayerNameMap: (state, action: PayloadAction<string>) => {
-      state.playerNameMap.delete(sanitizeId(action.payload))
+      state.playerNameMap.delete(toPeerId(action.payload))
     },
     setShowJoystick: (state, action: PayloadAction<boolean>) => {
       state.showJoystick = action.payload

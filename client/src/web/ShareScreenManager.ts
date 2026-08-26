@@ -3,20 +3,32 @@ import store from '../stores'
 import { setMyStream, addVideoStream, removeVideoStream } from '../stores/ComputerStore'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
+import { peerOptions } from './peerConfig'
+import { toScreenSharePeerId } from '../util'
 
 export default class ShareScreenManager {
   private myPeer: Peer
   myStream?: MediaStream
+  /** screen-share peer ids of the users currently at the same computer */
+  private allowedPeers = new Set<string>()
 
   constructor(private userId: string) {
-    const sanatizedId = this.makeId(userId)
-    this.myPeer = new Peer(sanatizedId)
+    const sanatizedId = toScreenSharePeerId(userId)
+    this.myPeer = new Peer(sanatizedId, peerOptions())
     this.myPeer.on('error', (err) => {
       console.log('ShareScreenWebRTC err.type', err.type)
       console.error('ShareScreenWebRTC', err)
     })
 
     this.myPeer.on('call', (call) => {
+      // only the users the server placed at this computer may push a stream
+      // into our dialog
+      if (!this.allowedPeers.has(call.peer)) {
+        console.warn('rejected screen share from peer that is not at this computer:', call.peer)
+        call.close()
+        return
+      }
+
       call.answer()
 
       call.on('stream', (userVideoStream) => {
@@ -26,23 +38,28 @@ export default class ShareScreenManager {
     })
   }
 
-  onOpen() {
+  onOpen(computerId: string) {
     if (this.myPeer.disconnected) {
       this.myPeer.reconnect()
+    }
+
+    // whoever is already at this computer joined before our dialog opened, so
+    // they never came through onUserJoined - accept their share too
+    const game = phaserGame.scene.keys.game as Game
+    const computerItem = game.computerMap.get(computerId)
+    if (computerItem) {
+      for (const userId of computerItem.currentUsers) {
+        this.allowedPeers.add(toScreenSharePeerId(userId))
+      }
     }
   }
 
   onClose() {
     this.stopScreenShare(false)
+    this.allowedPeers.clear()
     this.myPeer.disconnect()
   }
 
-  // PeerJS throws invalid_id error if it contains some characters such as that colyseus generates.
-  // https://peerjs.com/docs.html#peer-id
-  // Also for screen sharing ID add a `-ss` at the end.
-  private makeId(id: string) {
-    return `${id.replace(/[^0-9a-z]/gi, 'G')}-ss`
-  }
 
   startScreenShare() {
     // @ts-ignore
@@ -90,16 +107,20 @@ export default class ShareScreenManager {
   }
 
   onUserJoined(userId: string) {
-    if (!this.myStream || userId === this.userId) return
+    if (userId === this.userId) return
 
-    const sanatizedId = this.makeId(userId)
+    const sanatizedId = toScreenSharePeerId(userId)
+    this.allowedPeers.add(sanatizedId)
+
+    if (!this.myStream) return
     this.myPeer.call(sanatizedId, this.myStream)
   }
 
   onUserLeft(userId: string) {
     if (userId === this.userId) return
 
-    const sanatizedId = this.makeId(userId)
+    const sanatizedId = toScreenSharePeerId(userId)
+    this.allowedPeers.delete(sanatizedId)
     store.dispatch(removeVideoStream(sanatizedId))
   }
 }

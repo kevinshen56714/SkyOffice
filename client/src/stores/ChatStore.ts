@@ -3,6 +3,19 @@ import { IChatMessage } from '../../../types/IOfficeState'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
 
+/**
+ * The server keeps the last 100 messages; this is the client copy, which also
+ * holds join/leave notices. It only ever grew, so a long session accumulated
+ * every message it had ever seen.
+ */
+const MAX_VISIBLE_MESSAGES = 200
+
+function trim(messages: { length: number; splice: (start: number, count: number) => unknown }) {
+  if (messages.length > MAX_VISIBLE_MESSAGES) {
+    messages.splice(0, messages.length - MAX_VISIBLE_MESSAGES)
+  }
+}
+
 export enum MessageType {
   PLAYER_JOINED,
   PLAYER_LEFT,
@@ -22,6 +35,7 @@ export const chatSlice = createSlice({
         messageType: MessageType.REGULAR_MESSAGE,
         chatMessage: action.payload,
       })
+      trim(state.chatMessages)
     },
     pushPlayerJoinedMessage: (state, action: PayloadAction<string>) => {
       state.chatMessages.push({
@@ -32,6 +46,7 @@ export const chatSlice = createSlice({
           content: 'joined the lobby',
         } as IChatMessage,
       })
+      trim(state.chatMessages)
     },
     pushPlayerLeftMessage: (state, action: PayloadAction<string>) => {
       state.chatMessages.push({
@@ -42,6 +57,7 @@ export const chatSlice = createSlice({
           content: 'left the lobby',
         } as IChatMessage,
       })
+      trim(state.chatMessages)
     },
     setFocused: (state, action: PayloadAction<boolean>) => {
       const game = phaserGame.scene.keys.game as Game

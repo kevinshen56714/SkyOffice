@@ -1,0 +1,98 @@
+name: CI
+
+# The baseline every branch has to pass. saas-main carries additional checks of
+# its own - see saas.yml. Pull requests are unfiltered, so a PR into either
+# branch already runs this; the list below is only about direct pushes.
+on:
+  push:
+    branches: [master, saas-main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: yarn
+
+      - name: Install server dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install shared types
+        run: yarn install --frozen-lockfile
+        working-directory: types
+
+      - name: Install client dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: client
+
+      - name: Typecheck server
+        run: yarn tsc --project server/tsconfig.server.json --noEmit
+
+      - name: Build client
+        run: yarn build
+        working-directory: client
+
+      - name: Test
+        run: yarn test
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Fails on advisories that are not already recorded in
+      # .audit-baseline.json, so a new one blocks the build while the accepted
+      # backlog does not. See scripts/audit.js.
+      - name: Audit dependencies
+        run: yarn audit:check
+
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build server image
+        run: docker build -f Dockerfile -t skyoffice-server:ci .
+
+      - name: Build client image
+        run: docker build -f client/Dockerfile -t skyoffice-client:ci .
+
+      # Proves the images actually run: that the server finds the Tiled map at
+      # the path the Dockerfile puts it, that the monitor stays unmounted
+      # without credentials, and that the client's runtime config really is
+      # written from the environment rather than baked in at build time.
+      - name: Smoke test the images
+        run: |
+          set -eux
+          docker run -d --name sky-server -e NODE_ENV=production -p 2567:2567 skyoffice-server:ci
+          docker run -d --name sky-client \
+            -e SERVER_URL=wss://server.example.test \
+            -e PEER_HOST=peer.example.test \
+            -e PEER_PORT=443 \
+            -p 8080:80 skyoffice-client:ci
+
+          for _ in $(seq 1 30); do
+            curl -fsS http://localhost:2567/health >/dev/null 2>&1 && break
+            sleep 2
+          done
+
+          curl -fsS http://localhost:2567/health | grep -q '"status":"ok"'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:2567/colyseus)" = "404"
+
+          curl -fsS http://localhost:8080/ | grep -q 'SkyOffice'
+          curl -fsS http://localhost:8080/config.js | grep -q 'wss://server.example.test'
+          curl -fsS http://localhost:8080/config.js | grep -q 'peer.example.test'
+          curl -fsSI http://localhost:8080/ | grep -qi 'x-frame-options: DENY'
+
+      - name: Container logs on failure
+        if: failure()
+        run: docker logs sky-server || true; docker logs sky-client || true

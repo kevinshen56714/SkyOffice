@@ -20,6 +20,7 @@ import { BackgroundMode } from '../../../types/BackgroundMode'
 import { setShowJoystick, toggleBackgroundMode } from '../stores/UserStore'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { getAvatarString, getColorByString } from '../util'
+import { ShareLinkPanel } from './ShareLinkPanel'
 
 const Backdrop = styled.div`
   position: fixed;
@@ -112,6 +113,7 @@ export default function HelperButtonGroup() {
   const backgroundMode = useAppSelector((state) => state.user.backgroundMode)
   const roomJoined = useAppSelector((state) => state.room.roomJoined)
   const roomId = useAppSelector((state) => state.room.roomId)
+  const roomSlug = useAppSelector((state) => state.room.roomSlug)
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
   const dispatch = useAppDispatch()
@@ -143,9 +145,12 @@ export default function HelperButtonGroup() {
             <RoomDescription>
               <ArrowRightIcon /> Description: {roomDescription}
             </RoomDescription>
+            <ShareLinkPanel roomId={roomId} slug={roomSlug} />
             <p className="tip">
               <LightbulbIcon />
-              Shareable link coming up 😄
+              {roomSlug
+                ? 'This link keeps working for as long as the office lasts, even after everyone leaves.'
+                : 'This link works while the office is open. It closes once everyone leaves.'}
             </p>
           </Wrapper>
         )}

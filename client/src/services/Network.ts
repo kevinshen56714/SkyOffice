@@ -20,6 +20,7 @@ import {
   pushPlayerLeftMessage,
 } from '../stores/ChatStore'
 import { setWhiteboardUrls } from '../stores/WhiteboardStore'
+import { serverUrl } from '../runtimeConfig'
 
 export default class Network {
   private client: Client
@@ -31,16 +32,16 @@ export default class Network {
 
   constructor() {
     const protocol = window.location.protocol.replace('http', 'ws')
-    const endpoint =
-      process.env.NODE_ENV === 'production'
-        ? import.meta.env.VITE_SERVER_URL
-        : `${protocol}//${window.location.hostname}:2567`
+    // configured at container start, at build time, or fall back to a server
+    // on the same host - which is what `yarn dev` wants
+    const endpoint = serverUrl() || `${protocol}//${window.location.hostname}:2567`
     this.client = new Client(endpoint)
     this.joinLobbyRoom().then(() => {
       store.dispatch(setLobbyJoined(true))
     })
 
     phaserEvents.on(Event.MY_PLAYER_NAME_CHANGE, this.updatePlayerName, this)
+    phaserEvents.on(Event.MY_PLAYER_AVATAR_CHANGE, this.updatePlayerAvatar, this)
     phaserEvents.on(Event.MY_PLAYER_TEXTURE_CHANGE, this.updatePlayer, this)
     phaserEvents.on(Event.PLAYER_DISCONNECTED, this.playerStreamDisconnect, this)
   }
@@ -79,13 +80,23 @@ export default class Network {
 
   // method to create a custom room
   async createCustom(roomData: IRoomData) {
-    const { name, description, password, autoDispose } = roomData
+    const { name, description, password, unlisted, slug, lifetimeDays } = roomData
     this.room = await this.client.create(RoomType.CUSTOM, {
       name,
       description,
       password,
-      autoDispose,
+      unlisted,
+      ...(slug ? { slug, lifetimeDays } : {}),
     })
+    this.initialize()
+  }
+
+  /**
+   * Reopens an office by its slug. The room may well have been disposed when it
+   * emptied, so this creates it again from the definition the server kept.
+   */
+  async joinOfficeBySlug(slug: string, password: string | null) {
+    this.room = await this.client.joinOrCreate(RoomType.CUSTOM, { slug, password })
     this.initialize()
   }
 
@@ -234,6 +245,11 @@ export default class Network {
   // method to send player updates to Colyseus server
   updatePlayer(currentX: number, currentY: number, currentAnim: string) {
     this.room?.send(Message.UPDATE_PLAYER, { x: currentX, y: currentY, anim: currentAnim })
+  }
+
+  // method to send the generated avatar descriptor to Colyseus server
+  updatePlayerAvatar(avatar: string) {
+    this.room?.send(Message.UPDATE_PLAYER_AVATAR, { avatar })
   }
 
   // method to send player name to Colyseus server

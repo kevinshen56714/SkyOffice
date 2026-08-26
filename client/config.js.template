@@ -1,0 +1,7 @@
+window.__SKYOFFICE_CONFIG__ = {
+  serverUrl: '${SERVER_URL}',
+  peerHost: '${PEER_HOST}',
+  peerPort: '${PEER_PORT}',
+  peerPath: '${PEER_PATH}',
+  peerSecure: '${PEER_SECURE}',
+}

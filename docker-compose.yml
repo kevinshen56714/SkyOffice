@@ -1,0 +1,72 @@
+# SkyOffice stack for Portainer.
+#
+# Deploy as a Portainer stack pointed at this repository, then set the variables
+# below in the stack's environment section. Every URL here is what the *browser*
+# is told to connect to, so they have to be reachable from wherever people open
+# the app - not container names.
+#
+# Ports bind to 127.0.0.1 by default, so the only way in is whatever you put in
+# front of them - a Cloudflare tunnel, a reverse proxy. Set BIND_ADDRESS=0.0.0.0
+# to reach them from other machines directly.
+#
+# Copy .env.example to .env for a local `docker compose up`.
+
+volumes:
+  office-data:
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: skyoffice-server
+    restart: unless-stopped
+    environment:
+      PORT: 2567
+      NODE_ENV: production
+      # Origins allowed to reach matchmaking, e.g. https://office.example.com
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      # Without both of these the /colyseus dashboard is not mounted at all.
+      COLYSEUS_MONITOR_USER: ${COLYSEUS_MONITOR_USER:-}
+      COLYSEUS_MONITOR_PASSWORD: ${COLYSEUS_MONITOR_PASSWORD:-}
+      OFFICE_STORE_PATH: ${OFFICE_STORE_PATH:-/app/data/offices.json}
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${SERVER_PORT:-2567}:2567"
+    volumes:
+      # offices given a lifetime are recorded here, so their links keep working
+      # across restarts - without this they would only last as long as the
+      # container does
+      - office-data:/app/data
+
+  # Self-hosted signalling. Without this the client falls back to the free
+  # public PeerJS broker, which puts call metadata on a third party and shares
+  # an id namespace with every other app using the default.
+  peerjs:
+    image: peerjs/peerjs-server:1.0.2
+    restart: unless-stopped
+    command: ["--port", "9000", "--path", "/"]
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${PEER_PUBLIC_PORT:-9000}:9000"
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    image: skyoffice-client
+    restart: unless-stopped
+    depends_on:
+      - server
+      - peerjs
+    environment:
+      # ws:// or wss:// URL of the server service above, as the browser sees it.
+      # Leave empty and the client looks for a server on its own hostname:2567.
+      SERVER_URL: ${SERVER_URL:-}
+      # Hostname of the peerjs service above, as the browser sees it. Leave
+      # empty to fall back to the public PeerJS broker.
+      PEER_HOST: ${PEER_HOST:-}
+      PEER_PORT: ${PEER_PORT:-}
+      PEER_PATH: ${PEER_PATH:-/}
+      # set to "false" when reaching peerjs over plain http
+      PEER_SECURE: ${PEER_SECURE:-}
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${CLIENT_PORT:-8080}:80"

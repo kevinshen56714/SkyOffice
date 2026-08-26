@@ -9,6 +9,7 @@ import Computer from '../items/Computer'
 import Whiteboard from '../items/Whiteboard'
 
 import { phaserEvents, Event } from '../events/EventCenter'
+import { ensureAvatarTexture } from '../avatars/spriteFactory'
 import store from '../stores'
 import { pushPlayerJoinedMessage } from '../stores/ChatStore'
 import { ItemType } from '../../../types/Items'
@@ -42,6 +43,13 @@ export default class MyPlayer extends Player {
     this.playerTexture = texture
     this.anims.play(`${this.playerTexture}_idle_down`, true)
     phaserEvents.emit(Event.MY_PLAYER_TEXTURE_CHANGE, this.x, this.y, this.anims.currentAnim.key)
+  }
+
+  /** builds the generated sheet, then tells everyone which one to build */
+  setAvatar(avatar: string) {
+    const texture = ensureAvatarTexture(this.scene, avatar)
+    this.setPlayerTexture(texture)
+    phaserEvents.emit(Event.MY_PLAYER_AVATAR_CHANGE, avatar)
   }
 
   handleJoystickMovement(movement: JoystickMovement) {

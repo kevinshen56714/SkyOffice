@@ -1,9 +1,0 @@
-[build]  
-  command = "cd types && yarn && cd ../client && yarn && yarn build"
-  publish = "client/dist"
-
-# Rule for router history mode
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200

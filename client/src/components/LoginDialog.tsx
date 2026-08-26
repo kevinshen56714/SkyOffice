@@ -7,15 +7,14 @@ import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
 import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Navigation } from 'swiper'
-import 'swiper/css'
-import 'swiper/css/navigation'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 
-import Adam from '../images/login/Adam_login.png'
-import Ash from '../images/login/Ash_login.png'
-import Lucy from '../images/login/Lucy_login.png'
-import Nancy from '../images/login/Nancy_login.png'
+import { GENDERS, Gender, buildAvatar } from '../../../types/Avatar'
+import { Portrait } from '../avatars/Portrait'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { setLoggedIn } from '../stores/UserStore'
 import { getAvatarString, getColorByString } from '../util'
@@ -82,31 +81,22 @@ const Content = styled.div`
 
 const Left = styled.div`
   margin-right: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 
-  --swiper-navigation-size: 24px;
-
-  .swiper {
-    width: 160px;
-    height: 220px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .swiper-slide {
-    width: 160px;
-    height: 220px;
-    background: #dbdbe0;
+  .avatar-preview {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    gap: 4px;
+    background: #dbdbe0;
+    border-radius: 8px;
+    padding: 10px;
   }
 
-  .swiper-slide img {
-    display: block;
-    width: 95px;
-    height: 136px;
-    object-fit: contain;
-  }
+
 `
 
 const Right = styled.div`
@@ -127,22 +117,13 @@ const Warning = styled.div`
   gap: 3px;
 `
 
-const avatars = [
-  { name: 'adam', img: Adam },
-  { name: 'ash', img: Ash },
-  { name: 'lucy', img: Lucy },
-  { name: 'nancy', img: Nancy },
-]
-
-// shuffle the avatars array
-for (let i = avatars.length - 1; i > 0; i--) {
-  const j = Math.floor(Math.random() * (i + 1))
-  ;[avatars[i], avatars[j]] = [avatars[j], avatars[i]]
-}
+const newSeed = () => Math.floor(Math.random() * 0xffffff)
 
 export default function LoginDialog() {
   const [name, setName] = useState<string>('')
-  const [avatarIndex, setAvatarIndex] = useState<number>(0)
+  const [gender, setGender] = useState<Gender>('n')
+  const [seed, setSeed] = useState<number>(newSeed)
+  const avatar = buildAvatar(gender, seed)
   const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
   const dispatch = useAppDispatch()
   const videoConnected = useAppSelector((state) => state.user.videoConnected)
@@ -156,10 +137,9 @@ export default function LoginDialog() {
     if (name === '') {
       setNameFieldEmpty(true)
     } else if (roomJoined) {
-      console.log('Join! Name:', name, 'Avatar:', avatars[avatarIndex].name)
       game.registerKeys()
       game.myPlayer.setPlayerName(name)
-      game.myPlayer.setPlayerTexture(avatars[avatarIndex].name)
+      game.myPlayer.setAvatar(avatar)
       game.network.readyToConnect()
       dispatch(setLoggedIn(true))
     }
@@ -179,22 +159,32 @@ export default function LoginDialog() {
       </RoomDescription>
       <Content>
         <Left>
-          <SubTitle>Select an avatar</SubTitle>
-          <Swiper
-            modules={[Navigation]}
-            navigation
-            spaceBetween={0}
-            slidesPerView={1}
-            onSlideChange={(swiper) => {
-              setAvatarIndex(swiper.activeIndex)
-            }}
+          <SubTitle>Your avatar</SubTitle>
+          <div className="avatar-preview">
+            <Portrait avatar={avatar} size={140} />
+            <Tooltip title="Generate another">
+              <IconButton
+                aria-label="generate another avatar"
+                color="secondary"
+                onClick={() => setSeed(newSeed())}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+          </div>
+          <ToggleButtonGroup
+            exclusive
+            size="small"
+            color="secondary"
+            value={gender}
+            onChange={(_event, value) => value && setGender(value)}
           >
-            {avatars.map((avatar) => (
-              <SwiperSlide key={avatar.name}>
-                <img src={avatar.img} alt={avatar.name} />
-              </SwiperSlide>
+            {GENDERS.map((option) => (
+              <ToggleButton key={option.value} value={option.value}>
+                {option.label}
+              </ToggleButton>
             ))}
-          </Swiper>
+          </ToggleButtonGroup>
         </Left>
         <Right>
           <TextField

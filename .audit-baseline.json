@@ -1,0 +1,334 @@
+{
+  "$comment": "Advisories already known and accepted. scripts/audit.js fails CI only on advisories missing from this file. Regenerate with: yarn audit:update",
+  "accepted": {
+    ".": [
+      {
+        "id": 1089196,
+        "module": "redis",
+        "severity": "high",
+        "title": "Node-Redis potential exponential regex in monitor mode"
+      },
+      {
+        "id": 1095078,
+        "module": "mongoose",
+        "severity": "high",
+        "title": "automattic/mongoose vulnerable to Prototype pollution via Schema.path"
+      },
+      {
+        "id": 1095080,
+        "module": "mongoose",
+        "severity": "critical",
+        "title": "Mongoose Prototype Pollution vulnerability"
+      },
+      {
+        "id": 1097158,
+        "module": "mongoose",
+        "severity": "critical",
+        "title": "Mongoose Vulnerable to Prototype Pollution in Schema Object"
+      },
+      {
+        "id": 1099520,
+        "module": "body-parser",
+        "severity": "high",
+        "title": "body-parser vulnerable to denial of service when url encoding is enabled"
+      },
+      {
+        "id": 1101850,
+        "module": "path-to-regexp",
+        "severity": "high",
+        "title": "path-to-regexp outputs backtracking regular expressions"
+      },
+      {
+        "id": 1104663,
+        "module": "cross-spawn",
+        "severity": "high",
+        "title": "Regular Expression Denial of Service (ReDoS) in cross-spawn"
+      },
+      {
+        "id": 1105199,
+        "module": "path-to-regexp",
+        "severity": "high",
+        "title": "path-to-regexp contains a ReDoS"
+      },
+      {
+        "id": 1109540,
+        "module": "form-data",
+        "severity": "critical",
+        "title": "form-data uses unsafe random function in form-data for choosing boundary"
+      },
+      {
+        "id": 1112659,
+        "module": "tar",
+        "severity": "high",
+        "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal"
+      },
+      {
+        "id": 1112918,
+        "module": "semver",
+        "severity": "high",
+        "title": "semver vulnerable to Regular Expression Denial of Service"
+      },
+      {
+        "id": 1112921,
+        "module": "semver",
+        "severity": "high",
+        "title": "semver vulnerable to Regular Expression Denial of Service"
+      },
+      {
+        "id": 1112922,
+        "module": "semver",
+        "severity": "high",
+        "title": "semver vulnerable to Regular Expression Denial of Service"
+      },
+      {
+        "id": 1112939,
+        "module": "mongoose",
+        "severity": "high",
+        "title": "Mongoose search injection vulnerability"
+      },
+      {
+        "id": 1113300,
+        "module": "tar",
+        "severity": "high",
+        "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization"
+      },
+      {
+        "id": 1113375,
+        "module": "tar",
+        "severity": "high",
+        "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction"
+      },
+      {
+        "id": 1113459,
+        "module": "minimatch",
+        "severity": "high",
+        "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern"
+      },
+      {
+        "id": 1113538,
+        "module": "minimatch",
+        "severity": "high",
+        "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments"
+      },
+      {
+        "id": 1113546,
+        "module": "minimatch",
+        "severity": "high",
+        "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions"
+      },
+      {
+        "id": 1114200,
+        "module": "tar",
+        "severity": "high",
+        "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath"
+      },
+      {
+        "id": 1114302,
+        "module": "tar",
+        "severity": "high",
+        "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath"
+      },
+      {
+        "id": 1114680,
+        "module": "tar",
+        "severity": "high",
+        "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS"
+      },
+      {
+        "id": 1115527,
+        "module": "path-to-regexp",
+        "severity": "high",
+        "title": "path-to-regexp vulnerable to Regular Expression Denial of Service via multiple route parameters"
+      },
+      {
+        "id": 1117404,
+        "module": "mongoose",
+        "severity": "critical",
+        "title": "Mongoose search injection vulnerability"
+      },
+      {
+        "id": 1118999,
+        "module": "mongoose",
+        "severity": "high",
+        "title": "Mongoose's Improper Sanitization of $nor in sanitizeFilter May Allow NoSQL Injection"
+      },
+      {
+        "id": 1120745,
+        "module": "form-data",
+        "severity": "high",
+        "title": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames"
+      },
+      {
+        "id": 1123897,
+        "module": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via exponential-time expansion of consecutive non-expanding {} groups"
+      },
+      {
+        "id": 1123940,
+        "module": "tar",
+        "severity": "critical",
+        "title": "node-tar: Decompression/parse DoS via unlimited input"
+      },
+      {
+        "id": 1123941,
+        "module": "tar",
+        "severity": "high",
+        "title": "node-tar: Negative tar entry size causes infinite loop in archive replace"
+      },
+      {
+        "id": 1130588,
+        "module": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash"
+      },
+      {
+        "id": 1130737,
+        "module": "brace-expansion",
+        "severity": "high",
+        "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation"
+      },
+      {
+        "id": 1138811,
+        "module": "nanoid",
+        "severity": "high",
+        "title": "nanoid: non-secure generators can loop indefinitely with negative size"
+      },
+      {
+        "id": 1139427,
+        "module": "nanoid",
+        "severity": "high",
+        "title": "nanoid: custom generators can loop indefinitely when size is zero"
+      },
+      {
+        "id": 1145647,
+        "module": "tar",
+        "severity": "high",
+        "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection"
+      }
+    ],
+    "types": [],
+    "client": [
+      {
+        "id": 1095468,
+        "module": "vite",
+        "severity": "high",
+        "title": "Vite dev server option `server.fs.deny` can be bypassed when hosted on case-insensitive filesystem"
+      },
+      {
+        "id": 1096544,
+        "module": "json5",
+        "severity": "high",
+        "title": "Prototype Pollution in JSON5 via Parse Method"
+      },
+      {
+        "id": 1098094,
+        "module": "braces",
+        "severity": "high",
+        "title": "Uncontrolled resource consumption in braces"
+      },
+      {
+        "id": 1098580,
+        "module": "vite",
+        "severity": "high",
+        "title": "Vite Server Options (server.fs.deny) can be bypassed using double forward-slash (//)"
+      },
+      {
+        "id": 1099757,
+        "module": "rollup",
+        "severity": "high",
+        "title": "DOM Clobbering Gadget found in rollup bundled scripts that leads to XSS"
+      },
+      {
+        "id": 1112922,
+        "module": "semver",
+        "severity": "high",
+        "title": "semver vulnerable to Regular Expression Denial of Service"
+      },
+      {
+        "id": 1113431,
+        "module": "swiper",
+        "severity": "critical",
+        "title": "Prototype pollution in swiper"
+      },
+      {
+        "id": 1113517,
+        "module": "rollup",
+        "severity": "high",
+        "title": "Rollup 4 has Arbitrary File Write via Path Traversal"
+      },
+      {
+        "id": 1115552,
+        "module": "picomatch",
+        "severity": "high",
+        "title": "Picomatch has a ReDoS vulnerability via extglob quantifiers"
+      },
+      {
+        "id": 1115806,
+        "module": "lodash",
+        "severity": "high",
+        "title": "lodash vulnerable to Code Injection via `_.template` imports key names"
+      },
+      {
+        "id": 1117067,
+        "module": "immutable",
+        "severity": "high",
+        "title": "Immutable is vulnerable to Prototype Pollution"
+      },
+      {
+        "id": 1117420,
+        "module": "@babel/traverse",
+        "severity": "critical",
+        "title": "Babel vulnerable to arbitrary code execution when compiling specifically crafted malicious code"
+      },
+      {
+        "id": 1120061,
+        "module": "vite",
+        "severity": "high",
+        "title": "launch-editor vulnerable to command injection via the crafted request on Windows"
+      },
+      {
+        "id": 1123525,
+        "module": "vite",
+        "severity": "high",
+        "title": "vite: `server.fs.deny` bypass on Windows alternate paths"
+      },
+      {
+        "id": 1124008,
+        "module": "immutable",
+        "severity": "high",
+        "title": "Immutable.js `List` 32-bit trie overflow → unrecoverable DoS"
+      },
+      {
+        "id": 1124252,
+        "module": "postcss",
+        "severity": "high",
+        "title": "PostCSS: Arbitrary file read and information disclosure via attacker-controlled sourceMappingURL in CSS comments"
+      },
+      {
+        "id": 1138811,
+        "module": "nanoid",
+        "severity": "high",
+        "title": "nanoid: non-secure generators can loop indefinitely with negative size"
+      },
+      {
+        "id": 1139427,
+        "module": "nanoid",
+        "severity": "high",
+        "title": "nanoid: custom generators can loop indefinitely when size is zero"
+      },
+      {
+        "id": 1139510,
+        "module": "postcss",
+        "severity": "high",
+        "title": "PostCSS: Path Traversal in Previous Source Map Auto-Loading (sourceMappingURL) leads to Arbitrary .map File Disclosure"
+      },
+      {
+        "id": 1144965,
+        "module": "immutable",
+        "severity": "high",
+        "title": "Immutable: Hash-collision algorithmic complexity denial of service in Immutable.Map/Set"
+      }
+    ]
+  }
+}

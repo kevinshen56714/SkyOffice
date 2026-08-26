@@ -5,8 +5,11 @@
   "main": ".eslintrc.js",
   "scripts": {
     "start": "cd server && ts-node-dev --project tsconfig.server.json --respawn --transpile-only index.ts",
-    "heroku-postbuild": "yarn && cd types && yarn && cd ../server && tsc --project tsconfig.server.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc --project server/tsconfig.server.json",
+    "start:prod": "node server/lib/server/index.js",
+    "test": "ts-node --project server/tsconfig.server.json server/test/integration.ts",
+    "audit:check": "node scripts/audit.js",
+    "audit:update": "node scripts/audit.js --update"
   },
   "repository": {
     "type": "git",
@@ -29,6 +32,9 @@
     "ts-node": "^8.1.0",
     "ts-node-dev": "^1.0.0-pre.63"
   },
+  "resolutions": {
+    "ws": "^7.5.10"
+  },
   "dependencies": {
     "@colyseus/command": "^0.1.7",
     "@colyseus/monitor": "^0.14.0",
@@ -39,7 +45,7 @@
     "colyseus": "^0.14.0",
     "colyseus.js": "^0.14.12",
     "cors": "^2.8.5",
-    "express": "^4.16.4",
+    "express": "^4.21.2",
     "phaser": "^3.55.2",
     "regenerator-runtime": "^0.13.7",
     "typescript": "^4.8.2"

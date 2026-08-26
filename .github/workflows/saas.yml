@@ -1,0 +1,195 @@
+# Checks that only make sense on the SaaS branch.
+#
+# saas.yml is additive: ci.yml still runs here and is still what has to pass.
+# What this file adds are the things a long-lived multi-tenant branch gets wrong
+# that a single-deployment branch cannot - drifting away from master, leaking a
+# credential now that there are credentials worth leaking, and shipping a table
+# that any tenant can read.
+#
+# The schema job is written ahead of the code it guards. Until Phase 1 lands
+# migrations it reports that it has nothing to check and passes; the moment
+# supabase/migrations/ has a .sql file in it, the job starts enforcing.
+
+name: SaaS
+
+on:
+  push:
+    branches: [saas-main]
+  pull_request:
+    branches: [saas-main]
+
+jobs:
+  # A long-lived integration branch dies of drift, and drift is invisible until
+  # the merge. This never fails a build - nothing the author of a given pull
+  # request can do about it - it just keeps the number in front of you.
+  drift:
+    name: Distance from master
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Measure drift
+        run: |
+          set -eu
+          # forced, because origin/master may already be here at a different
+          # commit depending on how the event was checked out
+          git fetch --quiet origin +master:refs/remotes/origin/master
+
+          behind=$(git rev-list --count HEAD..origin/master)
+          ahead=$(git rev-list --count origin/master..HEAD)
+          base=$(git merge-base HEAD origin/master)
+
+          {
+            echo "### saas-main vs master"
+            echo
+            echo "| | Commits |"
+            echo "| --- | ---: |"
+            echo "| Behind master | $behind |"
+            echo "| Ahead of master | $ahead |"
+            echo
+            echo "Merged from \`$(git log -1 --format='%h %s' "$base")\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$behind" -gt 0 ]; then
+            echo "::notice title=saas-main is behind master::$behind commit(s) on master are not here yet. Merge master in before the gap grows."
+          fi
+
+  # There were no secrets in this repository when it was one deployment. A SaaS
+  # branch acquires payment keys, a Supabase service-role key and TLS material,
+  # and the cheapest moment to catch one is before it is ever pushed.
+  secrets:
+    name: No committed credentials
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Refuse credential files
+        run: |
+          set -eu
+          # .env.example is the documented template and belongs in the tree.
+          # Anything that resolves to a real environment file does not.
+          if git ls-files \
+              | grep -E '(^|/)\.env($|\.(local|development|staging|production))|\.(pem|p12|pfx|key)$|(^|/)id_(rsa|ed25519)$' \
+              | grep -v '\.env\.example$'; then
+            echo "::error title=Credential file committed::The paths above look like real credentials. Remove them, rotate what they held, and keep the template in .env.example."
+            exit 1
+          fi
+          echo "No credential files tracked."
+
+      - name: Refuse credential-shaped strings
+        run: |
+          set -eu
+          # Live payment keys, JWTs (a Supabase service-role key is one) and
+          # private key blocks. This file is excluded so the patterns do not
+          # match themselves.
+          if git grep -nE 'sk_live_|pk_live_|eyJhbGciOi|-----BEGIN [A-Z ]*PRIVATE KEY-----' \
+              -- . ':!.github/workflows/saas.yml'; then
+            echo "::error title=Credential in the source::A live key, a JWT or a private key is committed at the lines above. Rotate it before removing it - it is already in the history."
+            exit 1
+          fi
+          echo "No credential-shaped strings found."
+
+  # Row-level security is the whole tenancy model. A table that reaches
+  # production without it is one query away from serving one customer's office
+  # to another, and it is not the kind of thing anyone notices in review.
+  schema:
+    name: Migrations and tenant isolation
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mihoffice_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: mihoffice_ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Look for migrations
+        id: look
+        run: |
+          set -eu
+          if ls supabase/migrations/*.sql >/dev/null 2>&1; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "$(ls supabase/migrations/*.sql | wc -l) migration(s) to apply."
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No migrations yet - this job starts enforcing when Phase 1 adds supabase/migrations/." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # Applying every migration to an empty database is the only way to know
+      # they still work in order, rather than only against the shape your local
+      # database happens to have drifted into.
+      - name: Apply migrations to an empty database
+        if: steps.look.outputs.found == 'true'
+        run: |
+          set -eu
+          for file in supabase/migrations/*.sql; do
+            echo "--- $file"
+            psql -v ON_ERROR_STOP=1 -q -f "$file"
+          done
+
+      - name: Every table has row-level security
+        if: steps.look.outputs.found == 'true'
+        run: |
+          set -eu
+          naked=$(psql -tAc "
+            SELECT c.relname
+            FROM pg_class c
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = 'public'
+              AND c.relkind = 'r'
+              AND NOT c.relrowsecurity
+            ORDER BY c.relname;
+          ")
+
+          if [ -n "$naked" ]; then
+            echo "$naked" | while read -r table; do
+              echo "::error title=Table without RLS::public.$table is readable across tenants. Add ENABLE ROW LEVEL SECURITY and a policy scoped to org_id."
+            done
+            exit 1
+          fi
+          echo "Row-level security is on for every table in public."
+
+      # RLS on with no policy denies everything, which is safe but broken, and
+      # it fails at runtime rather than here. Worth saying out loud; not worth
+      # failing over, since a table can legitimately sit policy-less for a
+      # commit or two mid-migration.
+      - name: Report tables with no policy
+        if: steps.look.outputs.found == 'true'
+        run: |
+          set -eu
+          orphans=$(psql -tAc "
+            SELECT c.relname
+            FROM pg_class c
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = 'public'
+              AND c.relkind = 'r'
+              AND c.relrowsecurity
+              AND NOT EXISTS (SELECT 1 FROM pg_policy p WHERE p.polrelid = c.oid)
+            ORDER BY c.relname;
+          ")
+
+          if [ -n "$orphans" ]; then
+            echo "$orphans" | while read -r table; do
+              echo "::warning title=Table has RLS but no policy::public.$table denies every request until a policy is added."
+            done
+          else
+            echo "Every table with RLS has at least one policy."
+          fi

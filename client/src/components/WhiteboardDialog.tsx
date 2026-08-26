@@ -65,7 +65,14 @@ export default function WhiteboardDialog() {
         </IconButton>
         {whiteboardUrl && (
           <WhiteboardWrapper>
-            <iframe title="white board" src={whiteboardUrl} />
+            <iframe
+              title="white board"
+              src={whiteboardUrl}
+              // WBO is a third party; give it what a drawing app needs and
+              // nothing else, and do not leak our URL to it
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-downloads"
+              referrerPolicy="no-referrer"
+            />
           </WhiteboardWrapper>
         )}
       </Wrapper>

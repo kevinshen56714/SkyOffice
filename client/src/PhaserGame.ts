@@ -26,6 +26,10 @@ const config: Phaser.Types.Core.GameConfig = {
 
 const phaserGame = new Phaser.Game(config)
 
-;(window as any).game = phaserGame
+// handy in the console while developing, but it exposes the scene graph and
+// the live room connection, so it stays out of production builds
+if (import.meta.env.DEV) {
+  ;(window as any).game = phaserGame
+}
 
 export default phaserGame

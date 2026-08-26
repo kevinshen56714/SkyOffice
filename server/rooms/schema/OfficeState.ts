@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import { Schema, ArraySchema, SetSchema, MapSchema, type } from '@colyseus/schema'
 import {
   IPlayer,
@@ -12,6 +13,7 @@ export class Player extends Schema implements IPlayer {
   @type('number') x = 705
   @type('number') y = 500
   @type('string') anim = 'adam_idle_down'
+  @type('string') avatar = ''
   @type('boolean') readyToConnect = false
   @type('boolean') videoConnected = false
 }
@@ -45,20 +47,14 @@ export class OfficeState extends Schema implements IOfficeState {
   chatMessages = new ArraySchema<ChatMessage>()
 }
 
-export const whiteboardRoomIds = new Set<string>()
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-const charactersLength = characters.length
-
+/**
+ * This id is the only thing protecting a whiteboard: the client turns it
+ * straight into a public wbo.ophir.dev board URL. Math.random is not a CSPRNG -
+ * its state can be recovered from a handful of outputs, and every room hands an
+ * observer three ids on join - so board URLs minted for other rooms would be
+ * predictable. 128 bits from the CSPRNG also makes collisions impossible, so
+ * the old retry bookkeeping is gone.
+ */
 function getRoomId(): string {
-  let result = ''
-  for (let i = 0; i < 12; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
-  }
-  if (!whiteboardRoomIds.has(result)) {
-    whiteboardRoomIds.add(result)
-    return result
-  } else {
-    console.log('roomId exists, remaking another one.')
-    return getRoomId()
-  }
+  return crypto.randomBytes(16).toString('base64url')
 }

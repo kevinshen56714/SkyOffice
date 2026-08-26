@@ -19,6 +19,7 @@ export const roomSlice = createSlice({
     lobbyJoined: false,
     roomJoined: false,
     roomId: '',
+    roomSlug: null as string | null,
     roomName: '',
     roomDescription: '',
     availableRooms: new Array<RoomAvailable>(),
@@ -32,9 +33,15 @@ export const roomSlice = createSlice({
     },
     setJoinedRoomData: (
       state,
-      action: PayloadAction<{ id: string; name: string; description: string }>
+      action: PayloadAction<{
+        id: string
+        name: string
+        description: string
+        slug?: string | null
+      }>
     ) => {
       state.roomId = action.payload.id
+      state.roomSlug = action.payload.slug ?? null
       state.roomName = action.payload.name
       state.roomDescription = action.payload.description
     },
